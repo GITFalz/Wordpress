@@ -1,0 +1,636 @@
+/* CSS Custom Properties for consistent theming */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary-color: #64748b;
+  --success-color: #059669;
+  --background-color: #f8fafc;
+  --card-background: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-radius: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Main container */
+.devis-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* Steps container */
+.steps-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.step-box {
+  position: relative;
+  padding: 1rem 2rem;
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  min-width: 180px;
+  text-align: center;
+}
+
+.step-box:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.step-box.active,
+.step-box.step-select {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.step-box::before {
+  content: counter(step-counter);
+  counter-increment: step-counter;
+  position: absolute;
+  top: -12px;
+  left: 1rem;
+  background: var(--primary-color);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.steps-container {
+  counter-reset: step-counter;
+}
+
+/* Step info container */
+.step-info {
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Page content sections */
+.page-content {
+  padding: 3rem;
+  display: none;
+}
+
+.page-content:first-child {
+  display: block;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.page-title::after {
+  content: "";
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Options page styles */
+.options-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.option-box {
+  background: var(--card-background);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.option-box:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.option-box.active {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+}
+
+.option-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.option-image-placeholder {
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(135deg, var(--background-color) 0%, var(--border-color) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-weight: 500;
+  border: 2px dashed var(--border-color);
+}
+
+.option-box.active .option-image-placeholder {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* History page styles */
+.history-entries {
+  space-y: 1rem;
+  margin-bottom: 2rem;
+}
+
+.history-entry {
+  background: var(--background-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+
+.history-entry:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.history-text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.history-return-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: block;
+  margin: 0 auto;
+  min-width: 150px;
+}
+
+.history-return-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Email form styles */
+.email-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.email-label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.email-label:first-child {
+  margin-top: 0;
+}
+
+.email-input,
+.email-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: var(--card-background);
+  color: var(--text-primary);
+}
+
+.email-input:focus,
+.email-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.email-textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.email-submit {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.email-submit:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Devis Selection Styles */
+.devis-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 2rem;
+}
+
+.devis-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.devis-container h2::after {
+  content: "";
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.df-devis-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.df-devis-list li {
+  background: var(--background-color);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.df-devis-list li:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.df-devis-list li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary-color);
+  transform: scaleY(0);
+  transition: var(--transition);
+}
+
+.df-devis-list li:hover::before {
+  transform: scaleY(1);
+}
+
+.df-devis-list strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.devis-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.view-devis {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: calc(var(--border-radius) / 2);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-devis:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.view-devis:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.edit-devis {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: calc(var(--border-radius) / 2);
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+  background: var(--card-background);
+}
+
+.edit-devis:hover {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.edit-devis:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.devis-separator {
+  color: var(--text-muted);
+  margin: 0 0.5rem;
+  font-weight: 300;
+}
+
+.no-devis-message {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  padding: 3rem 2rem;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  border: 2px dashed var(--border-color);
+}
+
+.no-devis-message::before {
+  content: "📋";
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Loading state for devis selection */
+.devis-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.devis-loading::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Selected devis state */
+.df-devis-list li.selected {
+  border-color: var(--success-color);
+  background: rgba(5, 150, 105, 0.05);
+}
+
+.df-devis-list li.selected::before {
+  background: var(--success-color);
+  transform: scaleY(1);
+}
+
+.df-devis-list li.selected .view-devis {
+  background: var(--success-color);
+}
+
+.df-devis-list li.selected .view-devis:hover {
+  background: #047857;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .devis-container {
+    padding: 1rem;
+  }
+
+  .steps-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step-box {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .page-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .options-list {
+    grid-template-columns: 1fr;
+  }
+
+  .option-box {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .step-box {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .option-box {
+    padding: 1rem;
+  }
+
+  .option-name {
+    font-size: 1.1rem;
+  }
+}
+
+/* Responsive adjustments for devis selection */
+@media (max-width: 768px) {
+  .df-devis-list {
+    grid-template-columns: 1fr;
+  }
+
+  .df-devis-list li {
+    padding: 1.25rem;
+  }
+
+  .devis-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-devis,
+  .edit-devis {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .devis-separator {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .devis-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .df-devis-list li {
+    padding: 1rem;
+  }
+
+  .df-devis-list strong {
+    font-size: 1rem;
+  }
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Focus styles for accessibility */
+.step-box:focus,
+.option-box:focus,
+.history-return-button:focus,
+.email-submit:focus,
+.email-input:focus,
+.email-textarea:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Loading state styles */
+.email-submit:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.email-submit:disabled:hover {
+  background: var(--text-muted);
+  transform: none;
+  box-shadow: none;
+}
