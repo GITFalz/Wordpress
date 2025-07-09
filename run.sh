@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Start services
+docker-compose up -d
+
+# Wait a bit to make sure MySQL is ready
+echo "Waiting for MySQL to be ready..."
+sleep 5
+
+# Import database
+./import-db.sh

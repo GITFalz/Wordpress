@@ -1,26 +1,20 @@
 let container;
 let steps_container;
-let optionContainer;
-let historiqueContainer;
-let formulaireContainer;
 let debounceMap;
 
 (function(){
-container = document.getElementById('devis-container');
-steps_container = document.getElementById('devis-steps-container');
-optionContainer = container.querySelector(".options-container");
-historiqueContainer = container.querySelector(".historique-container");
-formulaireContainer = container.querySelector(".formulaire-container");
+container = document.querySelector('.devis-container');
+steps_container = document.querySelector('.steps-container');
 debounceMap = new Map();
 
 // Remove Step
 container.addEventListener('click', function(e) {
 	/*if(e.target.classList.contains('re-base')) {
 		console.log("re");
-		ajax_call(new URLSearchParams({ action: "df_delete_database" }), data => {
+		ajax_call(new URLSearchParams({ action: "dfdb_delete_database" }), data => {
 			console.log(data.data.message);
 			if (data.success) {
-				ajax_call(new URLSearchParams({ action: "df_create_database" }), null);
+				ajax_call(new URLSearchParams({ action: "dfdb_create_database" }), null);
 			}
 		});
 	}*/	
@@ -58,50 +52,35 @@ container.addEventListener('input', function(e) {
 	    timeout = setTimeout(() => {
 			ajax_call(
         		new URLSearchParams({ 
-        			action: "df_update_option_name",
+        			action: "dfdb_set_option_name",
         			option_id: parseInt(option.dataset.id),
         			option_name: e.target.value
         		}), data => 
         		{
-        			console.log(data.data.message);
+					if (!data.success)
+						console.error(data.data.message);
+
         			debounceMap.delete(id);
                 }
             );
 	    }, 2000);
 	    debounceMap.set(id, timeout);
     }
-    if (e.target.classList.contains('activate-group')) {
-    	let option = e.target.parentElement.parentElement;
-    	let id = option.dataset.id + "activate";
+	if (e.target.classList.contains('set-step-name')) {
+    	let step = e.target.parentElement.parentElement;
+    	let id = step.dataset.id + "step-name";
     	clearTimeout(debounceMap.get(id));
 	    timeout = setTimeout(() => {
 			ajax_call(
         		new URLSearchParams({ 
-        			action: "df_update_option_activate_group",
-        			option_id: parseInt(option.dataset.id),
-        			activate_group: e.target.value
+        			action: "dfdb_set_step_name",
+        			step_id: parseInt(step.dataset.id),
+        			step_name: e.target.value
         		}), data => 
         		{
-        			console.log(data.data.message);
-        			debounceMap.delete(id);
-                }
-            );
-	    }, 2000);
-	    debounceMap.set(id, timeout);
-    }
-    if (e.target.classList.contains('set-group')) {
-    	let option = e.target.parentElement.parentElement;
-    	let id = option.dataset.id + "group";
-    	clearTimeout(debounceMap.get(id));
-	    timeout = setTimeout(() => {
-			ajax_call(
-        		new URLSearchParams({ 
-        			action: "df_update_option_group",
-        			option_id: parseInt(option.dataset.id),
-        			option_group: e.target.value
-        		}), data => 
-        		{
-        			console.log(data.data.message);
+					if (!data.success)
+						console.error(data.data.message);
+
         			debounceMap.delete(id);
                 }
             );
@@ -239,8 +218,8 @@ function show_all_options()
 {
 	ajax_call(
 		new URLSearchParams({ 
-			action: "df_get_JSON_options",
-			devis_id: parseInt(container.dataset.postid)
+			action: "dfdb_get_JSON_options",
+			devis_id: parseInt(post_id)
 		}), data => 
 		{
 			if (!data.success)
@@ -284,8 +263,8 @@ function display_step(stepindex, group) {
 	{
 		ajax_call(
 			new URLSearchParams({ 
-				action: "df_get_step_JSON_options_by_group",
-				devis_id: parseInt(container.dataset.postid),
+				action: "dfdb_get_step_JSON_options_by_group",
+				devis_id: parseInt(post_id),
 				step_index: parseInt(stepindex),
 				option_group: group
 			}), data => 
@@ -364,7 +343,7 @@ function add_option(target) {
 	ajax_call(
 		new URLSearchParams({ 
 			action: "df_insert_option",
-			devis_id: parseInt(container.dataset.postid),
+			devis_id: parseInt(post_id),
 			step_index: parseInt(target.dataset.stepindex),
 			option_name: 'option',
 			activate_group: '',
@@ -394,7 +373,7 @@ function add_option(target) {
 function remove_option(target) {
 	ajax_call(
 		new URLSearchParams({ 
-			action: "df_delete_option",
+			action: "dfdb_delete_option",
 			option_id: parseInt(target.parentElement.dataset.id)
 		}), data => 
 		{
@@ -410,8 +389,8 @@ function remove_option(target) {
 function remove_step_options(target) {
 	ajax_call(
 		new URLSearchParams({ 
-			action: "df_delete_step_options",
-			devis_id: parseInt(container.dataset.postid),
+			action: "dfdb_delete_step_options",
+			devis_id: parseInt(post_id),
 			step_index: parseInt(target.dataset.stepindex)
 		}), data => 
 		{

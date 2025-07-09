@@ -1,6 +1,5 @@
 let stepStorage;
 let container;
-let post_id;
 let current_step;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,21 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	current_step = 0;
 
 	container.addEventListener('click', function(e) {
-		console.log("click");
-		console.log(e.target.classList);
 		if (e.target.classList.contains('view-devis')) {
-			post_id = e.target.dataset.postid;
-			console.log("test");
-			render_devis(post_id);
+			container.dataset.postid = e.target.dataset.postid;
+			render_devis(container.dataset.postid);
 		}
 		if (e.target.classList.contains('step-box')) {
-			/*
-			let element = e.target;
-			let index = parseInt(element.dataset.stepindex);
-			if (current_step <= index)
-				return;
-				*/
-
 			let steps = document.querySelectorAll(".step-box");
 			if (steps.length <= 0 || current_step >= steps.length)
 				return;
@@ -40,6 +29,36 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
+function render_devis(postid) {
+	selection_fetch(
+		new URLSearchParams({ action: "dfdb_get_steps_and_first_content", post_id: parseInt(postid) }),
+		data => {
+			if (!data.success) {
+				console.error("Error rendering devis:", data.data.message);
+				return;
+			}
+			console.log(data.data.steps);
+			console.log(data.data.step_info);
+		}
+	);
+}
+
+function selection_fetch(params, callback) {
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: params
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (callback)
+			callback(data);
+	});
+}
+
+/*
 function render_step(step_element, option_group) {
 	if (step_element.dataset.steptype === "options") {					  					
 	    fetch(stepData.ajaxUrl, {
@@ -48,8 +67,8 @@ function render_step(step_element, option_group) {
 	            "Content-Type": "application/x-www-form-urlencoded"
 	        },
 	        body: new URLSearchParams({
-	        	action: 'df_get_step_options_by_group',
-	        	devis_id: post_id,
+	        	action: 'dfdb_get_step_options_by_group',
+	        	devis_id: container.dataset.postid,
 	        	step_index: step_element.dataset.stepindex,
 	        	option_group: option_group
 	        })
@@ -178,4 +197,4 @@ function fetch_call(link, body, callback, debug = false)
     	if (callback)
     		callback(data);
     });
-}
+}*/

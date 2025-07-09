@@ -12,3 +12,11 @@ function df_check_post(...$args) {
         }
     }
 }
+
+// Check if the type is valid
+function df_check_type($type) {
+    $validTypes = ['historique', 'formulaire', 'options'];
+    if (!in_array($type, $validTypes)) {
+        throw new DfDevisException("Invalid step type: $type");
+    }
+}
