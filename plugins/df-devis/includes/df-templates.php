@@ -8,7 +8,7 @@ require_once 'DfDevisException.php';
 /* STEP HTML GENERATION */
 function df_get_step_html($step_id, $step_index, $step_name, $step_type = '') {
     ob_start(); ?>
-    <div onclick="show_step(event, this)" data-id="<?=$step_id?>" class="devis-step" id="step_<?=$step_index?>">
+    <div onclick="display_step_content(<?=$step_index?>)" data-id="<?=$step_id?>" data-group="Root" class="devis-step" id="step_<?=$step_index?>">
         <label>Step Name:
             <input class="set-step-name" type="text" value="<?=$step_name?>">
         </label>
@@ -30,11 +30,12 @@ function df_get_step_html($step_id, $step_index, $step_name, $step_type = '') {
 function handle_df_get_step_html() {
     try {
         df_check_post('step_index', 'step_name', 'step_type');
+        $step_id = intval($_POST['step_id']);
         $step_index = intval($_POST['step_index']);
         $step_name = sanitize_text_field($_POST['step_name']);
         $step_type = sanitize_text_field($_POST['step_type']);
         
-        $content = df_get_step_html($step_index, $step_name, $step_type);
+        $content = df_get_step_html($step_id, $step_index, $step_name, $step_type);
         wp_send_json_success(['message' => 'Step HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -44,11 +45,10 @@ function handle_df_get_step_html() {
 }
 add_action('wp_ajax_df_get_step_html', 'handle_df_get_step_html');
 
-
 /* OPTION HTML GENERATION */
-function df_get_option_html($group_name, $option_name, $option_id, $hidden = true) {
+function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden = true) {
     ob_start(); ?>
-    <div data-id="<?=$option_id?>" class="option group_<?$group_name?> <?=$hidden?'hidden':''?>" onclick="view_option(event, this)">
+    <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" onclick="view_option(event, this)" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
         <label>Option Name: 
             <input class="set-name" type="text" value="<?=$option_name?>">
         </label>              
@@ -58,15 +58,24 @@ function df_get_option_html($group_name, $option_name, $option_id, $hidden = tru
     return ob_get_clean();
 }
 
+function df_get_option_html_array($option, $hidden = true) {
+    $type_id = $option['type_id'] ?? throw new DfDevisException("Missing type id in option data");
+    $group_name = $option['group_name'] ?? throw new DfDevisException("Missing group name in option data");
+    $option_name = $option['option_name'] ?? throw new DfDevisException("Missing option name in option data");
+    $option_id = $option['id'] ?? throw new DfDevisException("Missing option ID in option data");
+    return df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden);
+}
+
 function handle_df_get_option_html() {
     try {
-        df_check_post('group_name', 'option_name', 'option_id', 'hidden');
+        df_check_post('type_id', 'group_name', 'option_name', 'option_id', 'hidden');
+        $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $option_name = sanitize_text_field($_POST['option_name']);
         $option_id = intval($_POST['option_id']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_option_html($group_name, $option_name, $option_id, $hidden);
+        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden);
         wp_send_json_success(['message' => 'Option HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -76,11 +85,57 @@ function handle_df_get_option_html() {
 }
 add_action('wp_ajax_df_get_option_html', 'handle_df_get_option_html');
 
+// some database calls to not have to use ajax all the time
+function handle_df_get_options_html_by_step_and_group() {
+    try {
+        df_check_post('type_id', 'step_id', 'group_name');
+        $type_id = intval($_POST['type_id']);
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+        
+        $options = dfdb_get_options_by_step_and_group($step_id, $group_name);
+        
+        $content = '';
+        foreach ($options as $option) {
+            $content .= df_get_option_html_base($type_id, $group_name, $option->name, $option->id, false);
+        }
+        
+        wp_send_json_success(['message' => 'Options HTML generated successfully', 'content' => $content]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_options_html_by_step_and_group', 'handle_df_get_options_html_by_step_and_group');
+
+function handle_df_create_step_option_get_html() {
+    try {
+        df_check_post('type_id', 'step_id', 'group_name', 'option_name');
+        $type_id = intval($_POST['type_id']);
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+        $option_name = sanitize_text_field($_POST['option_name']);
+        
+        $result = dfdb_create_option($type_id, $option_name);
+        if ($result === false) {
+            throw new DfDevisException("Failed to create step option");
+        }
+        $option_id = dfdb_id();
+        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, false);
+        wp_send_json_success(['message' => 'Step option created successfully', 'content' => $content]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_create_step_option_get_html', 'handle_df_create_step_option_get_html');
 
 /* HISTORY HTML GENERATION */
-function df_get_history_html($group_name, $hidden = true) {
+function df_get_history_html_base($type_id, $group_name, $hidden = true) {
     ob_start(); ?>
-    <div class="historique group_<?=$group_name?> <?=$hidden?'hidden':''?>">
+    <div class="historique group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_history(event, this)">
         <h2 class="history-title">Selection History</h2>			
         <div class="history-entries">
             <div class="history-entry">
@@ -112,13 +167,20 @@ function df_get_history_html($group_name, $hidden = true) {
     return ob_get_clean();
 }
 
+function df_get_history_html($history, $hidden = true) {
+    $type_id = $history['type_id'] ?? throw new DfDevisException("Missing type id in history data");
+    $group_name = $history['group_name'] ?? throw new DfDevisException("Missing group name in history data");
+    return df_get_history_html_base($type_id, $group_name, $hidden);
+}
+
 function handle_df_get_history_html() {
     try {
-        df_check_post('group_name', 'hidden');
+        df_check_post('type_id', 'group_name', 'hidden');
+        $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_history_html($group_name, $hidden);
+        $content = df_get_history_html_base($type_id, $group_name, $hidden);
         wp_send_json_success(['message' => 'History HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -128,11 +190,34 @@ function handle_df_get_history_html() {
 }
 add_action('wp_ajax_df_get_history_html', 'handle_df_get_history_html');
 
+// some database calls to not have to use ajax all the time
+function handle_df_get_history_html_by_step_and_group() {
+    try {
+        df_check_post('type_id', 'step_id', 'group_name');
+        $type_id = intval($_POST['type_id']);
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);        
+
+        $history = dfdb_get_history_by_step_and_group($step_id, $group_name);
+        
+        $content = '';
+        if (!empty($history)) { // There are not multiple histories with the same step and group, so we don't need to loop
+            $content = df_get_history_html_base($type_id, $group_name, false);
+        }
+
+        wp_send_json_success(['message' => 'History HTML generated successfully', 'content' => $content]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_history_html_by_step_and_group', 'handle_df_get_history_html_by_step_and_group');
 
 /* EMAIL HTML GENERATION */
-function df_get_email_html($group_name, $hidden = true) {
+function df_get_email_html_base($type_id, $group_name, $hidden = true) {
     ob_start(); ?>
-    <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>">
+    <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
         <h2 class="form-title">Contact & Quote Request</h2>		
         <div class="email-form">
             <label class="email-label" for="client-name">Full Name</label>
@@ -156,13 +241,20 @@ function df_get_email_html($group_name, $hidden = true) {
     return ob_get_clean();
 }    
 
+function df_get_email_html($email, $hidden = true) {
+    $type_id = $email['type_id'] ?? throw new DfDevisException("Missing type id in email data");
+    $group_name = $email['group_name'] ?? throw new DfDevisException("Missing group name in email data");
+    return df_get_email_html_base($type_id, $group_name, $hidden);
+}
+
 function handle_df_get_email_html() {
     try {
-        df_check_post('group_name', 'hidden');
+        df_check_post('type_id', 'group_name', 'hidden');
+        $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_email_html($group_name, $hidden);
+        $content = df_get_email_html_base($type_id, $group_name, $hidden);
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -172,6 +264,75 @@ function handle_df_get_email_html() {
 }
 add_action('wp_ajax_df_get_email_html', 'handle_df_get_email_html');
 
+// some database calls to not have to use ajax all the time
+function handle_df_get_email_html_by_step_and_group() {
+    try {
+        df_check_post('type_id', 'step_id', 'group_name');
+        $type_id = intval($_POST['type_id']);
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+
+        $email = dfdb_get_email_by_step_and_group($step_id, $group_name);
+
+        $content = '';
+        if (!empty($email)) { // There are not multiple emails with the same step and group, so we don't need to loop
+            $content = df_get_email_html_base($type_id, $group_name, false);
+        }   
+
+        wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_email_html_by_step_and_group', 'handle_df_get_email_html_by_step_and_group');
+
+
+
+function df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id) {
+    ob_start(); ?>
+    <div class="step-type step-type-<?=$type_id?>" data-typeid="<?=$type_id?>">
+        <div class="options-container options-step-<?=$step_index?>">
+            <?php if ($option_id): ?>
+                <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false)?>
+            <?php endif; ?>
+            <button type="button" class="add-option">Add Option</button>
+        </div>
+        <div class="historique-container historique-step-<?=$step_index?> hidden">
+            <?php if ($history_id): ?>
+                <?=df_get_history_html_base($type_id, $group_name, false)?>
+            <?php endif; ?>
+        </div>
+        <div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
+            <?php if ($email_id): ?>
+                <?=df_get_email_html_base($type_id, $group_name, false)?>
+            <?php endif; ?>
+        </div>
+    </div> <?php
+    return ob_get_clean();
+}
+
+function handle_df_get_default_type_html() {
+    try {
+        df_check_post('type_id', 'step_index', 'group_name', 'option_id', 'history_id', 'email_id');
+        $type_id = intval($_POST['type_id']);
+        $step_index = intval($_POST['step_index']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+        $option_id = intval($_POST['option_id']);
+        $history_id = intval($_POST['history_id']);
+        $email_id = intval($_POST['email_id']);
+
+        $content = df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id);
+        wp_send_json_success(['message' => 'Default type HTML generated successfully', 'content' => $content]);
+        wp_die();  
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}   
+add_action('wp_ajax_df_get_default_type_html', 'handle_df_get_default_type_html');
+
 
 /**
  * Prints the results in a formatted way
@@ -180,21 +341,34 @@ add_action('wp_ajax_df_get_email_html', 'handle_df_get_email_html');
  */
 function print_result($results) {
     echo "<pre>";
-    foreach ($results as $index => $item) {
-        echo "Item #" . ($index + 1) . ":\n";
-        if (is_object($item)) {
-            foreach (get_object_vars($item) as $key => $value) {
-                echo "  $key: " . var_export($value, true) . "\n";
-            }
-        } elseif (is_array($item)) {
-            foreach ($item as $key => $value) {
-                echo "  $key: " . var_export($value, true) . "\n";
-            }
-        } else {
-            // Scalar or something else
-            echo "  " . var_export($item, true) . "\n";
-        }
-        echo "\n";
-    }
+    print_recursive($results);
     echo "</pre>";
+}
+
+function print_recursive($data, $indent = 0) {
+    $prefix = str_repeat('  ', $indent);
+
+    if (is_array($data)) {
+        foreach ($data as $key => $value) {
+            echo $prefix . "$key => ";
+            if (is_array($value) || is_object($value)) {
+                echo "\n";
+                print_recursive($value, $indent + 1);
+            } else {
+                echo var_export($value, true) . "\n";
+            }
+        }
+    } elseif (is_object($data)) {
+        foreach (get_object_vars($data) as $key => $value) {
+            echo $prefix . "$key => ";
+            if (is_array($value) || is_object($value)) {
+                echo "\n";
+                print_recursive($value, $indent + 1);
+            } else {
+                echo var_export($value, true) . "\n";
+            }
+        }
+    } else {
+        echo $prefix . var_export($data, true) . "\n";
+    }
 }

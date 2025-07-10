@@ -104,62 +104,6 @@ function dfdb_create_email($type_id, $info) {
     return $wpdb->insert(DFDEVIS_TABLE_EMAIL, ["type_id" => $type_id, "info" => $info]);
 }
 
-/* BASE GET FUNCTIONS */
-function dfdb_get_steps($post_id) { // Returns all steps for a given post ordered by step index
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d ORDER BY step_index ASC", $post_id) );
-}
-
-function dfdb_get_step_by_index($post_id, $step_index) {
-    global $wpdb;
-    return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d AND step_index = %d", $post_id, $step_index) );
-}
-
-function dfdb_get_types($step_id) {
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_TYPES . " WHERE step_id = %d ORDER BY id ASC", $step_id) );
-}
-
-function dfdb_get_options($post_id) { // Returns all the options for a given post ordered by step index and type id
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name, o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, o.id ASC", $post_id) );
-}
-
-function dfdb_get_history($post_id) { // Returns all the history for a given post ordered by step index and type id
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name, h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, h.id ASC", $post_id) );
-}
-
-function dfdb_get_email($post_id) { // Returns all the email for a given post ordered by step index and type id
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name, e.* FROM " . DFDEVIS_TABLE_EMAIL . " e INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, e.id ASC", $post_id) );
-}
-
-function dfdb_get_post_types($post_id) {
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare(" SELECT s.step_index, t.* FROM " . DFDEVIS_TABLE_TYPES . " t INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC", $post_id) );
-}
-
-function dfdb_get_type_options($type_id) {
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
-}
-
-function dfdb_get_type_history($type_id) {
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_HISTORY . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
-}
-
-function dfdb_get_type_email($type_id) {
-    global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_EMAIL . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
-}
-
-function dfdb_get_last_id() {
-    global $wpdb;
-    return $wpdb->insert_id;
-}
-
 /* BASE UPDATE FUNCTIONS */
 function dfdb_set_step_name($step_id, $step_name) {
     global $wpdb;
@@ -181,6 +125,12 @@ function dfdb_set_history_group($history_id, $group_name) {
     return $wpdb->update(DFDEVIS_TABLE_HISTORY, ["activate_group" => $group_name], ["id" => $history_id]);
 }
 
+// Set the type name of the types associated with a step and group
+function dfdb_set_type_name($step_id, $group_name, $type_name) {
+    global $wpdb;
+    return $wpdb->update(DFDEVIS_TABLE_TYPES, ['type_name' => $type_name], ['step_id' => $step_id, 'group_name' => $group_name]);
+}
+
 
 /* AJAX UPDATE FUNCTIONS */
 function handle_dfdb_set_step_name() {
@@ -196,7 +146,7 @@ function handle_dfdb_set_step_name() {
 
         $result = dfdb_set_step_name($step_id, $step_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update step name: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to update step name: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step name updated successfully']);
@@ -221,7 +171,7 @@ function handle_dfdb_set_option_group() {
 
         $result = dfdb_set_option_group($option_id, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update option group: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to update option group: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option group updated successfully']);
@@ -246,7 +196,7 @@ function handle_dfdb_set_option_name() {
 
         $result = dfdb_set_option_name($option_id, $option_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update option name: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to update option name: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option name updated successfully']);
@@ -271,7 +221,7 @@ function handle_dfdb_set_history_group() {
 
         $result = dfdb_set_history_group($history_id, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update history group: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to update history group: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'History group updated successfully']);
@@ -282,6 +232,33 @@ function handle_dfdb_set_history_group() {
     }
 }
 add_action('wp_ajax_dfdb_set_history_group', 'handle_dfdb_set_history_group');
+
+function handle_dfdb_set_type_as_selected_for_step_and_group() {
+    global $wpdb;
+    try {
+        df_check_post('step_id', 'type_name', 'group_name');
+        $step_id = intval($_POST['step_id']);
+        $type_name = sanitize_text_field($_POST['type_name']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+
+        if ($step_id <= 0 || empty($type_name) || empty($group_name)) {
+            throw new DfDevisException("Invalid step ID, type name or group name");
+        }
+
+        $result = dfdb_set_type_name($step_id, $type_name, $group_name);
+        if ($result === false) {
+            throw new DfDevisException("Failed to update type name: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Type name updated successfully']);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_set_type_as_selected_for_step_and_group', 'handle_dfdb_set_type_as_selected_for_step_and_group');
+
 
 
 /* AJAX INSERT FUNCTIONS */
@@ -299,7 +276,7 @@ function handle_dfdb_create_step() {
         $step_index = count($steps);
         $result = dfdb_create_step($step_name, $step_index, $post_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to create step: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create step: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step created successfully', 'id' => $wpdb->insert_id]);
@@ -325,7 +302,7 @@ function handle_dfdb_create_type() {
 
         $result = dfdb_create_type($step_id, $type_name, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create type: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create type: " . dfdb_error());
         }  
 
         wp_send_json_success(['message' => 'Type created successfully', 'id' => $wpdb->insert_id]);
@@ -349,7 +326,7 @@ function handle_dfdb_create_option() {
 
         $result = dfdb_create_option($option_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create option: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create option: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option created successfully', 'id' => $wpdb->insert_id]);
@@ -373,7 +350,7 @@ function handle_dfdb_create_history() {
 
         $result = dfdb_create_history($info);
         if ($result === false) {
-            throw new DfDevisException("Failed to create history: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create history: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'History created successfully', 'id' => $wpdb->insert_id]);
@@ -397,7 +374,7 @@ function handle_dfdb_create_email() {
 
         $result = dfdb_create_email($info);
         if ($result === false) {
-            throw new DfDevisException("Failed to create email: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create email: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Email created successfully', 'id' => $wpdb->insert_id]);
@@ -414,22 +391,23 @@ function dfdb_create_specific_type($step_id, $type_name, $group_name) {
     global $wpdb;
     $result = dfdb_create_type($step_id, $type_name, $group_name);
     if ($result === false) {
-        throw new DfDevisException("Failed to create type: " . $wpdb->last_error);
+        throw new DfDevisException("Failed to create type: " . dfdb_error());
     }
+    $last_id = $wpdb->insert_id;
     if ($type_name === 'options') {
-        $result = dfdb_create_option('Option');
+        $result = dfdb_create_option($last_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default option: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create default option: " . dfdb_error());
         }
     } elseif ($type_name === 'historique') {
-        $result = dfdb_create_history('Historique');
+        $result = dfdb_create_history($last_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default history: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create default history: " . dfdb_error());
         }
     } elseif ($type_name === 'email') {
-        $result = dfdb_create_email('Email');
+        $result = dfdb_create_email($last_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default email: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create default email: " . dfdb_error());
         }
     } else {
         throw new DfDevisException("Unknown type name: $type_name");
@@ -457,15 +435,16 @@ function handle_dfdb_create_step_and_type() {
         $step_index = count($steps);
         $result = dfdb_create_step($step_name, $step_index, $post_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to create step: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create step: " . dfdb_error());
         }
+        $step_id = $wpdb->insert_id;
 
-        $result = dfdb_create_specific_type($wpdb->insert_id, $type_name, $group_name);
+        $result = dfdb_create_specific_type($step_id, $type_name, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create type: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create type: " . dfdb_error());
         }
 
-        wp_send_json_success(['message' => 'Step and type created successfully', 'id' => $wpdb->insert_id]);
+        wp_send_json_success(['message' => 'Step and type created successfully', 'id' => $step_id]);
         wp_die();
     } catch (DfDevisException $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
@@ -494,18 +473,42 @@ function handle_dfdb_create_step_and_types() {
         $step_index = count($steps);
         $result = dfdb_create_step($step_name, $step_index, $post_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to create step: " . $wpdb->last_error);
+            throw new DfDevisException("Failed to create step: " . dfdb_error());
         }  
+        $step_id = dfdb_id();
 
-        $types = ['options', 'historique', 'email'];
-        foreach ($types as $type_name) {
-            $result = dfdb_create_specific_type($wpdb->insert_id, $type_name, $group_name);
-            if ($result === false) {
-                throw new DfDevisException("Failed to create type $type_name: " . $wpdb->last_error);
-            }
+        $created_type = dfdb_create_type($step_id, 'options', $group_name);
+        if ($created_type === false) {
+            throw new DfDevisException("Failed to create options type: " . dfdb_error());
         }
+        $type_id = dfdb_id();
 
-        wp_send_json_success(['message' => 'Step and types created successfully', 'id' => $wpdb->insert_id]);
+        $created_option = dfdb_create_option($type_id, 'Option');
+        if ($created_option === false) {
+            throw new DfDevisException("Failed to create default option: " . dfdb_error());
+        }
+        $option_id = dfdb_id();
+
+        $created_history = dfdb_create_history($type_id, 'Historique');
+        if ($created_history === false) {
+            throw new DfDevisException("Failed to create default history: " . dfdb_error());
+        }
+        $created_history_id = dfdb_id();
+
+        $created_email = dfdb_create_email($type_id, 'Email');
+        if ($created_email === false) {
+            throw new DfDevisException("Failed to create default email: " . dfdb_error());
+        }
+        $created_email_id = dfdb_id();
+
+        wp_send_json_success([
+            'message' => 'Step and types created successfully', 
+            'id' => $step_id, 
+            'type_id' => $type_id, 
+            'option_id' => $option_id, 
+            'history_id' => $created_history_id, 
+            'email_id' => $created_email_id
+        ]);
         wp_die();
     } catch (DfDevisException $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
@@ -514,48 +517,148 @@ function handle_dfdb_create_step_and_types() {
 }
 add_action('wp_ajax_dfdb_create_step_and_types', 'handle_dfdb_create_step_and_types');
 
+
 /* GET FUNCTIONS */
-function handle_dfdb_get_steps_and_first_content() {
+function dfdb_get_steps($post_id) { // Returns all steps for a given post ordered by step index
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d ORDER BY step_index ASC", $post_id) );
+}
+
+function dfdb_get_step_by_index($post_id, $step_index) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d AND step_index = %d", $post_id, $step_index) );
+}
+
+// options
+function dfdb_get_options_by_step_and_group($step_id, $group_name) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id WHERE t.step_id = %d AND t.group_name = %s ORDER BY o.id ASC", $step_id, $group_name) );
+}
+
+function handle_dfdb_get_options_by_step_and_group() {
     global $wpdb;
     try {
-        df_check_post('post_id');
-        $post_id = intval($_POST['post_id']);
+        df_check_post('step_id', 'group_name');
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
 
-        $step_info = [];
-
-        $steps = dfdb_get_steps($post_id);
-        if (empty($steps)) {
-            // Fine for now
-        } else {
-            $types = dfdb_get_types($steps[0]->id);
-            if (empty($types)) {
-                // Fine for now
-            } else {
-                foreach ($types as $type) {
-                    $type_info = [
-                        'id' => $type->id,
-                        'name' => $type->type_name,
-                        'group' => $type->group_name,
-                        'options' => dfdb_get_type_options($type->id),
-                        'history' => dfdb_get_type_history($type->id),
-                        'email' => dfdb_get_type_email($type->id)
-                    ];
-                    $step_info[] = $type_info;
-                }
-            }
+        if ($step_id <= 0 || empty($group_name)) {
+            throw new DfDevisException("Invalid step ID or group name");
         }
 
-        wp_send_json_success(['message' => 'Steps and first content retrieved successfully', 'steps' => $steps, 'step_info' => $step_info]);
+        $options = dfdb_get_options_by_step_and_group($step_id, $group_name);
+        wp_send_json_success(['message' => 'Options retrieved successfully', 'content' => $options]);
         wp_die();
     } catch (DfDevisException $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
 }
-add_action('wp_ajax_dfdb_get_steps_and_first_content', 'handle_dfdb_get_steps_and_first_content');
+add_action('wp_ajax_dfdb_get_options_by_step_and_group', 'handle_dfdb_get_options_by_step_and_group');
+
+// history
+function dfdb_get_history_by_step_and_group($step_id, $group_name) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id WHERE t.step_id = %d AND t.group_name = %s ORDER BY h.id ASC", $step_id, $group_name) );
+}
+
+function handle_dfdb_get_history_by_step_and_group() {
+    global $wpdb;
+    try {
+        df_check_post('step_id', 'group_name');
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+
+        if ($step_id <= 0 || empty($group_name)) {
+            throw new DfDevisException("Invalid step ID or group name");
+        }
+
+        $history = dfdb_get_history_by_step_and_group($step_id, $group_name);
+        wp_send_json_success(['message' => 'History retrieved successfully', 'content' => $history]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_get_history_by_step_and_group', 'handle_dfdb_get_history_by_step_and_group');
+
+// email
+function dfdb_get_email_by_step_and_group($step_id, $group_name) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT e.* FROM " . DFDEVIS_TABLE_EMAIL . " e INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id WHERE t.step_id = %d AND t.group_name = %s ORDER BY e.id ASC", $step_id, $group_name) );
+}   
+
+function handle_dfdb_get_email_by_step_and_group() {
+    global $wpdb;
+    try {
+        df_check_post('step_id', 'group_name');
+        $step_id = intval($_POST['step_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+
+        if ($step_id <= 0 || empty($group_name)) {
+            throw new DfDevisException("Invalid step ID or group name");
+        }
+
+        $email = dfdb_get_email_by_step_and_group($step_id, $group_name);
+        wp_send_json_success(['message' => 'Email retrieved successfully', 'content' => $email]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_get_email_by_step_and_group', 'handle_dfdb_get_email_by_step_and_group');
 
 
-// none because i don't have the implementation yet
+function dfdb_get_types($step_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_TYPES . " WHERE step_id = %d ORDER BY id ASC", $step_id) );
+}
+
+function dfdb_get_options($post_id) { // Returns all the options for a given post ordered by step index and type id
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE t.type_name = 'options' AND s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, o.id ASC", $post_id) );
+}
+
+function dfdb_get_history($post_id) { // Returns all the history for a given post ordered by step index and type id
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE t.type_name = 'history' AND s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, h.id ASC", $post_id) );
+}
+
+function dfdb_get_email($post_id) { // Returns all the email for a given post ordered by step index and type id
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, e.* FROM " . DFDEVIS_TABLE_EMAIL . " e INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE t.type_name = 'email' AND s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, e.id ASC", $post_id) );
+}
+
+function dfdb_get_post_types($post_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare(" SELECT s.step_index, t.* FROM " . DFDEVIS_TABLE_TYPES . " t INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC", $post_id) );
+}
+
+function dfdb_get_type_options($type_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
+}
+
+function dfdb_get_type_history($type_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_HISTORY . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
+}
+
+function dfdb_get_type_email($type_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_EMAIL . " WHERE type_id = %d ORDER BY id ASC", $type_id) );
+}
+
+function dfdb_id() {
+    global $wpdb;
+    return $wpdb->insert_id;
+}
+function dfdb_error() {
+    global $wpdb;
+    return dfdb_error();
+}   
 
 
 
@@ -573,7 +676,7 @@ function dfdb_delete_database() {
     foreach ($tables as $table) {
         $deleted = $wpdb->query("DROP TABLE IF EXISTS $table");
         if ($deleted === false) {
-            error_log("Failed to delete table $table: " . $wpdb->last_error);
+            error_log("Failed to delete table $table: " . dfdb_error());
         }
     }
 }
@@ -616,7 +719,7 @@ function handle_df_insert_option() {
 	$devis_options = $wpdb->prefix . 'df_devis_options';
 	$inserted = $wpdb->insert($devis_options, $data);
 	if ($inserted === false) {
-		wp_send_json_error(['message' => 'Failed to insert option: ' . $wpdb->last_error]);
+		wp_send_json_error(['message' => 'Failed to insert option: ' . dfdb_error()]);
 	    wp_die();
 	    return;
 	}

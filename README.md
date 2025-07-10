@@ -1,7 +1,5 @@
 # WordPress
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/votre-username/votre-repo)
-
 ## 🚀 Démarrage rapide avec Codespace
 
 1. Cliquez sur le badge "Open in GitHub Codespaces" ci-dessus
@@ -13,16 +11,16 @@
 
 ```bash
 # Démarrer l'environnement
-./run.sh
+./run
 
 # Arrêter l'environnement
-./quit.sh
+./quit
 
 # Exporter la base de donnée
-./export-db.sh
+./export
 
 # Importer la base de donnée
-./import-db.sh
+./import
 
 # Voir les logs
 docker-compose logs -f wordpress
