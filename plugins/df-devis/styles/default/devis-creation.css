@@ -1,405 +1,324 @@
-/* CSS Custom Properties for consistent theming - scoped to devis container */
+/* Base container styling */
 .devis-container {
-  --primary-color: #2c5aa0;
-  --primary-hover: #1e3f73;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --warning-color: #ffc107;
-  --background-color: #f8f9fa;
-  --card-background: #ffffff;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --text-muted: #868e96;
-  --border-color: #dee2e6;
-  --border-radius: 8px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --transition: all 0.2s ease;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 600px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Main container */
-.devis-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 100vh;
-  background-color: var(--background-color);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.5;
-}
-
-/* Steps container - always visible row at top */
+/* Steps sidebar */
 .devis-container .steps-container {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
-  flex-wrap: wrap;
-  padding: 1rem;
-  background: var(--card-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  padding: 24px;
+  overflow-y: auto;
 }
 
-/* Individual step cards */
+.devis-container .steps-container::before {
+  content: "Steps Configuration";
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Individual step styling */
 .devis-container .devis-step {
-  background: var(--card-background);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  min-width: 200px;
-  max-width: 250px;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
   position: relative;
 }
 
-.devis-container .devis-step:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-}
-
-.devis-container .devis-step.active {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-}
-
-/* Step labels and inputs */
-.devis-container .devis-step label {
-  display: block;
-  font-weight: 600;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.devis-container .devis-step.active label {
-  color: white;
-}
-
-.devis-container .devis-step input[type="text"] {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background-color: var(--card-background);
-  color: var(--text-primary);
-  transition: var(--transition);
-  margin-top: 0.25rem;
-  box-sizing: border-box;
-}
-
-.devis-container .devis-step input[type="text"]:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
-}
-
-.devis-container .devis-step.active input[type="text"] {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.devis-container .devis-step-selection {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background-color: var(--card-background);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: var(--transition);
-  margin-top: 0.25rem;
-  box-sizing: border-box;
-}
-
-.devis-container .devis-step-selection:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
-}
-
-.devis-container .devis-step.active .devis-step-selection {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Remove step button */
-.devis-container .remove-step {
+.devis-container .devis-step::before {
+  content: attr(data-stepindex);
   position: absolute;
   top: -8px;
-  right: -8px;
-  background: var(--danger-color);
+  left: 16px;
+  background: #3b82f6;
   color: white;
-  border: none;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  font-size: 0.7rem;
-  cursor: pointer;
-  transition: var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 600;
+  transform: translateY(-50%);
+}
+
+.devis-container .devis-step:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.devis-container .devis-step label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.devis-container .devis-step input[type="text"],
+.devis-container .devis-step select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background: white;
+}
+
+.devis-container .devis-step input[type="text"]:focus,
+.devis-container .devis-step select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.devis-container .devis-step-view {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.devis-container .devis-step-view:hover {
+  background: #059669;
+}
+
+.devis-container .remove-step {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s ease;
 }
 
 .devis-container .remove-step:hover {
-  background: #c82333;
+  background: #dc2626;
 }
 
-.devis-container .remove-step::before {
-  content: "×";
-  font-size: 1rem;
-}
-
-/* Step info containers */
+/* Main content area */
 .devis-container .step-info {
-  margin: 2rem 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+  padding: 32px;
+  overflow-y: auto;
+  background: white;
 }
 
-/* Options container */
+.devis-container .step-info.hidden {
+  display: none;
+}
+
+/* Options styling */
 .devis-container .options-container {
-  background: var(--card-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
 }
 
-/* Individual option cards */
 .devis-container .option {
-  background: #f8f9fa;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+}
+
+.devis-container .option::before {
+  content: "⚡";
+  position: absolute;
+  top: -8px;
+  right: 16px;
+  background: #3b82f6;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 .devis-container .option:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-  background: var(--card-background);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+  border-color: #1d4ed8;
 }
 
 .devis-container .option label {
   display: block;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  color: #1e40af;
+  margin-bottom: 8px;
 }
 
-.devis-container .option input.set-name {
+.devis-container .option input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background-color: var(--card-background);
-  transition: var(--transition);
-  margin-top: 0.25rem;
-  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f0f9ff;
 }
 
-.devis-container .option input.set-name:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
-}
-
-/* Option action buttons */
-.devis-container .option .remove-option,
-.devis-container .option .add-step {
+.devis-container .add-option,
+.devis-container .add-step {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius);
-  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
-  margin-top: 0.5rem;
-  margin-right: 0.5rem;
+  margin-right: 8px;
+  margin-top: 8px;
+  transition: all 0.2s ease;
 }
 
-.devis-container .option .remove-option {
-  background: var(--danger-color);
-  color: white;
+.devis-container .add-option:hover,
+.devis-container .add-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.devis-container .option .remove-option:hover {
-  background: #c82333;
-}
-
-.devis-container .option .add-step {
-  background: var(--success-color);
-  color: white;
-}
-
-.devis-container .option .add-step:hover {
-  background: #218838;
-}
-
-/* Add option button */
-.devis-container .add-option {
-  background: var(--primary-color);
+.devis-container .remove-option {
+  background: #f87171;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  font-size: 1rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   cursor: pointer;
-  transition: var(--transition);
-  grid-column: 1 / -1;
-  justify-self: center;
-  margin-top: 1rem;
+  margin-top: 8px;
+  transition: background-color 0.2s ease;
 }
 
-.devis-container .add-option:hover {
-  background: var(--primary-hover);
+.devis-container .remove-option:hover {
+  background: #ef4444;
 }
 
-/* History container */
+/* History styling */
 .devis-container .historique-container {
-  background: var(--card-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  padding: 2rem;
-}
-
-.devis-container .historique {
-  display: block;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
 }
 
 .devis-container .history-title {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-color);
+  color: #065f46;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
 }
 
-.devis-container .history-entries {
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 2rem;
+.devis-container .history-title::before {
+  content: "🕒";
+  margin-right: 8px;
 }
 
 .devis-container .history-entry {
-  background: #f8f9fa;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-  border-left: 4px solid var(--primary-color);
+  background: white;
+  border-left: 4px solid #10b981;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+  transition: transform 0.2s ease;
 }
 
 .devis-container .history-entry:hover {
-  box-shadow: var(--shadow-md);
-  background: var(--card-background);
+  transform: translateX(4px);
 }
 
 .devis-container .history-date {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
 }
 
 .devis-container .history-action {
-  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  color: #065f46;
+  margin-bottom: 8px;
 }
 
 .devis-container .history-details {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.4;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Add history step buttons - both inside historique and in container */
-.devis-container .add-history-step {
-  background: var(--success-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius);
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
-  display: block;
-  margin: 1rem auto 0;
-}
-
-.devis-container .add-history-step:hover {
-  background: #218838;
-}
-
-/* Form container */
+/* Form styling */
 .devis-container .formulaire-container {
-  background: var(--card-background);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  padding: 2rem;
-}
-
-.devis-container .formulaire {
-  display: block;
+  background: linear-gradient(135deg, #fae8ff 0%, #e9d5ff 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
 }
 
 .devis-container .form-title {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-color);
+  color: #7c2d92;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.devis-container .form-title::before {
+  content: "📧";
+  margin-right: 8px;
 }
 
 .devis-container .email-form {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #f8f9fa;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(139, 69, 193, 0.1);
 }
 
 .devis-container .email-label {
   display: block;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  margin-top: 1rem;
-  font-size: 0.9rem;
+  font-weight: 500;
+  color: #7c2d92;
+  margin-bottom: 6px;
+  margin-top: 16px;
 }
 
 .devis-container .email-label:first-child {
@@ -409,139 +328,76 @@
 .devis-container .email-input,
 .devis-container .email-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 0.9rem;
-  transition: var(--transition);
-  background: var(--card-background);
-  color: var(--text-primary);
-  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 2px solid #d8b4fe;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background: #faf5ff;
 }
 
 .devis-container .email-input:focus,
 .devis-container .email-textarea:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 .devis-container .email-textarea {
   min-height: 100px;
   resize: vertical;
-  font-family: inherit;
 }
 
 .devis-container .email-submit {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: white;
   border: none;
-  padding: 0.75rem 2rem;
-  border-radius: var(--border-radius);
+  padding: 14px 24px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: var(--transition);
-  margin-top: 1.5rem;
+  margin-top: 20px;
   width: 100%;
+  transition: all 0.2s ease;
 }
 
 .devis-container .email-submit:hover {
-  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
 }
 
-/* Hidden state for elements that can be toggled */
+/* Hidden elements */
 .devis-container .hidden {
   display: none !important;
 }
 
 /* Responsive design */
-@media (max-width: 1024px) {
-  .devis-container {
-    padding: 1.5rem;
-  }
-
-  .devis-container .options-container {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .devis-container .step-info {
-    gap: 1.5rem;
-  }
-}
-
 @media (max-width: 768px) {
-  .devis-container .steps-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .devis-container .devis-step {
-    min-width: 100%;
-    max-width: 400px;
-  }
-
-  .devis-container .options-container {
-    grid-template-columns: 1fr;
-    padding: 1rem;
-  }
-
-  .devis-container .historique-container,
-  .devis-container .formulaire-container {
-    padding: 1.5rem;
-  }
-
-  .devis-container .email-form {
-    padding: 1.5rem;
-  }
-
-  .devis-container .step-info {
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
   .devis-container {
-    padding: 1rem;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
-
-  .devis-container .devis-step {
-    padding: 1rem;
-  }
-
-  .devis-container .option {
-    padding: 1rem;
-  }
-
-  .devis-container .history-entry {
-    padding: 1rem;
-  }
-
-  .devis-container .email-form {
-    padding: 1rem;
+  
+  .devis-container .steps-container {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    max-height: 200px;
   }
 }
 
-/* Focus states for accessibility */
-.devis-container .devis-step:focus,
-.devis-container .option:focus,
-.devis-container button:focus,
-.devis-container input:focus,
-.devis-container select:focus,
-.devis-container textarea:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+.devis-container .add-history-step {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.2s ease;
 }
 
-/* Smooth transitions */
-.devis-container * {
-  transition: var(--transition);
-}
-
-/* Ensure proper spacing between step info sections */
-.devis-container .step-info:not(:last-child) {
-  margin-bottom: 3rem;
+.devis-container .add-history-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }

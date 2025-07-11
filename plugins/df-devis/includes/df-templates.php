@@ -8,8 +8,9 @@ require_once 'DfDevisException.php';
 /* STEP HTML GENERATION */
 function df_get_step_html($step_id, $step_index, $step_name, $step_type = '') {
     ob_start(); ?>
-    <div onclick="display_step_content(<?=$step_index?>)" data-id="<?=$step_id?>" data-group="Root" class="devis-step" id="step_<?=$step_index?>">
+    <div data-id="<?=$step_id?>" data-group="Root" data-stepindex=<?=$step_index?> class="devis-step" id="step_<?=$step_index?>">
         <label>Step Name:
+            <button type="button" class="devis-step-view">View</button>
             <input class="set-step-name" type="text" value="<?=$step_name?>">
         </label>
         <?php if ($step_index !== 0): ?>
@@ -21,7 +22,7 @@ function df_get_step_html($step_id, $step_index, $step_name, $step_type = '') {
                 <option value="formulaire" <?=selected($step_type, 'formulaire')?>>Formulaire</option>
             </select>
         </label>
-        <button data-stepindex="<?=$step_index?>" type="button" class="remove-step"></button>
+        <button data-stepindex="<?=$step_index?>" type="button" class="remove-step">Delete</button>
         <?php endif; ?>
     </div> <?php
     return ob_get_clean();
@@ -45,14 +46,37 @@ function handle_df_get_step_html() {
 }
 add_action('wp_ajax_df_get_step_html', 'handle_df_get_step_html');
 
+function handle_dfdb_create_step_html() {
+    try {
+        df_check_post('step_name', 'step_index', 'post_id');
+        $step_name = sanitize_text_field($_POST['step_name']);
+        $step_index = intval($_POST['step_index']);
+        $post_id = intval($_POST['post_id']);
+        
+        $result = dfdb_create_step($step_name, $step_index, $post_id);
+        if ($result === false) {
+            throw new DfDevisException("Failed to create step");
+        }
+        $step_id = dfdb_id();
+        
+        $content = df_get_step_html($step_id, $step_index, $step_name, 'options');
+        wp_send_json_success(['message' => 'Step created successfully', 'content' => $content, 'step_id' => $step_id]);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_create_step_html', 'handle_dfdb_create_step_html');
+
 /* OPTION HTML GENERATION */
 function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden = true) {
     ob_start(); ?>
-    <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" onclick="view_option(event, this)" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
+    <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
         <label>Option Name: 
             <input class="set-name" type="text" value="<?=$option_name?>">
         </label>              
-        <button type="button" class="remove-option">Remove Option</button>
+        <button type="button" data-activate="gp_<?=$option_id?>" class="remove-option">Remove Option</button>
         <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
     </div>	<?php
     return ob_get_clean();
@@ -133,7 +157,7 @@ function handle_df_create_step_option_get_html() {
 add_action('wp_ajax_df_create_step_option_get_html', 'handle_df_create_step_option_get_html');
 
 /* HISTORY HTML GENERATION */
-function df_get_history_html_base($type_id, $group_name, $hidden = true) {
+function df_get_history_html_base($history_id, $type_id, $group_name, $hidden = true) {
     ob_start(); ?>
     <div class="historique group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_history(event, this)">
         <h2 class="history-title">Selection History</h2>			
@@ -162,25 +186,27 @@ function df_get_history_html_base($type_id, $group_name, $hidden = true) {
                 <div class="history-details">User removed the "Isolation Standard" option and upgraded to "Isolation Premium" for better energy efficiency.</div>
             </div>
         </div>
-        <button type="button" data-activate="Next" class="add-history-step">Add Step</button>
+        <button type="button" class="add-history-step" data-activate="gp_<?=$history_id?>">Add History Step</button>
     </div><?php
     return ob_get_clean();
 }
 
-function df_get_history_html($history, $hidden = true) {
+function df_get_history_html_array($history, $hidden = true) {
+    $history_id = $history['id'] ?? throw new DfDevisException("Missing history ID in history data");
     $type_id = $history['type_id'] ?? throw new DfDevisException("Missing type id in history data");
     $group_name = $history['group_name'] ?? throw new DfDevisException("Missing group name in history data");
-    return df_get_history_html_base($type_id, $group_name, $hidden);
+    return df_get_history_html_base($history_id, $type_id, $group_name, $hidden);
 }
 
 function handle_df_get_history_html() {
     try {
-        df_check_post('type_id', 'group_name', 'hidden');
+        df_check_post('$history_id', 'type_id', 'group_name', 'hidden');
+        $history_id = intval($_POST['history_id']);
         $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_history_html_base($type_id, $group_name, $hidden);
+        $content = df_get_history_html_base($$history_id, $type_id, $group_name, $hidden);
         wp_send_json_success(['message' => 'History HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -202,7 +228,7 @@ function handle_df_get_history_html_by_step_and_group() {
         
         $content = '';
         if (!empty($history)) { // There are not multiple histories with the same step and group, so we don't need to loop
-            $content = df_get_history_html_base($type_id, $group_name, false);
+            $content = df_get_history_html_base($history[0]->id, $type_id, $group_name, false);
         }
 
         wp_send_json_success(['message' => 'History HTML generated successfully', 'content' => $content]);
@@ -215,7 +241,7 @@ function handle_df_get_history_html_by_step_and_group() {
 add_action('wp_ajax_df_get_history_html_by_step_and_group', 'handle_df_get_history_html_by_step_and_group');
 
 /* EMAIL HTML GENERATION */
-function df_get_email_html_base($type_id, $group_name, $hidden = true) {
+function df_get_email_html_base($email_id, $type_id, $group_name, $hidden = true) {
     ob_start(); ?>
     <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
         <h2 class="form-title">Contact & Quote Request</h2>		
@@ -241,20 +267,22 @@ function df_get_email_html_base($type_id, $group_name, $hidden = true) {
     return ob_get_clean();
 }    
 
-function df_get_email_html($email, $hidden = true) {
+function df_get_email_html_array($email, $hidden = true) {
+    $email_id = $email['id'] ?? throw new DfDevisException("Missing email ID in email data");
     $type_id = $email['type_id'] ?? throw new DfDevisException("Missing type id in email data");
     $group_name = $email['group_name'] ?? throw new DfDevisException("Missing group name in email data");
-    return df_get_email_html_base($type_id, $group_name, $hidden);
+    return df_get_email_html_base($email_id, $type_id, $group_name, $hidden);
 }
 
 function handle_df_get_email_html() {
     try {
-        df_check_post('type_id', 'group_name', 'hidden');
+        df_check_post('email_id', 'type_id', 'group_name', 'hidden');
+        $email_id = intval($_POST['email_id']);
         $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_email_html_base($type_id, $group_name, $hidden);
+        $content = df_get_email_html_base($email_id, $type_id, $group_name, $hidden);
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -276,7 +304,7 @@ function handle_df_get_email_html_by_step_and_group() {
 
         $content = '';
         if (!empty($email)) { // There are not multiple emails with the same step and group, so we don't need to loop
-            $content = df_get_email_html_base($type_id, $group_name, false);
+            $content = df_get_email_html_base($email[0]->id, $type_id, $group_name, false);
         }   
 
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
@@ -292,7 +320,7 @@ add_action('wp_ajax_df_get_email_html_by_step_and_group', 'handle_df_get_email_h
 
 function df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id) {
     ob_start(); ?>
-    <div class="step-type step-type-<?=$type_id?>" data-typeid="<?=$type_id?>">
+    <div class="step-type step-type-<?=$type_id?> group_<?=$group_name?>" data-typeid="<?=$type_id?>" data-typename="options"> 
         <div class="options-container options-step-<?=$step_index?>">
             <?php if ($option_id): ?>
                 <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false)?>
@@ -301,12 +329,12 @@ function df_get_default_type_html($type_id, $step_index, $group_name, $option_id
         </div>
         <div class="historique-container historique-step-<?=$step_index?> hidden">
             <?php if ($history_id): ?>
-                <?=df_get_history_html_base($type_id, $group_name, false)?>
+                <?=df_get_history_html_base($history_id, $type_id, $group_name, false)?>
             <?php endif; ?>
         </div>
         <div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
             <?php if ($email_id): ?>
-                <?=df_get_email_html_base($type_id, $group_name, false)?>
+                <?=df_get_email_html_base($email_id, $type_id, $group_name, false)?>
             <?php endif; ?>
         </div>
     </div> <?php

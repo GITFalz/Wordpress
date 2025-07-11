@@ -302,8 +302,6 @@ if ( ! class_exists( 'DFDevis' ) )
 				];
 			}
 
-			print_result($container_data);
-
 			?>
 			<link href="<?=DF_DEVIS_URL."styles/default/devis-creation.css"?>" rel="stylesheet" />
 			<div class="devis-container" data-postid="<?=$post->ID?>">
@@ -315,7 +313,7 @@ if ( ! class_exists( 'DFDevis' ) )
 				<?php foreach ($steps as $step_index => $step): ?>
 					<div class="step-info step-info-<?=$step_index?> <?=$step_index===0?'':'hidden'?>" data-stepindex="<?=$step_index?>">
 						<?php foreach ($container_data[$step_index]['types'] as $type_index => $type): ?>
-							<div class="step-type step-type-<?=$type['id']?> group_<?=$type['group_name']?>" data-typeid="<?=$type['id']?>" data-typename="<?=$type['type_name']?>">
+							<div class="step-type step-type-<?=$type['id']?> group_<?=$type['group_name']?> <?=$step_index===0?'':'hidden'?>" data-typeid="<?=$type['id']?>" data-typename="<?=$type['type_name']?>">
 								<div class="options-container options-step-<?=$step_index?>">
 									<?php if (isset($type['options'])): ?>
 										<?php foreach ($type['options'] as $index => $option): ?>
@@ -330,13 +328,12 @@ if ( ! class_exists( 'DFDevis' ) )
 											<?=df_get_history_html_array($history, true)?>
 										<?php endforeach; ?>	
 									<?php endif; ?>
-									<button type="button" class="add-history-step">Add History Step</button>
 								</div>
 								<div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
-									<?php if (isset($type['email'])): ?>
-										<?php foreach ($type['email'] as $index => $email): ?>
+									<?php if (isset($type['emails'])): ?>
+										<?php foreach ($type['emails'] as $index => $email): ?>
 											<?=df_get_email_html_array($email, true)?>
-										<?php endforeach; ?>									
+										<?php endforeach; ?>								
 									<?php endif; ?>
 								</div>
 							</div>
