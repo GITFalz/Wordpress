@@ -1,9 +1,8 @@
-let stepStorage;
 let container;
 let current_step;
+let history = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-	stepStorage = new Steps();
 	container = document.querySelector(".devis-container");
 	current_step = 0;
 
@@ -12,189 +11,202 @@ document.addEventListener('DOMContentLoaded', () => {
 			container.dataset.postid = e.target.dataset.postid;
 			render_devis(container.dataset.postid);
 		}
-		if (e.target.classList.contains('step-box')) {
-			let steps = document.querySelectorAll(".step-box");
-			if (steps.length <= 0 || current_step >= steps.length)
-				return;
-
-			for (let i = 0; i < steps.length; i++)
-			{
-				console.log(steps[i]);
-				steps[i].classList.remove("step-select");
-			}
-			stepStorage.clear();
-			current_step = 0;
-			render_step(steps[0], 'Root');
-		}
 	});
 });
 
 function render_devis(postid) {
-	selection_fetch(
-		new URLSearchParams({ action: "dfdb_get_steps_and_first_content", post_id: parseInt(postid) }),
-		data => {
-			if (!data.success) {
-				console.error("Error rendering devis:", data.data.message);
-				return;
-			}
-			console.log(data.data.steps);
-			console.log(data.data.step_info);
-		}
-	);
+	container.innerHTML = '<div class="steps-container"></div>';
+	get_step_by_group(postid, 0, 'Root');
 }
 
-function selection_fetch(params, callback) {
-	fetch(stepData.ajaxUrl, {
-		method: "POST",
+async function view_option(e, element) {
+	let type_name = await get_step_by_group(container.dataset.postid, current_step+1, "gp_"+element.dataset.id);
+	let step_infos = document.querySelectorAll('.step-info');
+	step_infos.forEach(info => {
+		if (info.classList.contains('step-info-'+(current_step+1))) {
+			info.classList.remove('hidden');
+			let types = info.querySelectorAll('.step-type');
+			types.forEach(type => {
+				if (type.classList.contains('group_gp_' + element.dataset.id)) {
+					type.classList.remove('hidden');
+				} else {
+					type.classList.add('hidden');
+				}
+			});
+		}
+		else {
+			info.classList.add('hidden');
+		}
+	});
+	history[current_step] = {
+		group: "gp_" + element.dataset.id,
+		name: "option: " + element.querySelector('.option-name').textContent,
+		step_index: current_step + 1
+	};
+	current_step++;
+
+	if (type_name === "historique") {
+		console.log("Viewing history for group: " + element.dataset.id);
+		let type_element = document.querySelector(`.step-type.group_${"gp_"+element.dataset.id}`);
+		let history_entries = type_element.querySelector('.history-entries');
+		history_entries.innerHTML = ''; // Clear existing history entries
+		// loop over history and create buttons
+		let length = Object.keys(history).length;
+		for (let i = 0; i < length; i++) {
+			let entry = history[i];
+			let content = `
+			<div class="history-entry">
+				<div class="history-action">You clicked on a ${entry.name}</div>
+			</div>`;
+			history_entries.insertAdjacentHTML('beforeend', content);
+		}
+	}
+}
+
+async function view_history(e, element) {
+	let type_name = await get_step_by_group(container.dataset.postid, current_step+1, element.dataset.activate);
+	let step_infos = document.querySelectorAll('.step-info');
+	step_infos.forEach(info => {
+		if (info.classList.contains('step-info-'+(current_step+1))) {
+			info.classList.remove('hidden');
+			let types = info.querySelectorAll('.step-type');
+			types.forEach(type => {
+				if (type.classList.contains('group_' + element.dataset.activate)) {
+					type.classList.remove('hidden');
+				} else {
+					type.classList.add('hidden');
+				}
+			});
+		}
+		else {
+			info.classList.add('hidden');
+		}
+	});
+	history[current_step] = {
+		group: element.dataset.activate,
+		name: "history view",
+		step_index: current_step + 1
+	};
+	current_step++;
+
+	if (type_name === "historique") {
+		let type_element = document.querySelector(`.step-type.group_${element.dataset.activate}`);
+		let history_entries = type_element.querySelector('.history-entries');
+		history_entries.innerHTML = ''; // Clear existing history entries
+		// loop over history and create buttons
+		let length = Object.keys(history).length;
+		for (let i = 0; i < length; i++) {
+			let entry = history[i];
+			console.log(entry);
+			let content = `
+			<div class="history-entry">
+				<div class="history-action">You clicked on a ${entry.name}</div>
+			</div>`;
+			history_entries.insertAdjacentHTML('beforeend', content);
+		}
+	}
+}
+
+async function view_step(e, element) {
+	let step_index = parseInt(element.dataset.stepindex);
+	if (step_index >= current_step) {
+		return; // Cannot view a step that hasn't been loaded yet or is the current step
+	}
+
+	let step_infos = document.querySelectorAll('.step-info');
+	step_infos.forEach(info => {
+		if (info.classList.contains('step-info-'+step_index)) {
+			info.classList.remove('hidden');
+			let types = info.querySelectorAll('.step-type');
+			types.forEach(type => { 
+				if (type.classList.contains('group_' + element.dataset.group)) {
+					type.classList.remove('hidden');
+				} else {
+					type.classList.add('hidden');
+				}
+			});
+		}
+		else {
+			info.classList.add('hidden');
+		}
+	});
+
+	current_step = step_index;
+	history = Object.fromEntries(Object.entries(history).filter(([key]) => parseInt(key)+1 <= current_step));
+
+	let step_divs = document.querySelectorAll('.devis-step');
+	step_divs.forEach(step => {
+		let stepIndex = parseInt(step.dataset.stepindex);
+		if (stepIndex > current_step) {
+			step.remove(); // Remove steps that are beyond the current step
+		} else if (stepIndex === current_step) {
+			step.classList.add('current-step');
+		}
+	});
+}
+
+async function get_step_by_group(postid, step_index, group_name) {
+	let step_div = document.getElementById(`step_${step_index}`) ? 'true' : 'false';
+	let step_info = document.querySelector(`.step-info-${step_index}`) ? 'true' : 'false';
+	let type_div = document.querySelector(`.step-type.group_${group_name}`) ? 'true' : 'false';
+	let type_content = type_div === 'true' ? (document.querySelector(`.step-type.group_${group_name}`).children.length > 0 ? 'true' : 'false' ) : 'false';
+
+	let typeName;
+
+	await fetch(stepData.ajaxUrl, {
+		method: 'POST',
 		headers: {
-			"Content-Type": "application/x-www-form-urlencoded"
+			'Content-Type': 'application/x-www-form-urlencoded'
 		},
-		body: params
+		body: new URLSearchParams({
+			action: 'df_get_step_html_by_index',
+			post_id: postid,
+			step_index: step_index,
+			group_name: group_name,
+			step_div: step_div,
+			step_info: step_info,
+			type_div: type_div,
+			type_content: type_content
+		})
 	})
 	.then(res => res.json())
 	.then(data => {
-		if (callback)
-			callback(data);
-	});
-}
-
-/*
-function render_step(step_element, option_group) {
-	if (step_element.dataset.steptype === "options") {					  					
-	    fetch(stepData.ajaxUrl, {
-        method: "POST",
-	        headers: {
-	            "Content-Type": "application/x-www-form-urlencoded"
-	        },
-	        body: new URLSearchParams({
-	        	action: 'dfdb_get_step_options_by_group',
-	        	devis_id: container.dataset.postid,
-	        	step_index: step_element.dataset.stepindex,
-	        	option_group: option_group
-	        })
-	    })
-	    .then(res => res.json())
-	    .then(data => {
-	    	let element = document.querySelector(".step-info");
-	    	element.dataset.stepid = current_step;
-    		element.innerHTML = data.data.content;
-    		set_selected_step(step_element);
-	    });
-	}
-	else {
-		fetch(stepData.stepUrl, {
-        method: "POST",
-	        headers: {
-	            "Content-Type": "application/x-www-form-urlencoded"
-	        },
-	        body: new URLSearchParams({
-	        	step_type: step_element.dataset.steptype,
-	        	activate: 'Next'
-	        })
-	    })
-	    .then(res => res.json())
-	    .then(data => {
-	    	let element = document.querySelector(".step-info");
-	    	element.dataset.stepid = current_step;
-    		element.innerHTML = data.content;
-    		set_selected_step(step_element);
-
-    		if (step_element.dataset.steptype === "historique") {
-    			let history_entry = document.querySelector(".history-entries");
-    			for (let i = 0; i < stepStorage.length(); i++) {
-    				let step = stepStorage.get(i);
-    				if (step instanceof StepOptions) {
-    					let article = document.createElement('article');
-    					let article_p = document.createElement('p');
-
-    					article.classList.add("history-entry");
-    					article_p.classList.add("history-text");
-
-    					article_p.textContent = "Vous avez choisi l'option "+step.option_name+" dans l'étape "+(step.index+1);
-
-    					article.append(article_p);
-    					history_entry.append(article);
-    				}
-    			}
-    		}
-	    });
-	}
-}
-
-function get_selected_step()
-{
-	for (let i = 0; i < steps.length; i++)
-	{
-		if (steps[i].classList.contains("step-select")) {
-			return steps[i];
+		if (!data.success) {
+			console.error('Error fetching step:', data.data.message);
+			return;
 		}
-	}
-}
 
-function render_devis(postid) 
-{
-	fetch_call(stepData.ajaxUrl, new URLSearchParams({ action: "render_devis_data", post_id: parseInt(postid) }), data => {
-		if (!data.success)
-			return;
-		container.innerHTML = data.data.page;
-		let steps = document.querySelectorAll(".step-box");
-		if (steps.length <= 0)
-			return;
+		if (step_div === 'false') {
+			let stepsContainer = container.querySelector('.steps-container');
+			stepsContainer.insertAdjacentHTML('beforeend', data.data.step_html);
+		}
 
-		render_step(steps[0], 'Root');
+		if (step_info === 'false') {
+			container.insertAdjacentHTML('beforeend', data.data.step_info);
+		}
+
+		if (type_div === 'false') {
+			let step_info_element = document.querySelector(`.step-info-${step_index}`); // Now it should have been added before
+			if (step_info_element) {
+				step_info_element.insertAdjacentHTML('beforeend', data.data.type_html);
+			}
+		}
+
+		if (type_content === 'false') {
+			let type_element = document.querySelector(`.step-type.group_${group_name}`); // Now it should have been added before
+			if (type_element) {
+				type_element.insertAdjacentHTML('beforeend', data.data.type_content);
+			}
+		}
+
+		typeName = data.data.type_name;
+
+		let stepDiv = document.getElementById(`step_${step_index}`);
+		stepDiv.dataset.group = group_name;
+	})
+	.catch(error => {
+		console.error('Fetch error:', error);
 	});
-}	
 
-function option_select(element, name, id) {
-	let step = new StepOptions("step"+current_step, current_step, name, id);
-	stepStorage.add(step);
-	next_step(element);
+	return typeName;
 }
-
-function history_select(element, display_type) {
-	let step = new StepHistory("step"+current_step, current_step, display_type);
-	stepStorage.add(step);
-	next_step(element);
-}
-
-function next_step(element)
-{
-	current_step++;
-	let steps = document.querySelectorAll(".step-box");
-	if (steps.length <= 0 || current_step >= steps.length)
-		return;
-
-	render_step(steps[current_step], element.dataset.activate);
-}
-
-function set_selected_step(step_element) {
-	let steps = document.querySelectorAll(".step-box");
-	if (steps.length <= 0 || current_step >= steps.length)
-		return;
-
-	for (let i = 0; i < steps.length; i++) {
-		steps[i].classList.remove("step-select");
-	}
-
-	if (step_element.classList.contains("step-box"))
-		step_element.classList.add("step-select");
-}
-
-function fetch_call(link, body, callback, debug = false)
-{
-    return fetch(link, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: body
-    })
-    .then(res => res.json())
-    .then(data => {
-    	if (debug)
-    		console.log(data.data.message);					   
-
-    	if (callback)
-    		callback(data);
-    });
-}*/

@@ -140,6 +140,15 @@ let currentGroup = "Root";
 			debounceMap.set(id, timeout);
 		}
 	});
+
+	/* This part is to ensure that when leaving the editing page, you remove the excess data from the database that isn't going to be used anyways */
+	window.addEventListener("beforeunload", function () {
+		// Navigator is used to ensure that the request is sent even if the page is closed
+		navigator.sendBeacon(stepData.ajaxUrl, new URLSearchParams({
+			action: "dfdb_remove_unused_data",
+			post_id: stepData.postId
+		}));
+	});
 })();
 
 function next_step() { return currentStepIndex + 1; }

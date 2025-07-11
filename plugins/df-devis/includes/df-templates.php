@@ -6,23 +6,28 @@
 require_once 'DfDevisException.php';
 
 /* STEP HTML GENERATION */
-function df_get_step_html($step_id, $step_index, $step_name, $step_type = '') {
+function df_get_step_html($step_id, $step_index, $step_name, $step_type, $is_customizable = true) {
     ob_start(); ?>
-    <div data-id="<?=$step_id?>" data-group="Root" data-stepindex=<?=$step_index?> class="devis-step" id="step_<?=$step_index?>">
-        <label>Step Name:
-            <button type="button" class="devis-step-view">View</button>
-            <input class="set-step-name" type="text" value="<?=$step_name?>">
-        </label>
-        <?php if ($step_index !== 0): ?>
-        <label>Type:
-            <select class="devis-step-selection" id="step-select">
-                <option value="" <?=selected($step_type, '')?>>Select a type</option>
-                <option value="options" <?=selected($step_type, 'options')?>>Options</option>
-                <option value="historique" <?=selected($step_type, 'historique')?>>Historique</option>
-                <option value="formulaire" <?=selected($step_type, 'formulaire')?>>Formulaire</option>
-            </select>
-        </label>
-        <button data-stepindex="<?=$step_index?>" type="button" class="remove-step">Delete</button>
+    <div data-id="<?=$step_id?>" data-group="Root" data-stepindex=<?=$step_index?> class="devis-step" id="step_<?=$step_index?>" <?php if (!$is_customizable): ?>onclick="view_step(event, this)"<?php endif; ?>>
+        <?php if ($is_customizable): ?>
+            <label>Step Name:      
+                <button type="button" class="devis-step-view">View</button>
+                <input class="set-step-name" type="text" value="<?=$step_name?>">                
+            </label>
+        <?php endif; ?>
+        <?php if (!$is_customizable): ?>
+            <p class="step-name"><?=$step_name?></p>
+        <?php endif; ?>
+        <?php if ($step_index !== 0 && $is_customizable): ?>
+            <label>Type:
+                <select class="devis-step-selection" id="step-select">
+                    <option value="" <?=selected($step_type, '')?>>Select a type</option>
+                    <option value="options" <?=selected($step_type, 'options')?>>Options</option>
+                    <option value="historique" <?=selected($step_type, 'historique')?>>Historique</option>
+                    <option value="formulaire" <?=selected($step_type, 'formulaire')?>>Formulaire</option>
+                </select>
+            </label>
+            <button data-stepindex="<?=$step_index?>" type="button" class="remove-step">Delete</button>
         <?php endif; ?>
     </div> <?php
     return ob_get_clean();
@@ -70,14 +75,21 @@ function handle_dfdb_create_step_html() {
 add_action('wp_ajax_dfdb_create_step_html', 'handle_dfdb_create_step_html');
 
 /* OPTION HTML GENERATION */
-function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden = true) {
+function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden, $is_customizable = true) {
     ob_start(); ?>
-    <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
-        <label>Option Name: 
-            <input class="set-name" type="text" value="<?=$option_name?>">
-        </label>              
-        <button type="button" data-activate="gp_<?=$option_id?>" class="remove-option">Remove Option</button>
-        <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+    <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" <?php if (!$is_customizable): ?>onclick="view_option(event, this)"<?php endif; ?>>
+        <?php if ($is_customizable): ?>
+            <label>Option Name: 
+                <input class="set-name" type="text" value="<?=$option_name?>">
+            </label>    
+        <?php else: ?>
+            <p class="option-name"><?=$option_name?></p>  
+        <?php endif; ?>
+        
+        <?php if ($is_customizable): ?>      
+            <button type="button" data-activate="gp_<?=$option_id?>" class="remove-option">Remove Option</button>
+            <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+        <?php endif; ?>
     </div>	<?php
     return ob_get_clean();
 }
@@ -157,36 +169,44 @@ function handle_df_create_step_option_get_html() {
 add_action('wp_ajax_df_create_step_option_get_html', 'handle_df_create_step_option_get_html');
 
 /* HISTORY HTML GENERATION */
-function df_get_history_html_base($history_id, $type_id, $group_name, $hidden = true) {
+function df_get_history_html_base($history_id, $type_id, $group_name, $hidden, $is_customizable = true) {
     ob_start(); ?>
-    <div class="historique group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_history(event, this)">
+    <div data-id="<?=$history_id?>" class="historique group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
         <h2 class="history-title">Selection History</h2>			
         <div class="history-entries">
-            <div class="history-entry">
-                <div class="history-date">2024-01-15 14:30</div>
-                <div class="history-action">Selected: Sol Option</div>
-                <div class="history-details">User chose "Carrelage Premium" from the flooring options. This selection affects the overall pricing and installation timeline.</div>
-            </div>
-            
-            <div class="history-entry">
-                <div class="history-date">2024-01-15 14:32</div>
-                <div class="history-action">Selected: Toit Option</div>
-                <div class="history-details">User selected "Tuiles Rouges Traditionnelles" for the roofing material. Compatible with the chosen flooring option.</div>
-            </div>
-            
-            <div class="history-entry">
-                <div class="history-date">2024-01-15 14:35</div>
-                <div class="history-action">Modified: Custom Option</div>
-                <div class="history-details">User customized the "Fenêtres" option with double-glazing and wooden frames. Added +15% to base price.</div>
-            </div>
-            
-            <div class="history-entry">
-                <div class="history-date">2024-01-15 14:38</div>
-                <div class="history-action">Removed: Previous Selection</div>
-                <div class="history-details">User removed the "Isolation Standard" option and upgraded to "Isolation Premium" for better energy efficiency.</div>
-            </div>
+            <?php if ($is_customizable): ?>
+                <div class="history-entry">
+                    <div class="history-date">2024-01-15 14:30</div>
+                    <div class="history-action">Selected: Sol Option</div>
+                    <div class="history-details">User chose "Carrelage Premium" from the flooring options. This selection affects the overall pricing and installation timeline.</div>
+                </div>
+                
+                <div class="history-entry">
+                    <div class="history-date">2024-01-15 14:32</div>
+                    <div class="history-action">Selected: Toit Option</div>
+                    <div class="history-details">User selected "Tuiles Rouges Traditionnelles" for the roofing material. Compatible with the chosen flooring option.</div>
+                </div>
+                
+                <div class="history-entry">
+                    <div class="history-date">2024-01-15 14:35</div>
+                    <div class="history-action">Modified: Custom Option</div>
+                    <div class="history-details">User customized the "Fenêtres" option with double-glazing and wooden frames. Added +15% to base price.</div>
+                </div>
+                
+                <div class="history-entry">
+                    <div class="history-date">2024-01-15 14:38</div>
+                    <div class="history-action">Removed: Previous Selection</div>
+                    <div class="history-details">User removed the "Isolation Standard" option and upgraded to "Isolation Premium" for better energy efficiency.</div>
+                </div>
+            <?php else: ?>
+                <p class="history-empty">No history entries available.</p>
+            <?php endif; ?>
         </div>
-        <button type="button" class="add-history-step" data-activate="gp_<?=$history_id?>">Add History Step</button>
+        <?php if ($is_customizable): ?>
+            <button type="button" class="add-history-step" data-activate="gp_<?=$history_id?>">Add History Step</button>
+        <?php else: ?>
+            <button type="button" class="add-history-step" data-activate="gp_<?=$history_id?>" onclick="view_history(event, this)">Next</button>
+        <?php endif; ?>
     </div><?php
     return ob_get_clean();
 }
@@ -360,6 +380,88 @@ function handle_df_get_default_type_html() {
     }
 }   
 add_action('wp_ajax_df_get_default_type_html', 'handle_df_get_default_type_html');
+
+
+
+/**
+ * The functions that give the html that is in the official page (so no customization)
+ */
+function handle_df_get_step_html_by_index() {
+    try {
+        df_check_post('step_index', 'post_id', 'group_name', 'step_div', 'step_info', 'type_div', 'type_content');
+        $step_index = intval($_POST['step_index']);
+        $post_id = intval($_POST['post_id']);
+        $group_name = sanitize_text_field($_POST['group_name']);
+        $step_div = sanitize_text_field($_POST['step_div']) === 'true';
+        $step_info = sanitize_text_field($_POST['step_info']) === 'true';
+        $type_div = sanitize_text_field($_POST['type_div']) === 'true';
+        $type_content = sanitize_text_field($_POST['type_content']) === 'true';
+        
+        $step = dfdb_get_step_by_index($post_id, $step_index);
+        if (!$step) {
+            throw new DfDevisException("No step found for the given post ID " . $post_id . " and step index " . $step_index);
+        }
+
+        $type = dfdb_get_type_by_step_and_group($step->id, $group_name);
+        if (!$type) {
+            throw new DfDevisException("No type found for the given step ID " . $step->id . " and group name " . $group_name);
+        }
+        $type_name = $type->type_name;
+
+        $data = [
+            'message' => 'Step HTML retrieved successfully',
+            'type_name' => $type_name,
+            'step_id' => $step->id,
+        ];
+
+        if (!$step_div) {
+            $data['step_html'] = df_get_step_html($step->id, $step_index, $step->step_name, $type_name, false);
+        }
+
+        if (!$step_info) {
+            $data['step_info'] = '<div class="step-info step-info-'.$step_index.'" data-stepindex="'.$step_index.'"></div>';
+        }
+
+        if (!$type_div) {
+            $data['type_html'] = '<div class="step-type step-type-'.$type->id.' group_'.$group_name.'" data-typeid="'.$type->id.'" data-typename="'.$type_name.'"></div>';
+        }
+
+        if (!$type_content) {
+            $data['type_content'] = '';
+            if ($type_name === 'options') {
+                $data['type_content'] .= '<div class="options-container options-step-'.$step_index.'">';
+                $option = dfdb_get_type_options($type->id);
+                foreach ($option as $opt) {
+                    $data['type_content'] .= df_get_option_html_base($type->id, $group_name, $opt->option_name, $opt->id, false, false);
+                }
+                $data['type_content'] .= '</div>';
+            } else if ($type_name === 'historique') {
+                $data['type_content'] .= '<div class="historique-container historique-step-'.$step_index.'">';
+                $history = dfdb_get_history_by_step_and_group($step->id, $group_name);
+                if (!empty($history)) {
+                    $data['type_content'] .= df_get_history_html_base($history[0]->id, $type->id, $group_name, false, false);
+                }
+                $data['type_content'] .= '</div>';
+            } else if ($type_name === 'formulaire') {
+                $data['type_content'] .= '<div class="formulaire-container formulaire-step-'.$step_index.'">';
+                $email = dfdb_get_email_by_step_and_group($step->id, $group_name);
+                if (!empty($email)) {
+                    $data['type_content'] .= df_get_email_html_base($email[0]->id, $type->id, $group_name, false, false);
+                }
+                $data['type_content'] .= '</div>';
+            } else {
+                throw new DfDevisException("Invalid type name: $type_name");
+            }
+        }
+        
+        wp_send_json_success($data);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_step_html_by_index', 'handle_df_get_step_html_by_index');
 
 
 /**

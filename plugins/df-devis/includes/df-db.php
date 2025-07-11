@@ -487,6 +487,12 @@ function dfdb_get_step_by_index($post_id, $step_index) {
     return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d AND step_index = %d", $post_id, $step_index) );
 }
 
+// general type
+function dfdb_get_type_by_step_and_group($step_id, $group_name) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_TYPES . " WHERE step_id = %d AND group_name = %s", $step_id, $group_name) );
+}
+
 // options
 function dfdb_get_options_by_step_and_group($step_id, $group_name) {
     global $wpdb;
@@ -634,6 +640,7 @@ function dfdb_get_email_type_id($email_id) {
     return $wpdb->get_var( $wpdb->prepare("SELECT type_id FROM " . DFDEVIS_TABLE_EMAIL . " WHERE id = %d", $email_id) );
 }
 
+
 function dfdb_id() {
     global $wpdb;
     return $wpdb->insert_id;
@@ -641,7 +648,7 @@ function dfdb_id() {
 function dfdb_error() {
     global $wpdb;
     return dfdb_error();
-}   
+}  
 
 
 
@@ -739,6 +746,138 @@ function handle_dfdb_delete_step() {
     }
 }
 add_action('wp_ajax_dfdb_delete_step', 'handle_dfdb_delete_step');
+
+/**
+ * Deletes all options, history, and email entries that are not in use for a given post ID.
+ */
+function dfdb_delete_options_not_in_use($post_id) {
+    global $wpdb;
+    return $wpdb->query(
+        $wpdb->prepare(
+            "DELETE o FROM " . DFDEVIS_TABLE_OPTIONS . " o
+            LEFT JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id
+            LEFT JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id
+            WHERE s.post_id = %d AND t.type_name != 'options'",
+            $post_id
+        )
+    );
+}
+
+function dfdb_delete_history_not_in_use($post_id) {
+    global $wpdb;
+    return $wpdb->query(
+        $wpdb->prepare(
+            "DELETE h FROM " . DFDEVIS_TABLE_HISTORY . " h
+            LEFT JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id
+            LEFT JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id
+            WHERE s.post_id = %d AND t.type_name != 'historique'",
+            $post_id
+        )
+    );
+}
+
+function dfdb_delete_email_not_in_use($post_id) {
+    global $wpdb;
+    return $wpdb->query(
+        $wpdb->prepare(
+            "DELETE e FROM " . DFDEVIS_TABLE_EMAIL . " e
+            LEFT JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id
+            LEFT JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id
+            WHERE s.post_id = %d AND t.type_name != 'formulaire'",
+            $post_id
+        )
+    );
+}
+
+
+/**
+ * Generates all options, history, and email entries that are not present for a given post ID. (Used when you want to edit a post again)
+ */
+function dfdb_generate_types_not_in_use($post_id) {
+    global $wpdb;
+    $steps = dfdb_get_steps($post_id);
+    foreach ($steps as $step) {
+        $types = dfdb_get_types($step->id);
+        $step_index = intval($step->step_index);
+        foreach ($types as $type) {
+            $type_id = intval($type->id);
+            $type_name = sanitize_text_field($type->type_name);
+            if ($type_name !== 'options') {
+                dfdb_generate_missing_options($type_id);
+            }
+            if ($type_name !== 'historique' && $step_index > 0) {
+                dfdb_generate_missing_history($type_id);
+            }
+            if ($type_name !== 'email' && $step_index > 0) {
+                dfdb_generate_missing_email($type_id);
+            }
+        }
+    }
+}
+
+function dfdb_generate_missing_options($type_id) {
+    $options = dfdb_get_type_options($type_id);
+    if (empty($options)) {
+        $result = dfdb_create_option($type_id, 'Option');
+        if ($result === false) {
+            throw new DfDevisException("Failed to create default option: " . dfdb_error());
+        }
+    }
+}
+
+function dfdb_generate_missing_history($type_id) {
+    $history = dfdb_get_type_history($type_id);
+    if (empty($history)) {
+        $result = dfdb_create_history($type_id, 'Historique');
+        if ($result === false) {
+            throw new DfDevisException("Failed to create default history: " . dfdb_error());
+        }
+    }
+}
+
+function dfdb_generate_missing_email($type_id) {
+    $email = dfdb_get_type_email($type_id);
+    if (empty($email)) {
+        $result = dfdb_create_email($type_id, 'Email');
+        if ($result === false) {
+            throw new DfDevisException("Failed to create default email: " . dfdb_error());
+        }
+    }
+}
+
+
+function handle_dfdb_remove_unused_data() {
+    global $wpdb;
+    try {
+        $post_id = intval($_POST['post_id']);
+
+        if ($post_id <= 0) {
+            throw new DfDevisException("Invalid post ID");
+        }
+
+        $result_options = dfdb_delete_options_not_in_use($post_id);
+        if ($result_options === false) {
+            throw new DfDevisException("Failed to delete unused options: " . dfdb_error());
+        }
+
+        $result_history = dfdb_delete_history_not_in_use($post_id);
+        if ($result_history === false) {
+            throw new DfDevisException("Failed to delete unused history: " . dfdb_error());
+        }
+
+        $result_email = dfdb_delete_email_not_in_use($post_id);
+        if ($result_email === false) {
+            throw new DfDevisException("Failed to delete unused email: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Unused data deleted successfully']);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_remove_unused_data', 'handle_dfdb_remove_unused_data');
 
 function dfdb_delete_database() {
     global $wpdb;

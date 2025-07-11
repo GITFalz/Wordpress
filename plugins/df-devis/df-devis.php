@@ -233,6 +233,12 @@ if ( ! class_exists( 'DFDevis' ) )
 
 		    wp_nonce_field('devis_steps_options_save', 'devis_steps_options_nonce');
 
+			try {
+				dfdb_generate_types_not_in_use($post->ID);
+			} catch (DfDevisException $e) {
+				error_log($e->getMessage());
+			}
+			
 			$step_types = dfdb_get_post_types($post->ID);
 			if (empty($step_types)) {
 				dfdb_create_step('Étape 1', 0, $post->ID);
@@ -307,7 +313,7 @@ if ( ! class_exists( 'DFDevis' ) )
 			<div class="devis-container" data-postid="<?=$post->ID?>">
 				<div class="steps-container">
 				<?php foreach ($steps as $step_index => $step): ?>
-					<?=df_get_step_html($step->id, $step_index, esc_html($step->step_name))?>
+					<?=df_get_step_html($step->id, $step_index, esc_html($step->step_name), '')?>
 				<?php endforeach; ?>
 				</div>
 				<?php foreach ($steps as $step_index => $step): ?>
@@ -342,32 +348,6 @@ if ( ! class_exists( 'DFDevis' ) )
 				<?php endforeach; ?>
 			</div>
 			<?php
-
-			/*
-						<div class="options-container options-step-<?=$step_index?> <?=$step_index===0?'':'hidden'?>">
-							<?php if (!empty($container_data[$step_index]['options'])): ?>
-								<?php foreach ($container_data[$step_index]['options'] as $option): ?>
-									<?=df_get_option_html_base($option, $step_index !== 0)?>
-								<?php endforeach; ?>
-							<?php endif; ?>
-							<button type="button" class="add-option">Add Option</button>
-						</div>
-						<div class="historique-container historique-step-<?=$step_index?> hidden">
-							<?php if (!empty($container_data[$step_index]['history'])): ?>
-								<?php foreach ($container_data[$step_index]['history'] as $history): ?>
-									<?=df_get_history_html_base($history, true)?>
-								<?php endforeach; ?>
-							<?php endif; ?>
-							<button type="button" class="add-history-step">Add History Step</button>
-						</div>
-						<div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
-							<?php if (!empty($container_data[$step_index]['email'])): ?>
-								<?php foreach ($container_data[$step_index]['email'] as $email): ?>
-									<?=df_get_email_html_base($email, true)?>
-								<?php endforeach; ?>
-							<?php endif; ?>
-						</div>
-			*/
 		}
 
 		function save_post_data($post_id) {
