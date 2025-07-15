@@ -13,18 +13,28 @@
 <body <?php body_class(); ?>>
 
 <div class="nutricode-container">
-    <article id="post-<?php the_ID(); ?>">
+    <?php
+    // Ensure we get the correct post, even if loop not started yet
+    $post = get_queried_object();
+    setup_postdata($post); // safely sets global $post
+
+    $origin  = get_post_meta($post->ID, '_nutricode_origin', true);
+    $grape   = get_post_meta($post->ID, '_nutricode_grape', true);
+    $year    = get_post_meta($post->ID, '_nutricode_year', true);
+    ?>
+    
+    <article id="post-<?php echo esc_attr($post->ID); ?>">
         <header>
-            <h1><?php the_title(); ?></h1>
+            <h1><?php echo esc_html(get_the_title($post)); ?></h1>
         </header>
         
         <div class="content">
-            <?php the_content(); ?>
+            <?php echo apply_filters('the_content', $post->post_content); ?>
             
             <div class="nutricode-meta">
-                <p><strong>Origine:</strong> <?php echo esc_html(get_post_meta(get_the_ID(), '_nutricode_origin', true)); ?></p>
-                <p><strong>Cépage:</strong> <?php echo esc_html(get_post_meta(get_the_ID(), '_nutricode_grape', true)); ?></p>
-                <p><strong>Millésime:</strong> <?php echo esc_html(get_post_meta(get_the_ID(), '_nutricode_year', true)); ?></p>
+                <p><strong>Origine:</strong> <?php echo esc_html($origin); ?></p>
+                <p><strong>Cépage:</strong> <?php echo esc_html($grape); ?></p>
+                <p><strong>Millésime:</strong> <?php echo esc_html($year); ?></p>
             </div>
         </div>
     </article>

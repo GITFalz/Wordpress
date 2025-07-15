@@ -81,6 +81,31 @@ if ( ! class_exists( 'NutriCode' ) )
         }
 
 		function render_nutricode_meta_box($post) {
+			
+			wp_enqueue_script(
+				'qr-code-library',
+				'https://unpkg.com/qrious@4.0.2/dist/qrious.min.js',
+				['jquery'],
+				'1.0',
+				true
+			);
+			
+			wp_enqueue_script(
+	            'qr-script-handle',
+	            DF_NUTRICODE_URL . 'js/qr-script.js',
+	            ['jquery'],
+	            '1.0',
+	            true
+	        );
+
+			wp_localize_script(
+	            'qr-script-handle', 
+	            'stepData', [
+					'permalink' => get_permalink($post->ID),
+					'post_id' => $post->ID
+				]
+	        );
+
 			wp_nonce_field('nutricode_meta_box', 'nutricode_meta_box_nonce');
 			
 			$origin = get_post_meta($post->ID, '_nutricode_origin', true);
@@ -88,18 +113,20 @@ if ( ! class_exists( 'NutriCode' ) )
 			$year = get_post_meta($post->ID, '_nutricode_year', true);
 
 			?>
-			<p>
-				<label for="nutricode_origin">Origine</label>
-				<input type="text" name="nutricode_origin" id="nutricode_origin" value="<?php echo esc_attr($origin); ?>" />
-			</p>
-			<p>
-				<label for="nutricode_grape">Cépage</label>
-				<input type="text" name="nutricode_grape" id="nutricode_grape" value="<?php echo esc_attr($grape); ?>" />
-			</p>
-			<p>
-				<label for="nutricode_year">Millésime</label>
-				<input type="number" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
-			</p>
+			<div class="nutricode-meta-box">
+				<p>
+					<label for="nutricode_origin">Origine</label>
+					<input type="text" name="nutricode_origin" id="nutricode_origin" value="<?php echo esc_attr($origin); ?>" />
+				</p>
+				<p>
+					<label for="nutricode_grape">Cépage</label>
+					<input type="text" name="nutricode_grape" id="nutricode_grape" value="<?php echo esc_attr($grape); ?>" />
+				</p>
+				<p>
+					<label for="nutricode_year">Millésime</label>
+					<input type="number" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
+				</p>
+			</div>
 			<?php
 		}
 
