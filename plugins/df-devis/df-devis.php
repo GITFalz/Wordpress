@@ -30,7 +30,10 @@ if ( ! class_exists( 'DFDevis' ) )
 
 		public $settings = array();
 		public function __construct() {
-			// Do nothing.
+			if (self::$instance !== null) {
+				return self::$instance;
+			}
+			self::$instance = $this;
 		}
 
 		public static function getInstance() {

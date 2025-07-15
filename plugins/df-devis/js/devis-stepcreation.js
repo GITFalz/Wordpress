@@ -149,11 +149,25 @@ let currentGroup = "Root";
 			post_id: stepData.postId
 		}));
 	});
+
+	set_selected_step(0);
+	check_option_add_step_button_name(0);
+	set_max_step_visibility(0);
 })();
 
 function next_step() { return currentStepIndex + 1; }
 
-/* GET HTML FUNCTIONS */
+function set_selected_step(step_index) {
+	let step_divs = document.querySelectorAll('.devis-step');
+	step_divs.forEach(step => {
+		let stepIndex = parseInt(step.dataset.stepindex);
+		if (stepIndex === step_index) {
+			step.classList.add('current-step');
+		} else {
+			step.classList.remove('current-step');
+		}
+	});
+}
 
 
 
@@ -379,6 +393,26 @@ function dfdb_remove_step(element) {
 			currentStepIndex = 0;
 			display_step_content(currentStepIndex);
 		}
+		else {
+			if (currentStepIndex > stepindex) {
+				currentStepIndex = 0;
+				display_step_content(currentStepIndex);
+			}
+			else {
+				let group = stepDiv.dataset.group;
+				let step_info_container = document.querySelector('.step-info-' + currentStepIndex);
+				if (!step_info_container) {
+					console.error("Step info container for step " + currentStepIndex + " does not exist.");
+					return;
+				}
+				let type = step_info_container.querySelector('.step-type.group_' + group);
+				if (!type) {
+					console.error("Type element for step " + currentStepIndex + " in group " + group + " does not exist.");
+					return;
+				}
+				check_option_add_step_button_name(currentStepIndex, type);
+			}
+		}
 	})
 	.catch(err => {
 		console.error("Error deleting step:", err);
@@ -418,7 +452,6 @@ function dfdb_delete_option(element) {
 			return false;
 		}
 
-		console.log("Option with ID " + id + " and activate group " + activate + " has been deleted successfully.");
 		let types = document.querySelectorAll('.step-type.group_'+activate);
 		types.forEach(type => {
 			type.remove();
@@ -452,16 +485,61 @@ function display_step_content(stepindex, switch_type = true) {
 			if (type.classList.contains('group_' + group)) {			
 				type.classList.remove('hidden');
 				set_type_element_visibility(type, type.dataset.typename);
-				console.log("Setting type element visibility for step " + stepindex + " in group " + group);
 				set_step_select(stepindex, type.dataset.typename);
+				if (type.dataset.typename === "options") {
+					check_option_add_step_button_name(stepindex, type);
+				}
 			} else {
 				type.classList.add('hidden');
 			}
 		});
+
+		
 	}
 
 	currentStepIndex = stepindex;
+	set_selected_step(stepindex);
+	check_option_add_step_button_name(currentStepIndex);
+	set_max_step_visibility(currentStepIndex);
 }
+
+function check_option_add_step_button_name(stepindex, type = null) {
+	let step_info_container = document.querySelector('.step-info-' + stepindex);
+	if (!step_info_container) {
+		console.error("Step info container for step " + stepindex + " does not exist.");
+		return;
+	}
+
+	if (!type) {
+		type = step_info_container.querySelector('.step-type');
+		if (!type) {
+			console.error("Type element for step " + stepindex + " does not exist.");
+			return;
+		}
+	}
+
+	let add_step_buttons = type.querySelectorAll('.add-step');
+	add_step_buttons.forEach(button => {
+		if (container.querySelector('.step-type.group_'+button.dataset.activate)) {
+			button.textContent = "View Step";
+		} else {
+			button.textContent = "Add Step";
+		}
+	});
+}
+
+function set_max_step_visibility(stepindex) {
+	let stepDivs = container.querySelectorAll('.devis-step');
+	stepDivs.forEach(step => {
+		let stepIndex = parseInt(step.dataset.stepindex);
+		if (stepIndex <= stepindex) {
+			step.classList.remove('hidden');
+		}
+		else {
+			step.classList.add('hidden');
+		}
+	});
+}	
 
 function set_step_info_visibility(stepindex) {
 	if (!step_info_exists(stepindex)) {
@@ -482,7 +560,6 @@ function set_step_info_visibility(stepindex) {
 }
 
 function set_type_element_visibility(type, type_name) {
-	console.log("Setting type element visibility for type: " + type_name);
 	let optionsContainer = type.querySelector('.options-container');
 	let historiqueContainer = type.querySelector('.historique-container');
 	let formulaireContainer = type.querySelector('.formulaire-container');
@@ -491,8 +568,6 @@ function set_type_element_visibility(type, type_name) {
 		console.error("One or more containers do not exist in the type element.");
 		return false;
 	}
-
-	console.log("Type name: " + type_name);
 
 	if (type_name === "historique") {
 		optionsContainer.classList.add('hidden');
@@ -530,119 +605,6 @@ function set_type_element_visibility(type, type_name) {
 	}
 	return true;
 }
-
-function change_step_select(step_info_container, select, group, stepindex) {
-	if (stepindex === 0) {
-		step_info_container.classList.remove('hidden');
-		return;
-	}
-
-	// if select is empty just return
-	if (!select || select.trim() === '') {
-		return;
-	}
-
-	if (!is_valid_type(select)) {
-		console.error("Invalid step type: " + select);
-		return;
-	}
-
-	stepDiv = document.getElementById("step_"+currentStepIndex);
-	if (!stepDiv) {
-		console.error("Step with index " + currentStepIndex + " does not exist.");
-		return;
-	}
-
-	let id = parseInt(stepDiv.dataset.id);
-
-	fetch(stepData.ajaxUrl, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded"
-		},
-		body: new URLSearchParams({ 
-			action: "dfdb_set_type_as_selected_for_step_and_group",
-			step_id: id,
-			type_name: select,
-			group_name: group
-		})
-	})
-	.then(res => res.json())
-	.then(data => {
-		if (!data.success) {
-			console.error(data.data.message);
-			return false;
-		}	
-
-		let stepBefore = document.getElementById("step_" + (currentStepIndex - 1));
-		if (!stepBefore) {
-			console.error("Step with index " + (currentStepIndex - 1) + " does not exist.");
-			return;
-		}
-
-		let type = step_info_container.querySelector('.step-type.group_' + stepBefore.dataset.group);
-		console.log('.step-type .group_' + stepBefore.dataset.group);
-		if (type) {
-			type.dataset.typename = select;
-		}
-
-		step_info_container.classList.remove('hidden');
-		let optionContainer = step_info_container.querySelector('.options-container');
-		let historiqueContainer = step_info_container.querySelector('.historique-container');
-		let formulaireContainer = step_info_container.querySelector('.formulaire-container');
-
-		if (select === "historique") {
-			optionContainer.classList.add('hidden');
-			historiqueContainer.classList.remove('hidden');
-			formulaireContainer.classList.add('hidden');
-
-			let historiqueContent = historiqueContainer.querySelectorAll('historique');
-			historiqueContent.forEach(item => {
-				if (item.classList.contains('.group_' + group)) {
-					item.classList.remove('hidden');
-				}
-				else {
-					item.classList.add('hidden');
-				}
-			});
-		}
-		else if (select === "formulaire") {
-			optionContainer.classList.add('hidden');
-			historiqueContainer.classList.add('hidden');
-			formulaireContainer.classList.remove('hidden');
-
-			let formulaireContent = formulaireContainer.querySelectorAll('formulaire');
-			formulaireContent.forEach(item => {
-				if (item.classList.contains('.group_' + group)) {
-					item.classList.remove('hidden');
-				}
-				else {
-					item.classList.add('hidden');
-				}
-			});
-		}
-		else {
-			optionContainer.classList.remove('hidden');
-			historiqueContainer.classList.add('hidden');
-			formulaireContainer.classList.add('hidden');
-
-			if (optionContainer.children.length === 0) {
-				optionContainer.innerHTML = '<button type="button" class="add-option">Add Option</button>';
-			}
-
-			let optionsContent = optionContainer.querySelectorAll('.option');
-			optionsContent.forEach(item => {
-				if (item.classList.contains('group_' + group)) {
-					item.classList.remove('hidden');
-				}
-				else {
-					item.classList.add('hidden');
-				}
-			});
-		}
-	});
-}
-
 
 /* HELPER FUNCTIONS */
 function is_valid_type(type) {
@@ -697,7 +659,6 @@ function type_exists(stepindex, group_name) {
 
 	let type = step_info_container.querySelector('.step-type.group_' + group_name);
 	if (!type) {
-		console.log("Type for step " + stepindex + " in group " + group_name + " does not exist.");
 		return { exists: false, type_id: null };
 	}
 

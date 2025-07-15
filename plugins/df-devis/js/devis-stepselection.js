@@ -10,13 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (e.target.classList.contains('view-devis')) {
 			container.dataset.postid = e.target.dataset.postid;
 			render_devis(container.dataset.postid);
+			set_slected_step(0);
 		}
 	});
 });
 
 function render_devis(postid) {
 	container.innerHTML = '<div class="steps-container"></div>';
-	get_step_by_group(postid, 0, 'Root');
+	get_step_by_group(postid, 0, 'Root');	
 }
 
 async function view_option(e, element) {
@@ -138,9 +139,21 @@ async function view_step(e, element) {
 	step_divs.forEach(step => {
 		let stepIndex = parseInt(step.dataset.stepindex);
 		if (stepIndex > current_step) {
-			step.remove(); // Remove steps that are beyond the current step
-		} else if (stepIndex === current_step) {
+			step.remove();
+		}
+	});
+
+	set_slected_step(step_index);
+}
+
+function set_slected_step(step_index) {
+	let step_divs = document.querySelectorAll('.devis-step');
+	step_divs.forEach(step => {
+		let stepIndex = parseInt(step.dataset.stepindex);
+		if (stepIndex === step_index) {
 			step.classList.add('current-step');
+		} else {
+			step.classList.remove('current-step');
 		}
 	});
 }
@@ -203,6 +216,8 @@ async function get_step_by_group(postid, step_index, group_name) {
 
 		let stepDiv = document.getElementById(`step_${step_index}`);
 		stepDiv.dataset.group = group_name;
+
+		set_slected_step(step_index);
 	})
 	.catch(error => {
 		console.error('Fetch error:', error);
