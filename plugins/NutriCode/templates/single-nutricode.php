@@ -44,12 +44,10 @@ require_once DF_NUTRICODE_PATH . 'includes/dfnc-utils.php';
     
     <div class="product-page-container">
         <div class="product-header">
-            <img src="/placeholder.svg?height=400&width=400" alt="Image du Produit" class="product-main-image">
-            <h1 class="product-title">Château Grand Cru Classé 2018</h1>
+            <img src="<?=$product_data['Image']?>" alt="<?=$product_data['Name']?>" class="product-main-image">
+            <h1 class="product-title"><?=$product_data['Name']?></h1>
             <p class="product-description">
-                Un vin rouge élégant et complexe, issu d'un millésime exceptionnel. 
-                Ce Bordeaux offre des notes de fruits rouges mûrs, d'épices douces et une finale persistante. 
-                Parfait pour accompagner les viandes rouges et les fromages affinés.
+                <?=$product_data['Description']?>
             </p>
         </div>
 
