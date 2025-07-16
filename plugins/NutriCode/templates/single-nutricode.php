@@ -2,6 +2,8 @@
 /**
  * Single NutriCode Template
  */
+require_once 'includes/nc-functions.php';
+
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>

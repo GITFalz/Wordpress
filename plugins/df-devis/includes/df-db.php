@@ -18,6 +18,7 @@ if (!defined('DFDEVIS_TABLE_STEPS')) {
 require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 require_once 'DfDevisException.php';
 
+
 function dfdb_create_database() {
     /* STEP TABLE */
     $steps_sql = "CREATE TABLE " . DFDEVIS_TABLE_STEPS . " (
@@ -158,17 +159,20 @@ function handle_dfdb_set_step_name() {
         $step_name = sanitize_text_field($_POST['step_name']);
 
         if ($step_id <= 0 || empty($step_name)) {
-            throw new DfDevisException("Invalid step ID or step name");
+            throw new DfDevisException
+            ("Invalid step ID or step name");
         }
 
         $result = dfdb_set_step_name($step_id, $step_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update step name: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to update step name: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step name updated successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -183,17 +187,20 @@ function handle_dfdb_set_option_group() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($option_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid option ID or group name");
+            throw new DfDevisException
+            ("Invalid option ID or group name");
         }
 
         $result = dfdb_set_option_group($option_id, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update option group: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to update option group: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option group updated successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -208,17 +215,20 @@ function handle_dfdb_set_option_name() {
         $option_name = sanitize_text_field($_POST['option_name']);
 
         if ($option_id <= 0 || empty($option_name)) {
-            throw new DfDevisException("Invalid option ID or option name");
+            throw new DfDevisException
+            ("Invalid option ID or option name");
         }
 
         $result = dfdb_set_option_name($option_id, $option_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update option name: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to update option name: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option name updated successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -233,17 +243,20 @@ function handle_dfdb_set_history_group() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($history_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid history ID or group name");
+            throw new DfDevisException
+            ("Invalid history ID or group name");
         }
 
         $result = dfdb_set_history_group($history_id, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update history group: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to update history group: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'History group updated successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -259,17 +272,20 @@ function handle_dfdb_set_type_name() {
         df_check_type($type_name);
 
         if ($type_id <= 0 || empty($type_name)) {
-            throw new DfDevisException("Invalid type ID or type name");
+            throw new DfDevisException
+            ("Invalid type ID or type name");
         }
 
         $result = dfdb_set_type_name($type_id, $type_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to update type name: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to update type name: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Type name updated successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -285,18 +301,21 @@ function handle_dfdb_create_step() {
         $post_id = intval($_POST['post_id']);
 
         if (empty($step_name) || $post_id <= 0) {
-            throw new DfDevisException("Invalid step name or post ID");
+            throw new DfDevisException
+            ("Invalid step name or post ID");
         }
         $steps = dfdb_get_steps($post_id);
         $step_index = count($steps);
         $result = dfdb_create_step($step_name, $step_index, $post_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to create step: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create step: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step created successfully', 'id' => $wpdb->insert_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -312,17 +331,20 @@ function handle_dfdb_create_type() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($step_id <= 0 || empty($type_name) || empty($group_name)) {
-            throw new DfDevisException("Invalid step ID, type name or group name");
+            throw new DfDevisException
+            ("Invalid step ID, type name or group name");
         }
 
         $result = dfdb_create_type($step_id, $type_name, $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create type: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create type: " . dfdb_error());
         }  
 
         wp_send_json_success(['message' => 'Type created successfully', 'id' => $wpdb->insert_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -336,17 +358,20 @@ function handle_dfdb_create_option() {
         $option_name = sanitize_text_field($_POST['option_name']);
 
         if (empty($option_name)) {
-            throw new DfDevisException("Invalid option name");
+            throw new DfDevisException
+            ("Invalid option name");
         }
 
         $result = dfdb_create_option($option_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create option: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create option: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option created successfully', 'id' => $wpdb->insert_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -360,17 +385,20 @@ function handle_dfdb_create_history() {
         $info = sanitize_textarea_field($_POST['info']);
 
         if (empty($info)) {
-            throw new DfDevisException("Invalid info");
+            throw new DfDevisException
+            ("Invalid info");
         }
 
         $result = dfdb_create_history($info);
         if ($result === false) {
-            throw new DfDevisException("Failed to create history: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create history: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'History created successfully', 'id' => $wpdb->insert_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -384,17 +412,20 @@ function handle_dfdb_create_email() {
         $info = sanitize_textarea_field($_POST['info']);
 
         if (empty($info)) {
-            throw new DfDevisException("Invalid info");
+            throw new DfDevisException
+            ("Invalid info");
         }
 
         $result = dfdb_create_email($info);
         if ($result === false) {
-            throw new DfDevisException("Failed to create email: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create email: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Email created successfully', 'id' => $wpdb->insert_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -406,26 +437,31 @@ function dfdb_create_specific_type($step_id, $type_name, $group_name) {
     global $wpdb;
     $result = dfdb_create_type($step_id, $type_name, $group_name);
     if ($result === false) {
-        throw new DfDevisException("Failed to create type: " . dfdb_error());
+        throw new DfDevisException
+        ("Failed to create type: " . dfdb_error());
     }
     $last_id = $wpdb->insert_id;
     if ($type_name === 'options') {
         $result = dfdb_create_option($last_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default option: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default option: " . dfdb_error());
         }
     } elseif ($type_name === 'historique') {
         $result = dfdb_create_history($last_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default history: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default history: " . dfdb_error());
         }
     } elseif ($type_name === 'email') {
         $result = dfdb_create_email($last_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default email: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default email: " . dfdb_error());
         }
     } else {
-        throw new DfDevisException("Unknown type name: $type_name");
+        throw new DfDevisException
+        ("Unknown type name: $type_name");
     }
     return $result;
 }
@@ -439,36 +475,42 @@ function handle_dfdb_create_default_types() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($step_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid step ID or group name");
+            throw new DfDevisException
+            ("Invalid step ID or group name");
         }
 
         $result = dfdb_create_type($step_id, 'options', $group_name);
         if ($result === false) {
-            throw new DfDevisException("Failed to create options type: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create options type: " . dfdb_error());
         }
         $type_id = dfdb_id();
 
         $result = dfdb_create_option($type_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default option: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default option: " . dfdb_error());
         }  
         $option_id = dfdb_id();
 
         $result = dfdb_create_history($type_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default history: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default history: " . dfdb_error());
         }
         $history_id = dfdb_id();
 
         $result = dfdb_create_email($type_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default email: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default email: " . dfdb_error());
         }
         $email_id = dfdb_id();
 
         wp_send_json_success(['message' => 'Default types created successfully', 'type_id' => $type_id, 'option_id' => $option_id, 'history_id' => $history_id, 'email_id' => $email_id]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -507,13 +549,15 @@ function handle_dfdb_get_options_by_step_and_group() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($step_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid step ID or group name");
+            throw new DfDevisException
+            ("Invalid step ID or group name");
         }
 
         $options = dfdb_get_options_by_step_and_group($step_id, $group_name);
         wp_send_json_success(['message' => 'Options retrieved successfully', 'content' => $options]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -534,13 +578,15 @@ function handle_dfdb_get_history_by_step_and_group() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($step_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid step ID or group name");
+            throw new DfDevisException
+            ("Invalid step ID or group name");
         }
 
         $history = dfdb_get_history_by_step_and_group($step_id, $group_name);
         wp_send_json_success(['message' => 'History retrieved successfully', 'content' => $history]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -561,13 +607,15 @@ function handle_dfdb_get_email_by_step_and_group() {
         $group_name = sanitize_text_field($_POST['group_name']);
 
         if ($step_id <= 0 || empty($group_name)) {
-            throw new DfDevisException("Invalid step ID or group name");
+            throw new DfDevisException
+            ("Invalid step ID or group name");
         }
 
         $email = dfdb_get_email_by_step_and_group($step_id, $group_name);
         wp_send_json_success(['message' => 'Email retrieved successfully', 'content' => $email]);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -675,34 +723,40 @@ function handle_dfdb_delete_option() {
         $option_id = intval($_POST['option_id']);
 
         if ($option_id <= 0) {
-            throw new DfDevisException("Invalid option ID");
+            throw new DfDevisException
+            ("Invalid option ID");
         }
 
         // get the type_id of the option to delete
         $type_id = dfdb_get_options_type_id($option_id);
         if ($type_id === null) {
-            throw new DfDevisException("Option does not have a type ID >:(");
+            throw new DfDevisException
+            ("Option does not have a type ID >:(");
         }
 
         $activate_group = dfdb_get_options_activate_group($option_id);
         if ($activate_group === null) {
-            throw new DfDevisException("Option does not have an activate group >:(");
+            throw new DfDevisException
+            ("Option does not have an activate group >:(");
         }
 
         // delete every type that are triggered by the option
         $result = dfdb_delete_types_by_group($type_id, $activate_group);
         if ($result === false) {
-            throw new DfDevisException("Failed to delete types by group: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete types by group: " . dfdb_error());
         }
 
         $result = dfdb_delete_option($option_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to delete option: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete option: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Option deleted successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -718,7 +772,8 @@ function handle_dfdb_delete_step() {
         $step_index = intval($_POST['step_index']);
 
         if ($post_id <= 0 || $step_id <= 0 || $step_index < 0) {
-            throw new DfDevisException("Invalid post ID, step ID or step index");
+            throw new DfDevisException
+            ("Invalid post ID, step ID or step index");
         }
 
         // Delete all steps that come after the step to delete
@@ -727,7 +782,8 @@ function handle_dfdb_delete_step() {
             if ($step->step_index > $step_index) {
                 $result = dfdb_delete_step($step->id);
                 if ($result === false) {
-                    throw new DfDevisException("Failed to delete step: " . dfdb_error());
+                    throw new DfDevisException
+                    ("Failed to delete step: " . dfdb_error());
                 }
             }
         }
@@ -735,12 +791,14 @@ function handle_dfdb_delete_step() {
         // Delete the step itself
         $result = dfdb_delete_step($step_id);
         if ($result === false) {
-            throw new DfDevisException("Failed to delete step: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete step: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step deleted successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }
@@ -820,7 +878,8 @@ function dfdb_generate_missing_options($type_id) {
     if (empty($options)) {
         $result = dfdb_create_option($type_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default option: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default option: " . dfdb_error());
         }
     }
 }
@@ -830,7 +889,8 @@ function dfdb_generate_missing_history($type_id) {
     if (empty($history)) {
         $result = dfdb_create_history($type_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default history: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default history: " . dfdb_error());
         }
     }
 }
@@ -840,7 +900,8 @@ function dfdb_generate_missing_email($type_id) {
     if (empty($email)) {
         $result = dfdb_create_email($type_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException("Failed to create default email: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to create default email: " . dfdb_error());
         }
     }
 }
@@ -852,27 +913,32 @@ function handle_dfdb_remove_unused_data() {
         $post_id = intval($_POST['post_id']);
 
         if ($post_id <= 0) {
-            throw new DfDevisException("Invalid post ID");
+            throw new DfDevisException
+            ("Invalid post ID");
         }
 
         $result_options = dfdb_delete_options_not_in_use($post_id);
         if ($result_options === false) {
-            throw new DfDevisException("Failed to delete unused options: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete unused options: " . dfdb_error());
         }
 
         $result_history = dfdb_delete_history_not_in_use($post_id);
         if ($result_history === false) {
-            throw new DfDevisException("Failed to delete unused history: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete unused history: " . dfdb_error());
         }
 
         $result_email = dfdb_delete_email_not_in_use($post_id);
         if ($result_email === false) {
-            throw new DfDevisException("Failed to delete unused email: " . dfdb_error());
+            throw new DfDevisException
+            ("Failed to delete unused email: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Unused data deleted successfully']);
         wp_die();
-    } catch (DfDevisException $e) {
+    } catch (DfDevisException
+     $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
         wp_die();
     }

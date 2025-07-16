@@ -10,5 +10,20 @@ let meta_box_element;
         foreground: "black"
     });
     
-    meta_box_element.appendChild(qr.canvas);
+    const qr_canvas = qr.canvas;
+    let canvas_element = document.getElementById('qr-code-canvas');
+    if (canvas_element) {
+        canvas_element.replaceWith(qr_canvas);
+        qr_canvas.id = 'qr-code-canvas';
+    }
+
+    document.getElementById('download-qr-button').addEventListener('click', function () {
+        const canvas = document.getElementById('qr-code-canvas');
+        const image = canvas.toDataURL('image/png');
+
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'qr-code.png';
+        link.click();
+    });
 })();

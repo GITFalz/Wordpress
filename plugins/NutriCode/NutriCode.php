@@ -18,6 +18,9 @@ if ( ! class_exists( 'NutriCode' ) )
 	define('DF_NUTRICODE_PATH', plugin_dir_path(__FILE__));
 	define('DF_NUTRICODE_URL', plugin_dir_url(__FILE__)); 
 
+	require_once DF_NUTRICODE_PATH . 'includes/nc-functions.php';
+	require_once DF_NUTRICODE_PATH . 'includes/DfNutricodeException.php';
+
     class NutriCode
     {
         public static $instance = null; 
@@ -67,7 +70,6 @@ if ( ! class_exists( 'NutriCode' ) )
 			add_action('save_post_nutricode', [$this, 'save_post_data']); 
 			add_action('wp_trash_post', [$this, 'my_custom_on_trash_action']);
             add_filter( 'single_template', [$this, 'override_single_template']);
-                
 		}
 
         function override_single_template( $single_template ){
@@ -106,6 +108,30 @@ if ( ! class_exists( 'NutriCode' ) )
 				]
 	        );
 
+			wp_enqueue_script(
+	            'main-script-handle',
+	            DF_NUTRICODE_URL . 'js/main.js',
+	            ['jquery'],
+	            '1.0',
+	            true
+	        );
+
+			wp_localize_script(
+	            'main-script-handle', 
+	            'stepData', [
+					'permalink' => get_permalink($post->ID),
+					'post_id' => $post->ID,
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+				]
+	        );
+
+			wp_enqueue_style(
+				'nutricode-creation-style',
+				DF_NUTRICODE_URL . 'styles/nutricode-creation.css',
+				[],
+				'1.0'
+			);
+
 			wp_nonce_field('nutricode_meta_box', 'nutricode_meta_box_nonce');
 			
 			$origin = get_post_meta($post->ID, '_nutricode_origin', true);
@@ -114,18 +140,35 @@ if ( ! class_exists( 'NutriCode' ) )
 
 			?>
 			<div class="nutricode-meta-box">
-				<p>
-					<label for="nutricode_origin">Origine</label>
-					<input type="text" name="nutricode_origin" id="nutricode_origin" value="<?php echo esc_attr($origin); ?>" />
-				</p>
-				<p>
-					<label for="nutricode_grape">Cépage</label>
-					<input type="text" name="nutricode_grape" id="nutricode_grape" value="<?php echo esc_attr($grape); ?>" />
-				</p>
-				<p>
-					<label for="nutricode_year">Millésime</label>
-					<input type="number" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
-				</p>
+				<div class="nutricode-page-info">
+					<div class="nutricode-page-details">
+						<p>
+							<label for="nutricode_origin">Origine</label>
+							<input type="text" name="nutricode_origin" id="nutricode_origin" value="<?php echo esc_attr($origin); ?>" />
+						</p>
+						<p>
+							<label for="nutricode_grape">Cépage</label>
+							<input type="text" name="nutricode_grape" id="nutricode_grape" value="<?php echo esc_attr($grape); ?>" />
+						</p>
+						<p>
+							<label for="nutricode_year">Millésime</label>
+							<input type="number" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
+						</p>
+					</div>
+					<div class="nutricode-qr-code">
+						<canvas id="qr-code-canvas"></canvas>
+						<button id="download-qr-button">Download QR Code</button>
+					</div>
+				</div>
+
+				<div id="product-inspector">
+
+					<input type="text" id="product-search" placeholder="Search by name or SKU..."/>
+
+					<div id="product-error"></div>
+
+					<div id="product-list"></div>
+				</div>
 			</div>
 			<?php
 		}

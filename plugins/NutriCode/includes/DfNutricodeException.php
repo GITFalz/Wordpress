@@ -1,6 +1,6 @@
 <?php
 
-class DfException extends Exception {
+class DfNutricodeException extends Exception {
     private $context;
 
     public function __construct($message, $context = [], $code = 0, Throwable $previous = null) {

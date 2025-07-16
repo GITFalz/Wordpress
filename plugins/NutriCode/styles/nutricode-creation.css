@@ -1,0 +1,177 @@
+/* General styling for the main container */
+.nutricode-meta-box {
+  max-width: 1000px; /* Increased width for a wider layout */
+  margin: 40px auto; /* Center the box and add vertical spacing */
+  padding: 30px; /* Internal padding */
+  background-color: #ffffff; /* White background for the "floating" card */
+  border-radius: 12px; /* Slightly rounded corners */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol"; /* Common web-safe font stack */
+  color: #333333; /* Dark grey text for readability */
+}
+
+/* Styling for the top section containing details and QR code */
+.nutricode-page-info {
+  display: grid; /* Use CSS Grid for layout */
+  grid-template-columns: 1fr 180px; /* Details take more space, QR code section slightly wider */
+  gap: 30px; /* Space between grid items */
+  padding-bottom: 30px; /* Space below this section */
+  margin-bottom: 30px; /* Space before the product inspector */
+  border-bottom: 1px solid #eeeeee; /* Subtle separator line */
+}
+
+/* Responsive adjustment for smaller screens */
+@media (max-width: 768px) {
+  .nutricode-page-info {
+    grid-template-columns: 1fr; /* Stack items on small screens */
+    gap: 20px;
+  }
+}
+
+/* Styling for the input details section */
+.nutricode-page-details p {
+  margin-bottom: 15px; /* Space between each input group */
+  display: flex; /* Use flexbox for label and input alignment */
+  flex-direction: column; /* Stack label above input */
+}
+
+.nutricode-page-details label {
+  font-weight: 600; /* Slightly bolder labels */
+  margin-bottom: 8px; /* Space between label and input */
+  display: block; /* Ensure label takes its own line */
+  color: #555555; /* Slightly lighter label color */
+  font-size: 0.95rem;
+}
+
+.nutricode-page-details input[type="text"],
+.nutricode-page-details input[type="number"] {
+  width: 100%; /* Full width inputs */
+  padding: 12px 15px; /* Generous padding inside inputs */
+  border: 1px solid #dddddd; /* Light grey border */
+  border-radius: 8px; /* Rounded input fields */
+  font-size: 1rem; /* Standard font size */
+  color: #333333;
+  background-color: #f9f9f9; /* Very light background for inputs */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transition for focus */
+}
+
+.nutricode-page-details input[type="text"]:focus,
+.nutricode-page-details input[type="number"]:focus {
+  outline: none; /* Remove default outline */
+  border-color: #a0c4ff; /* Light blue border on focus */
+  box-shadow: 0 0 0 3px rgba(160, 196, 255, 0.3); /* Subtle glow on focus */
+}
+
+/* Styling for the QR code section */
+.nutricode-qr-code {
+  display: flex;
+  flex-direction: column; /* Stack canvas and button vertically */
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0; /* Light background for QR code area */
+  border-radius: 8px;
+  padding: 15px; /* Padding around the canvas and button */
+  min-height: 150px; /* Ensure it has some height */
+  gap: 15px; /* Space between canvas and button */
+}
+
+#qr-code-canvas {
+  display: block; /* Remove extra space below canvas */
+  max-width: 100%; /* Ensure canvas scales down if needed */
+  height: auto;
+  border: 1px solid #cccccc; /* Border around the QR code */
+  border-radius: 4px;
+}
+
+#download-qr-button {
+  background-color: #007bff; /* A standard blue for buttons */
+  color: #ffffff; /* White text */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#download-qr-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-1px); /* Slight lift on hover */
+}
+
+#download-qr-button:active {
+  background-color: #004085; /* Even darker on click */
+  transform: translateY(0);
+}
+
+/* Styling for the product inspector section */
+#product-inspector {
+  padding-top: 20px; /* Space from the top separator */
+}
+
+#product-search {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333333;
+  background-color: #f9f9f9;
+  margin-bottom: 20px; /* Space below the search input */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#product-search:focus {
+  outline: none;
+  border-color: #a0c4ff;
+  box-shadow: 0 0 0 3px rgba(160, 196, 255, 0.3);
+}
+
+#product-search::placeholder {
+  color: #999999; /* Placeholder text color */
+}
+
+#product-error {
+  color: #d9534f; /* Red color for error messages */
+  font-size: 0.9rem;
+  margin-top: -10px; /* Pull it closer to the search bar */
+  margin-bottom: 15px; /* Space below error message */
+  text-align: center;
+}
+
+#product-list {
+  /* No min-height, it will expand with content */
+  border: 1px dashed #cccccc; /* Dashed border to indicate an empty area */
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack product items vertically */
+  gap: 10px; /* Space between individual product items */
+  color: #999999;
+  font-style: italic;
+  background-color: #fdfdfd; /* Slightly different background */
+  /* If you want a scrollable list with a fixed height, uncomment these: */
+  /* max-height: 400px; */
+  /* overflow-y: auto; */
+}
+
+/* Basic styling for potential individual product items within #product-list */
+/* Assuming product items might be divs or list items, this gives them a "floating" look */
+#product-list > div,
+#product-list > li {
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border: 1px solid #eeeeee;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Subtle shadow for each item */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #444444;
+}
+
+/* Basic styling for the outer wrapper divs if they are part of the layout */
+/* Assuming these are just wrappers and not part of the component's core design */
