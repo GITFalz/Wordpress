@@ -1,0 +1,44 @@
+/* Styling for the QR code section */
+.nutricode-qr-code {
+  display: flex;
+  flex-direction: column; /* Stack canvas and button vertically */
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0; /* Light background for QR code area */
+  border-radius: 8px;
+  padding: 15px; /* Padding around the canvas and button */
+  min-height: 150px; /* Ensure it has some height */
+  gap: 15px; /* Space between canvas and button */
+  /* No changes needed here, align-items: start on parent handles stretching */
+}
+
+#qr-code-canvas {
+  display: block; /* Remove extra space below canvas */
+  min-height: 200px; /* Minimum height for the QR code */
+  max-width: 100%; /* Ensure canvas scales down if needed */
+  height: auto;
+  border: 1px solid #cccccc; /* Border around the QR code */
+  border-radius: 4px;
+}
+
+#download-qr-button {
+  background-color: #007bff; /* A standard blue for buttons */
+  color: #ffffff; /* White text */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#download-qr-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-1px); /* Slight lift on hover */
+}
+
+#download-qr-button:active {
+  background-color: #004085; /* Even darker on click */
+  transform: translateY(0);
+}

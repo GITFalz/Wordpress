@@ -1,8 +1,11 @@
 /* General styling for the main container */
 .nutricode-meta-box {
-  max-width: 1200px; /* Increased width for more space */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: row; /* Stack elements vertically */
+  max-width: 100%;
   margin: 40px auto; /* Center the box and add vertical spacing */
   padding: 30px; /* Internal padding */
+  gap: 30px; /* Space between elements */
   background-color: #ffffff; /* White background for the "floating" card */
   border-radius: 12px; /* Slightly rounded corners */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* Subtle shadow for depth */
@@ -13,8 +16,10 @@
 
 /* Styling for the top section containing details and QR code */
 .nutricode-page-info {
+  width: 60%; /* Takes up 60% of the width */
+  padding-right: 30px; /* Space between details and product inspector */
   display: grid; /* Use CSS Grid for layout */
-  grid-template-columns: 1fr 250px; /* Details take more space, QR code section has a fixed width */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
   gap: 30px; /* Space between grid items */
   padding-bottom: 30px; /* Space below this section */
   margin-bottom: 30px; /* Space before the product inspector */
@@ -48,7 +53,7 @@
   margin-bottom: 8px; /* Space between label and input */
   display: block; /* Ensure label takes its own line */
   color: #555555; /* Slightly lighter label color */
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .nutricode-page-details input[type="text"],
@@ -76,53 +81,11 @@
   box-shadow: 0 0 0 3px rgba(160, 196, 255, 0.3); /* Subtle glow on focus */
 }
 
-/* Styling for the QR code section */
-.nutricode-qr-code {
-  display: flex;
-  flex-direction: column; /* Stack canvas and button vertically */
-  justify-content: center;
-  align-items: center;
-  background-color: #f0f0f0; /* Light background for QR code area */
-  border-radius: 8px;
-  padding: 15px; /* Padding around the canvas and button */
-  min-height: 150px; /* Ensure it has some height */
-  gap: 15px; /* Space between canvas and button */
-  /* No changes needed here, align-items: start on parent handles stretching */
-}
-
-#qr-code-canvas {
-  display: block; /* Remove extra space below canvas */
-  max-width: 100%; /* Ensure canvas scales down if needed */
-  height: auto;
-  border: 1px solid #cccccc; /* Border around the QR code */
-  border-radius: 4px;
-}
-
-#download-qr-button {
-  background-color: #007bff; /* A standard blue for buttons */
-  color: #ffffff; /* White text */
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-#download-qr-button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-  transform: translateY(-1px); /* Slight lift on hover */
-}
-
-#download-qr-button:active {
-  background-color: #004085; /* Even darker on click */
-  transform: translateY(0);
-}
 
 /* Styling for the product inspector section */
 #product-inspector {
   padding-top: 20px; /* Space from the top separator */
+  width: 40%; /* Full width for the inspector */
 }
 
 #product-search {
@@ -173,11 +136,12 @@
 
 /* Basic styling for individual product items within #product-list */
 .product-item {
-  background-color: #ffffff;
+  background-color: #ffffff;  
   border: 1px solid #eeeeee;
   border-radius: 8px; /* Slightly larger radius for a softer card look */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* Slightly stronger shadow for better floating */
   display: flex; /* Use flexbox for horizontal layout */
+  flex-wrap: wrap;
   align-items: center; /* Vertically align items in the middle */
   padding: 15px; /* Padding around the content inside the item */
   gap: 15px; /* Space between the image and the text content */
@@ -217,14 +181,7 @@
   font-weight: 600; /* Bolder name */
   color: #222222;
   margin: 0; /* Reset default paragraph margin */
-}
-
-/* Styling for the product price */
-.product-item .product-price {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #007bff; /* A distinct color for the price */
-  margin: 0; /* Reset default paragraph margin */
+  flex: 1 1 33%;
 }
 
 /* Styling for the product description */
@@ -239,10 +196,28 @@
   display: -webkit-box;
   -webkit-line-clamp: 2; /* Show up to 2 lines */
   -webkit-box-orient: vertical;
+  flex: 1 1 100%; /* Full width for description */
+  margin-top: 10px; /* Space above description */
 }
 
 /* slight movement on hover for product items */
 .product-item:hover {
   transform: translateY(-2px); /* Lift the item slightly on hover */
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow on hover */
+}
+
+@media (max-width: 1800px) {
+  .nutricode-meta-box {
+    flex-direction: column; /* Stack elements vertically on smaller screens */
+    padding: 20px; /* Reduce padding for smaller screens */
+  }
+
+  .nutricode-page-info {
+    width: 100%; /* Full width on small screens */
+    padding-right: 0; /* Remove right padding */
+  }
+
+  #product-inspector {
+    width: 100%; /* Full width for the inspector on small screens */
+  }
 }

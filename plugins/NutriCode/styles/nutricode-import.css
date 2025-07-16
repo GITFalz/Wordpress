@@ -1,0 +1,179 @@
+/* Styling for the product inspector section */
+#product-inspector {
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack elements vertically */
+  padding-top: 20px; /* Space from the top separator */
+  width: 40%; /* Full width for the inspector */
+}
+
+#product-search {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333333;
+  background-color: #f9f9f9;
+  margin-bottom: 20px; /* Space below the search input */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#product-search:focus {
+  outline: none;
+  border-color: #a0c4ff;
+  box-shadow: 0 0 0 3px rgba(160, 196, 255, 0.3);
+}
+
+#product-search::placeholder {
+  color: #999999; /* Placeholder text color */
+}
+
+#product-error {
+  color: #d9534f; /* Red color for error messages */
+  font-size: 0.9rem;
+  margin-top: -10px; /* Pull it closer to the search bar */
+  margin-bottom: 15px; /* Space below error message */
+  text-align: center;
+}
+
+#product-list {
+  /* No min-height, it will expand with content */
+  border: 1px dashed #cccccc; /* Dashed border to indicate an empty area */
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack product items vertically */
+  gap: 10px; /* Space between individual product items */
+  color: #999999;
+  font-style: italic;
+  background-color: #fdfdfd; /* Slightly different background */
+  max-height: 800px;   /* Limit height */
+  overflow-y: auto;    /* Add vertical scroll when needed */
+  padding-right: 10px; /* Optional: space for scrollbar */
+
+}
+
+.product-pagination {
+  display: flex;
+  flex-direction: row; /* Horizontal layout for pagination controls */
+  gap: 10px; /* Space between controls */
+  flex-wrap: wrap;
+  width: 100%; /* Full width for pagination controls */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space between controls */
+  margin-bottom: 15px; /* Space above pagination */
+}
+
+#product-page-previous,
+#product-page-next {
+  background-color: #333333; /* Primary button color */
+  height: 34px; /* Fixed height for buttons */
+  color: #ffffff; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 8px 12px; /* Padding for the buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Smaller font size for buttons */
+  transition: background-color 0.2s ease; /* Smooth transition for hover effect */
+}
+
+#product-product-per-page,
+#product-page-number {
+  width: 80px; /* Fixed width for input fields */
+  height: 34px; /* Fixed height for input fields */
+  padding: 8px; /* Padding inside the input fields */
+  border: 1px solid #cccccc; /* Light border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 0.9rem; /* Smaller font size for inputs */
+  color: #333333; /* Dark text color */
+  background-color: #f9f9f9; /* Light background for inputs */
+}
+
+#import-products-button {
+  margin-left: auto; /* Push the button to the right */
+  background-color: #28a745; /* Green color for import button */
+  color: #ffffff; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 8px 12px; /* Padding for the button */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Smaller font size for button */
+  transition: background-color 0.2s ease; /* Smooth transition for hover effect */
+}
+
+.product-pagination label {
+  font-size: 0.9rem; /* Smaller font for pagination labels */
+  color: #777777; /* Darker color for better readability */
+}
+
+/* Basic styling for individual product items within #product-list */
+.product-item {
+  background-color: #ffffff;  
+  border: 1px solid #eeeeee;
+  border-radius: 8px; /* Slightly larger radius for a softer card look */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* Slightly stronger shadow for better floating */
+  display: flex; /* Use flexbox for horizontal layout */
+  flex-wrap: wrap;
+  align-items: center; /* Vertically align items in the middle */
+  padding: 15px; /* Padding around the content inside the item */
+  gap: 15px; /* Space between the image and the text content */
+  transition: all 0.2s ease-in-out; /* Smooth transition for selected state */
+}
+
+/* Style for selected product items */
+.product-item.product-selected {
+  background-color: #e6f7ff; /* Light blue background */
+  border: 1px solid #91d5ff; /* A more prominent blue border */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Stronger shadow for selected */
+  transform: translateY(-3px); /* A more noticeable lift */
+}
+
+/* Styling for the product image within the item */
+.product-item .product-image {
+  width: 80px; /* Fixed width for the image */
+  height: 80px; /* Fixed height for the image */
+  object-fit: cover; /* Ensures image covers the area without distortion */
+  display: block;
+  border-radius: 8px; /* Rounded corners for the image itself */
+  flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+/* Styling for the text content area within the product item */
+/* This will contain the name, price, and description */
+.product-item .product-content {
+  display: flex;
+  flex-direction: column; /* Stack name, price, description vertically */
+  gap: 5px; /* Small gap between name, price, description */
+  flex-grow: 1; /* Allow content to take up remaining space */
+}
+
+/* Styling for the product name */
+.product-item .product-name {
+  font-size: 1.1rem; /* Slightly larger font for the name */
+  font-weight: 600; /* Bolder name */
+  color: #222222;
+  margin: 0; /* Reset default paragraph margin */
+  flex: 1 1 33%;
+}
+
+/* Styling for the product description */
+.product-item .product-description {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-top: 5px; /* Small space above description */
+  margin-bottom: 0; /* Reset default paragraph margin */
+  max-height: 40px; /* Limit description height to about 2-3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Show up to 2 lines */
+  -webkit-box-orient: vertical;
+  flex: 1 1 100%; /* Full width for description */
+  margin-top: 10px; /* Space above description */
+}
+
+/* slight movement on hover for product items */
+.product-item:hover {
+  transform: translateY(-2px); /* Lift the item slightly on hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow on hover */
+}

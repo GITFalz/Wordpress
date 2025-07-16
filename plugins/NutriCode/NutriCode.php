@@ -42,9 +42,12 @@ if ( ! class_exists( 'NutriCode' ) )
 			add_action('init', function() {
 			    register_post_type('nutricode', [
 			        'labels' => [
-			            'name' => 'Defacto NutriCode',
-			            'singular_name' => 'Defacto NutriCode',
+			            'name' => 'NutriCode',
+			            'singular_name' => 'NutriCode',
 			            'menu_name' => 'NutriCode',
+						'all_items' => 'Tous les NutriCodes',
+						'add_new' => 'Créer un NutriCode',
+						'add_new_item' => 'Créer un NutriCode',
 			        ],
 					'has_archive' => true,
     				'rewrite' => ['slug' => 'nutricode'],
@@ -65,7 +68,28 @@ if ( ! class_exists( 'NutriCode' ) )
 			        'normal',
 			        'default'
 			    );
+
+				add_meta_box(
+					'nutricode_side_box',
+					'Qr Code',
+					[$this, 'render_nutricode_side_box'],
+					'nutricode',
+					'side',
+					'default'
+				);
 			});
+
+			add_action('admin_menu', function() {
+				add_submenu_page(
+					'edit.php?post_type=nutricode',
+					'Import NutriCode Data',
+					'Import', 
+					'manage_options',
+					'nutricode_import',
+					[$this, 'render_nutricode_import_page']
+				);
+			});
+
 
 			add_action('save_post_nutricode', [$this, 'save_post_data']); 
             add_filter( 'single_template', [$this, 'override_single_template']);
@@ -90,30 +114,6 @@ if ( ! class_exists( 'NutriCode' ) )
         }
 
 		function render_nutricode_meta_box($post) {
-			
-			wp_enqueue_script(
-				'qr-code-library',
-				'https://unpkg.com/qrious@4.0.2/dist/qrious.min.js',
-				['jquery'],
-				'1.0',
-				true
-			);
-			
-			wp_enqueue_script(
-	            'qr-script-handle',
-	            DF_NUTRICODE_URL . 'js/qr-script.js',
-	            ['jquery'],
-	            '1.0',
-	            true
-	        );
-
-			wp_localize_script(
-	            'qr-script-handle', 
-	            'stepData', [
-					'permalink' => get_permalink($post->ID),
-					'post_id' => $post->ID
-				]
-	        );
 
 			wp_enqueue_script(
 	            'main-script-handle',
@@ -159,6 +159,21 @@ if ( ! class_exists( 'NutriCode' ) )
 
 			?>
 			<div class="nutricode-meta-box">
+				<div id="product-inspector">
+					<input type="text" id="product-search" placeholder="Search by name or SKU..."/>
+					<div class="product-pagination">
+						<label for="product-product-per-page">Produits par page:
+							<input type="number" id="product-product-per-page" value="10" min="1" max="100" />
+						</label>
+						<button id="product-page-previous"><</button>
+						<label for="product-page-number">Page:
+							<input type="number" id="product-page-number" value="1" min="1" />
+						</label>
+						<button id="product-page-next">></button>
+					</div>
+					<div id="product-error"></div>
+					<div id="product-list"></div>
+				</div>
 				<div class="nutricode-page-info">
 					<div class="nutricode-page-details">
 
@@ -237,24 +252,97 @@ if ( ! class_exists( 'NutriCode' ) )
 							<input type="text" name="nutricode_product_id" id="nutricode_product_id" value="<?php echo esc_attr($product_id); ?>" readonly/>
 						</p>
 					</div>
-					<div class="nutricode-qr-code">
-						<canvas id="qr-code-canvas"></canvas>
-						<button id="download-qr-button">Download QR Code</button>
-					</div>
-				</div>
-
-				<div id="product-inspector">
-
-					<input type="text" id="product-search" placeholder="Search by name or SKU..."/>
-
-					<div id="product-error"></div>
-
-					<div id="product-list"></div>
 				</div>
 			</div>
 			<?php
 		}
 
+		public function render_nutricode_side_box($post) {
+			wp_enqueue_script(
+				'qr-code-library',
+				'https://unpkg.com/qrious@4.0.2/dist/qrious.min.js',
+				['jquery'],
+				'1.0',
+				true
+			);
+			
+			wp_enqueue_script(
+	            'qr-script-handle',
+	            DF_NUTRICODE_URL . 'js/qr-script.js',
+	            ['jquery'],
+	            '1.0',
+	            true
+	        );
+
+			wp_localize_script(
+	            'qr-script-handle', 
+	            'stepData', [
+					'permalink' => get_permalink($post->ID),
+					'post_id' => $post->ID
+				]
+	        );
+
+			wp_enqueue_style(
+				'nutricode-side-style',
+				DF_NUTRICODE_URL . 'styles/nutricode-side.css',
+				[],
+				'1.0'
+			);
+
+			?>
+			<div class="nutricode-qr-code">
+				<canvas id="qr-code-canvas"></canvas>
+				<button id="download-qr-button">Download QR Code</button>
+			</div>
+			<?php
+		}
+
+		public function render_nutricode_import_page() {
+			wp_enqueue_style(
+				'nutricode-import-style',
+				DF_NUTRICODE_URL . 'styles/nutricode-import.css',
+				[],
+				'1.0'
+			);
+
+			wp_enqueue_script(
+				'nutricode-import-script',
+				DF_NUTRICODE_URL . 'js/import.js',
+				['jquery'],
+				'1.0',
+				true
+			);
+
+			wp_localize_script(
+				'nutricode-import-script',
+				'stepData',
+				[
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+					'nonce' => wp_create_nonce('nutricode_import_nonce')
+				]
+			);
+
+			?>
+			<div class="nutricode-import-container">
+				<div id="product-inspector">
+					<input type="text" id="product-search" placeholder="Search by name"/>
+					<div class="product-pagination">
+						<label for="product-product-per-page">Produits par page:
+							<input type="number" id="product-product-per-page" value="10" min="1" max="100" />
+						</label>
+						<button id="product-page-previous" hidden><</button>
+						<label for="product-page-number" hidden>Page:
+							<input type="number" id="product-page-number" value="1" min="1" />
+						</label>
+						<button id="product-page-next" hidden>></button>
+						<button id="import-products-button">Importer</button>	
+					</div>
+					<div id="product-error"></div>
+					<div id="product-list"></div>
+				</div>
+			</div>
+			<?php
+		}
 		
 
 		public function save_post_data($post_id) {

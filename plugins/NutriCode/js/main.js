@@ -20,7 +20,8 @@ let current_product_id = null;
             if (name.length > 0) {
                 get_product_info(name);
             } else {
-                console.warn('Product name is empty, skipping fetch.');
+                product_list.innerHTML = '';
+                product_error.textContent = '';
             }
         }, 300);
     });
@@ -29,6 +30,10 @@ let current_product_id = null;
 
     if (product_id_element) {
         current_product_id = parseInt(product_id_element.value);
+        if (!current_product_id || isNaN(current_product_id) || current_product_id <= 0) {
+            current_product_id = null;
+            return;
+        }
 
         fetch(stepData.ajaxUrl, {
             method: "POST",
@@ -84,11 +89,14 @@ function get_product_info(name) {
         },
         body: new URLSearchParams({ 
             action: "df_get_products",
-            name: name
+            name: name,
+            p_per_page: document.getElementById('product-product-per-page').value || 10,
+            page_number: document.getElementById('product-page-number').value || 1
         })
     })
     .then(res => res.json())
     .then(data => {
+        console.log('Products data:', data);
         if (!data.success) {
             console.error('Error fetching products:', data.data.message);
             return;
@@ -131,17 +139,12 @@ function get_product_html(product, type) {
     name_element.textContent = product.Name;
     name_element.className = 'product-name';
 
-    let price_element = document.createElement('p');
-    price_element.textContent = product.Price;
-    price_element.className = 'product-price';
-
     let description_element = document.createElement('p');
     description_element.innerHTML = product.Description;
     description_element.className = 'product-description';
 
     div.appendChild(image_element);
     div.appendChild(name_element);
-    div.appendChild(price_element);
     div.appendChild(description_element);
 
     return div;
