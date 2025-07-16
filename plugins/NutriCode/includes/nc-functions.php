@@ -32,9 +32,9 @@ function df_get_fake_products($id = -1) {
     ];
 
     if ($id !== -1) {
-        $data['products'] = array_filter($data['products'], function($product) use ($id) {
+        $data['products'] = array_values(array_filter($data['products'], function($product) use ($id) {
             return $product['ID'] == $id;
-        });
+        }));
     }
 
     return $data;
@@ -47,6 +47,75 @@ function df_get_fake_product($id) {
     }
     return $products['products'][0];
 }
+
+function handle_df_get_fake_product() {
+    try {
+        dfnc_check_post('id');
+        $id = intval($_POST['id']);
+        if ($id < 1 || $id > 2) {
+            throw new DfNutricodeException('Invalid product ID.', ['action' => 'get_fake_product']);
+        }
+
+        $data = df_get_fake_product($id);
+        if (!$data) {
+            throw new DfNutricodeException('Fake product not found.', ['action' => 'get_fake_product']);
+        }
+
+        wp_send_json_success(['type' => 'fake', 'data' => $data]);
+        wp_die();
+    } catch (DfNutricodeException $e) {
+        wp_send_json_error([
+            'message' => $e->getMessage(),
+            'context' => $e->getContext()
+        ]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_fake_product', 'handle_df_get_fake_product');
+
+function df_get_product_by_id($id) {
+    if (!df_check_woocommerce()) {
+        return df_get_fake_product($id);
+    }
+
+    $product = wc_get_product($id);
+    if (!$product) {
+        return null;
+    }
+
+    return [
+        'ID' => $product->get_id(),
+        'Image' => wp_get_attachment_url($product->get_image_id()),
+        'Name' => $product->get_name(),
+        'Description' => $product->get_description(),
+        'Price' => $product->get_price(),
+    ];
+}
+
+function handle_df_get_product_by_id() {
+    try {
+        dfnc_check_post('id');
+        $id = intval($_POST['id']);
+        if ($id < 1) {
+            throw new DfNutricodeException('Invalid product ID.', ['action' => 'get_product_by_id']);
+        }
+
+        $data = df_get_product_by_id($id);
+        if (!$data) {
+            throw new DfNutricodeException('Product not found.', ['action' => 'get_product_by_id']);
+        }
+
+        wp_send_json_success(['type' => 'real', 'data' => $data]);
+        wp_die();
+    } catch (DfNutricodeException $e) {
+        wp_send_json_error([
+            'message' => $e->getMessage(),
+            'context' => $e->getContext()
+        ]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_get_product_by_id', 'handle_df_get_product_by_id');
 
 function df_get_product($id) {
     if (!df_check_woocommerce()) {

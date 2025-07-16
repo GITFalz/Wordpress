@@ -4,6 +4,7 @@ let product_input;
 let product_error;
 let product_list;
 let debounceTimeout;
+let current_product_id = null;
 
 (function(){
     container = document.querySelector('.nutricode-meta-box');
@@ -23,7 +24,57 @@ let debounceTimeout;
             }
         }, 300);
     });
+
+    let product_id_element = document.getElementById('nutricode_product_id');
+
+    if (product_id_element) {
+        current_product_id = parseInt(product_id_element.value);
+
+        fetch(stepData.ajaxUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ 
+                action: "df_get_product_by_id",
+                id: current_product_id
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Error fetching fake product:', data.data.message);
+                return;
+            }
+            let product = data.data.data;
+            if (product) {
+                let div = get_product_html(product, 'fake');
+                product_list.appendChild(div);
+                select_product(div);
+            } else {
+                console.warn('No fake product found with ID:', current_product_id);
+            }
+        });
+    }
 })();
+
+function select_product(product_element) {
+    let product_id = product_element.dataset.productId;
+
+    let product_id_element = document.getElementById('nutricode_product_id');
+
+    if (product_id_element) {
+        product_id_element.value = product_id;
+        product_element.classList.add('product-selected');
+        product_list.querySelectorAll('.product-item').forEach(item => {
+            if (item !== product_element) {
+                item.classList.remove('product-selected');
+            }
+        });
+    } else {
+        console.error('Product ID or type input elements not found.');
+    }   
+}
 
 function get_product_info(name) {
     fetch(stepData.ajaxUrl, {
@@ -44,41 +95,54 @@ function get_product_info(name) {
         }
 
         if (data.data.type === 'fake') {
-            product_error.textContent = 'You likely have not activated the WooCommerce plugin. Fake products have been returned for testing purposes.';
+            product_error.textContent = 'You have likely not activated the WooCommerce plugin. Fake products have been returned for testing purposes.';
         } else {
             product_error.textContent = '';
         }
 
-        product_list.innerHTML = ''; // Clear previous results
+        product_list.innerHTML = '';
         let products = data.data.data.products;
         for (let i = 0; i < products.length; i++) {
             let product = products[i];
-            let div = document.createElement('div');
-            div.className = 'product-item';
-
-            let image_element = document.createElement('img');
-            image_element.src = product.Image;
-            image_element.alt = product.Name;
-            image_element.className = 'product-image';
-
-            let name_element = document.createElement('p');
-            name_element.textContent = product.Name;
-            name_element.className = 'product-name';
-
-            let price_element = document.createElement('p');
-            price_element.textContent = product.Price;
-            price_element.className = 'product-price';
-
-            let description_element = document.createElement('p');
-            description_element.textContent = product.Description;
-            description_element.className = 'product-description';
-
-            div.appendChild(image_element);
-            div.appendChild(name_element);
-            div.appendChild(price_element);
-            div.appendChild(description_element);
-
+            let div = get_product_html(product, data.data.type);
             product_list.appendChild(div);
         }
     });
+}
+
+function get_product_html(product, type) {
+    let div = document.createElement('div');
+    div.dataset.productId = product.ID;
+    div.dataset.productType = type;
+    div.addEventListener('click', function() {
+        select_product(this);
+    });
+    div.className = 'product-item';
+    if (current_product_id && current_product_id === product.ID) {
+        div.classList.add('product-selected');
+    }
+
+    let image_element = document.createElement('img');
+    image_element.src = product.Image;
+    image_element.alt = product.Name;
+    image_element.className = 'product-image';
+
+    let name_element = document.createElement('p');
+    name_element.textContent = product.Name;
+    name_element.className = 'product-name';
+
+    let price_element = document.createElement('p');
+    price_element.textContent = product.Price;
+    price_element.className = 'product-price';
+
+    let description_element = document.createElement('p');
+    description_element.textContent = product.Description;
+    description_element.className = 'product-description';
+
+    div.appendChild(image_element);
+    div.appendChild(name_element);
+    div.appendChild(price_element);
+    div.appendChild(description_element);
+
+    return div;
 }

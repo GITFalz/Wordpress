@@ -137,22 +137,97 @@ if ( ! class_exists( 'NutriCode' ) )
 			$origin = get_post_meta($post->ID, '_nutricode_origin', true);
 			$grape = get_post_meta($post->ID, '_nutricode_grape', true);
 			$year = get_post_meta($post->ID, '_nutricode_year', true);
+			$calories = get_post_meta($post->ID, '_nutricode_calories', true);
+			$energy = get_post_meta($post->ID, '_nutricode_energy', true);
+			$alcohol = get_post_meta($post->ID, '_nutricode_alcohol', true);
+			$carbohydrates = get_post_meta($post->ID, '_nutricode_carbohydrates', true);
+			$sugars = get_post_meta($post->ID, '_nutricode_sugars', true);
+			$fat = get_post_meta($post->ID, '_nutricode_fat', true);
+			$saturated_fat = get_post_meta($post->ID, '_nutricode_saturated_fat', true);
+			$protein = get_post_meta($post->ID, '_nutricode_protein', true);
+			$salt = get_post_meta($post->ID, '_nutricode_salt', true);
+			$allergens = get_post_meta($post->ID, '_nutricode_allergens', true);
+			$serving_size = get_post_meta($post->ID, '_nutricode_serving_size', true);
+			$product_id = get_post_meta($post->ID, '_nutricode_product_id', true);
 
 			?>
 			<div class="nutricode-meta-box">
 				<div class="nutricode-page-info">
 					<div class="nutricode-page-details">
+
 						<p>
 							<label for="nutricode_origin">Origine</label>
 							<input type="text" name="nutricode_origin" id="nutricode_origin" value="<?php echo esc_attr($origin); ?>" />
 						</p>
+
 						<p>
 							<label for="nutricode_grape">Cépage</label>
 							<input type="text" name="nutricode_grape" id="nutricode_grape" value="<?php echo esc_attr($grape); ?>" />
 						</p>
+
 						<p>
 							<label for="nutricode_year">Millésime</label>
-							<input type="number" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
+							<input type="text" name="nutricode_year" id="nutricode_year" value="<?php echo esc_attr($year); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_calories">Calories (kcal / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_calories" id="nutricode_calories" value="<?php echo esc_attr($calories); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_energy">Énergie (kJ / 100ml)</label>
+							<input type="number" step="1" name="nutricode_energy" id="nutricode_energy" value="<?php echo esc_attr($energy); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_alcohol">Teneur en alcool (% vol)</label>
+							<input type="number" step="0.1" name="nutricode_alcohol" id="nutricode_alcohol" value="<?php echo esc_attr($alcohol); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_carbohydrates">Glucides (g / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_carbohydrates" id="nutricode_carbohydrates" value="<?php echo esc_attr($carbohydrates); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_sugars">Dont sucres (g / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_sugars" id="nutricode_sugars" value="<?php echo esc_attr($sugars); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_fat">Lipides (g / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_fat" id="nutricode_fat" value="<?php echo esc_attr($fat); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_saturated_fat">Dont acides gras saturés (g / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_saturated_fat" id="nutricode_saturated_fat" value="<?php echo esc_attr($saturated_fat); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_protein">Protéines (g / 100ml)</label>
+							<input type="number" step="0.1" name="nutricode_protein" id="nutricode_protein" value="<?php echo esc_attr($protein); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_salt">Sel (g / 100ml)</label>
+							<input type="number" step="0.01" name="nutricode_salt" id="nutricode_salt" value="<?php echo esc_attr($salt); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_allergens">Allergènes</label>
+							<input type="text" name="nutricode_allergens" id="nutricode_allergens" value="<?php echo esc_attr($allergens); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_serving_size">Portion recommandée</label>
+							<input type="text" name="nutricode_serving_size" id="nutricode_serving_size" value="<?php echo esc_attr($serving_size); ?>" />
+						</p>
+
+						<p>
+							<label for="nutricode_product_id">ID du produit</label>
+							<input type="text" name="nutricode_product_id" id="nutricode_product_id" value="<?php echo esc_attr($product_id); ?>" readonly/>
 						</p>
 					</div>
 					<div class="nutricode-qr-code">
@@ -182,7 +257,7 @@ if ( ! class_exists( 'NutriCode' ) )
 
 			if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
 			if (!current_user_can('edit_post', $post_id)) return;
-
+			
 			if (isset($_POST['nutricode_origin'])) {
 				update_post_meta($post_id, '_nutricode_origin', sanitize_text_field($_POST['nutricode_origin']));
 			}
@@ -190,7 +265,44 @@ if ( ! class_exists( 'NutriCode' ) )
 				update_post_meta($post_id, '_nutricode_grape', sanitize_text_field($_POST['nutricode_grape']));
 			}
 			if (isset($_POST['nutricode_year'])) {
-				update_post_meta($post_id, '_nutricode_year', intval($_POST['nutricode_year']));
+				update_post_meta($post_id, '_nutricode_year', sanitize_text_field($_POST['nutricode_year']));
+			}
+			// Nutritional values
+			if (isset($_POST['nutricode_calories'])) {
+				update_post_meta($post_id, '_nutricode_calories', sanitize_text_field($_POST['nutricode_calories']));
+			}
+			if (isset($_POST['nutricode_energy'])) {
+				update_post_meta($post_id, '_nutricode_energy', sanitize_text_field($_POST['nutricode_energy']));
+			}
+			if (isset($_POST['nutricode_alcohol'])) {
+				update_post_meta($post_id, '_nutricode_alcohol', sanitize_text_field($_POST['nutricode_alcohol']));
+			}
+			if (isset($_POST['nutricode_carbohydrates'])) {
+				update_post_meta($post_id, '_nutricode_carbohydrates', sanitize_text_field($_POST['nutricode_carbohydrates']));
+			}
+			if (isset($_POST['nutricode_sugars'])) {
+				update_post_meta($post_id, '_nutricode_sugars', sanitize_text_field($_POST['nutricode_sugars']));
+			}
+			if (isset($_POST['nutricode_fat'])) {	
+				update_post_meta($post_id, '_nutricode_fat', sanitize_text_field($_POST['nutricode_fat']));
+			}		
+			if (isset($_POST['nutricode_saturated_fat'])) {
+				update_post_meta($post_id, '_nutricode_saturated_fat', sanitize_text_field($_POST['nutricode_saturated_fat']));
+			}
+			if (isset($_POST['nutricode_protein'])) {
+				update_post_meta($post_id, '_nutricode_protein', sanitize_text_field($_POST['nutricode_protein']));
+			}
+			if (isset($_POST['nutricode_salt'])) {	
+				update_post_meta($post_id, '_nutricode_salt', sanitize_text_field($_POST['nutricode_salt']));
+			}
+			if (isset($_POST['nutricode_allergens'])) {
+				update_post_meta($post_id, '_nutricode_allergens', sanitize_text_field($_POST['nutricode_allergens']));
+			}
+			if (isset($_POST['nutricode_serving_size'])) {
+				update_post_meta($post_id, '_nutricode_serving_size', sanitize_text_field($_POST['nutricode_serving_size']));
+			}
+			if (isset($_POST['nutricode_product_id'])) {
+				update_post_meta($post_id, '_nutricode_product_id', sanitize_text_field($_POST['nutricode_product_id']));
 			}
 		}
     }

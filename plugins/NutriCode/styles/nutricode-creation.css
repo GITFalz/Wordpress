@@ -1,6 +1,6 @@
 /* General styling for the main container */
 .nutricode-meta-box {
-  max-width: 1000px; /* Increased width for a wider layout */
+  max-width: 1200px; /* Increased width for more space */
   margin: 40px auto; /* Center the box and add vertical spacing */
   padding: 30px; /* Internal padding */
   background-color: #ffffff; /* White background for the "floating" card */
@@ -14,11 +14,12 @@
 /* Styling for the top section containing details and QR code */
 .nutricode-page-info {
   display: grid; /* Use CSS Grid for layout */
-  grid-template-columns: 1fr 180px; /* Details take more space, QR code section slightly wider */
+  grid-template-columns: 1fr 250px; /* Details take more space, QR code section has a fixed width */
   gap: 30px; /* Space between grid items */
   padding-bottom: 30px; /* Space below this section */
   margin-bottom: 30px; /* Space before the product inspector */
   border-bottom: 1px solid #eeeeee; /* Subtle separator line */
+  align-items: start; /* Align items to the top to prevent QR code section from stretching */
 }
 
 /* Responsive adjustment for smaller screens */
@@ -30,9 +31,15 @@
 }
 
 /* Styling for the input details section */
+.nutricode-page-details {
+  display: grid; /* Change to grid for a multi-column input layout */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Two columns, responsive */
+  gap: 20px; /* Space between input fields */
+}
+
 .nutricode-page-details p {
-  margin-bottom: 15px; /* Space between each input group */
-  display: flex; /* Use flexbox for label and input alignment */
+  margin-bottom: 0; /* Remove individual paragraph margins, gap on parent handles spacing */
+  display: flex; /* Keep flexbox for label and input alignment within each field */
   flex-direction: column; /* Stack label above input */
 }
 
@@ -46,16 +53,22 @@
 
 .nutricode-page-details input[type="text"],
 .nutricode-page-details input[type="number"] {
-  width: 100%; /* Full width inputs */
-  padding: 12px 15px; /* Generous padding inside inputs */
+  width: 100%; /* Full width inputs within their grid cell */
+  padding: 10px 12px; /* Slightly smaller padding for more compact inputs */
   border: 1px solid #dddddd; /* Light grey border */
   border-radius: 8px; /* Rounded input fields */
-  font-size: 1rem; /* Standard font size */
+  font-size: 0.95rem; /* Slightly smaller font size */
   color: #333333;
   background-color: #f9f9f9; /* Very light background for inputs */
   transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transition for focus */
 }
 
+/* if inputs are readonly make them a bit grey */
+.nutricode-page-details input[readonly] {
+  background-color: #f0f0f0; /* Lighter grey for readonly inputs */
+  color: #999999; /* Lighter text color */
+  cursor: not-allowed; /* Indicate that the input is not editable */
+}
 .nutricode-page-details input[type="text"]:focus,
 .nutricode-page-details input[type="number"]:focus {
   outline: none; /* Remove default outline */
@@ -74,6 +87,7 @@
   padding: 15px; /* Padding around the canvas and button */
   min-height: 150px; /* Ensure it has some height */
   gap: 15px; /* Space between canvas and button */
+  /* No changes needed here, align-items: start on parent handles stretching */
 }
 
 #qr-code-canvas {
@@ -157,21 +171,78 @@
   /* overflow-y: auto; */
 }
 
-/* Basic styling for potential individual product items within #product-list */
-/* Assuming product items might be divs or list items, this gives them a "floating" look */
-#product-list > div,
-#product-list > li {
-  padding: 10px 15px;
+/* Basic styling for individual product items within #product-list */
+.product-item {
   background-color: #ffffff;
   border: 1px solid #eeeeee;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Subtle shadow for each item */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #444444;
+  border-radius: 8px; /* Slightly larger radius for a softer card look */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* Slightly stronger shadow for better floating */
+  display: flex; /* Use flexbox for horizontal layout */
+  align-items: center; /* Vertically align items in the middle */
+  padding: 15px; /* Padding around the content inside the item */
+  gap: 15px; /* Space between the image and the text content */
+  transition: all 0.2s ease-in-out; /* Smooth transition for selected state */
 }
 
-/* Basic styling for the outer wrapper divs if they are part of the layout */
-/* Assuming these are just wrappers and not part of the component's core design */
+/* Style for selected product items */
+.product-item.product-selected {
+  background-color: #e6f7ff; /* Light blue background */
+  border: 1px solid #91d5ff; /* A more prominent blue border */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Stronger shadow for selected */
+  transform: translateY(-3px); /* A more noticeable lift */
+}
+
+/* Styling for the product image within the item */
+.product-item .product-image {
+  width: 100px; /* Fixed width for the image */
+  height: 100px; /* Fixed height for the image */
+  object-fit: cover; /* Ensures image covers the area without distortion */
+  display: block;
+  border-radius: 8px; /* Rounded corners for the image itself */
+  flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+/* Styling for the text content area within the product item */
+/* This will contain the name, price, and description */
+.product-item .product-content {
+  display: flex;
+  flex-direction: column; /* Stack name, price, description vertically */
+  gap: 5px; /* Small gap between name, price, description */
+  flex-grow: 1; /* Allow content to take up remaining space */
+}
+
+/* Styling for the product name */
+.product-item .product-name {
+  font-size: 1.1rem; /* Slightly larger font for the name */
+  font-weight: 600; /* Bolder name */
+  color: #222222;
+  margin: 0; /* Reset default paragraph margin */
+}
+
+/* Styling for the product price */
+.product-item .product-price {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #007bff; /* A distinct color for the price */
+  margin: 0; /* Reset default paragraph margin */
+}
+
+/* Styling for the product description */
+.product-item .product-description {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-top: 5px; /* Small space above description */
+  margin-bottom: 0; /* Reset default paragraph margin */
+  max-height: 40px; /* Limit description height to about 2-3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Show up to 2 lines */
+  -webkit-box-orient: vertical;
+}
+
+/* slight movement on hover for product items */
+.product-item:hover {
+  transform: translateY(-2px); /* Lift the item slightly on hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow on hover */
+}
