@@ -123,7 +123,7 @@ function get_product_html(product, type) {
     }
 
     let image_element = document.createElement('img');
-    image_element.src = product.Image;
+    image_element.src = product.Image === 'false' ? "https://ui-avatars.com/api/?name=i+g&size=250" : product.Image;
     image_element.alt = product.Name;
     image_element.className = 'product-image';
 
@@ -136,7 +136,7 @@ function get_product_html(product, type) {
     price_element.className = 'product-price';
 
     let description_element = document.createElement('p');
-    description_element.textContent = product.Description;
+    description_element.innerHTML = product.Description;
     description_element.className = 'product-description';
 
     div.appendChild(image_element);
