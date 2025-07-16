@@ -3,6 +3,8 @@
  * Single NutriCode Template
  */
 
+require_once '../includes/nc-functions.php';
+
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -20,57 +22,114 @@
     setup_postdata($post); // safely sets global $post
 
     
-    $origin  = get_post_meta($post->ID, '_nutricode_origin', true);
-    $grape   = get_post_meta($post->ID, '_nutricode_grape', true);
-    $year    = get_post_meta($post->ID, '_nutricode_year', true);
+    $origin         = get_post_meta($post->ID, '_nutricode_origin', true);
+    $grape          = get_post_meta($post->ID, '_nutricode_grape', true);
+    $year           = get_post_meta($post->ID, '_nutricode_year', true);
+    $calories       = get_post_meta($post->ID, '_nutricode_calories', true);
+    $energy         = get_post_meta($post->ID, '_nutricode_energy', true);
+    $alcohol        = get_post_meta($post->ID, '_nutricode_alcohol', true);
+    $carbohydrates  = get_post_meta($post->ID, '_nutricode_carbohydrates', true);
+    $sugars         = get_post_meta($post->ID, '_nutricode_sugars', true);
+    $fat            = get_post_meta($post->ID, '_nutricode_fat', true);
+    $saturated_fat  = get_post_meta($post->ID, '_nutricode_saturated_fat', true);
+    $protein        = get_post_meta($post->ID, '_nutricode_protein', true);
+    $salt           = get_post_meta($post->ID, '_nutricode_salt', true);
+    $allergens      = get_post_meta($post->ID, '_nutricode_allergens', true);
+    $serving_size   = get_post_meta($post->ID, '_nutricode_serving_size', true);
+    $product_id     = get_post_meta($post->ID, '_nutricode_product_id', true);
+
+    $product_data = df_get_product_by_id(intval($product_id));
+
     ?>
     
-    <article id="post-<?php echo esc_attr($post->ID); ?>">
-        <header>
-            <h1><?php echo esc_html(get_the_title($post)); ?></h1>
-        </header>
-        
-        <div class="content">
-            <?php echo apply_filters('the_content', $post->post_content); ?>
-            
-            <div class="nutricode-meta">
-                <p><strong>Origine:</strong> <?php echo esc_html($origin); ?></p>
-                <p><strong>Cépage:</strong> <?php echo esc_html($grape); ?></p>
-                <p><strong>Millésime:</strong> <?php echo esc_html($year); ?></p>
-            </div>
-        </div>
-    </article>
-    <div class="product-container">
-        <div class="product-image-wrapper">
-            <img src="/placeholder.svg?height=400&width=400" alt="Product Image" class="product-image">
-        </div>
-        <div class="product-details">
-            <h1 class="product-name">Organic Apple Cider Vinegar</h1>
+    <div class="product-page-container">
+        <div class="product-header">
+            <img src="/placeholder.svg?height=400&width=400" alt="Image du Produit" class="product-main-image">
+            <h1 class="product-title">Château Grand Cru Classé 2018</h1>
             <p class="product-description">
-                Our premium organic apple cider vinegar is raw, unfiltered, and contains the "mother" for maximum health benefits. 
-                Perfect for dressings, marinades, or a daily health tonic. Sourced from the finest organic apples.
+                Un vin rouge élégant et complexe, issu d'un millésime exceptionnel. 
+                Ce Bordeaux offre des notes de fruits rouges mûrs, d'épices douces et une finale persistante. 
+                Parfait pour accompagner les viandes rouges et les fromages affinés.
             </p>
+        </div>
 
-            <div class="product-specifications">
-                <h2>Nutritional Values</h2>
-                <div class="spec-item">
-                    <span class="spec-label">Calories</span>
-                    <span class="spec-value">3 kcal</span>
+        <div class="product-details-section">
+            <h2>Informations Clés</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Origine</span>
+                    <span class="detail-value"><?=esc_html($origin)?></span>
                 </div>
-                <div class="spec-item">
-                    <span class="spec-label">Total Fat</span>
-                    <span class="spec-value">0 g</span>
+                <div class="detail-item">
+                    <span class="detail-label">Cépage</span>
+                    <span class="detail-value"><?=esc_html($grape)?></span>
                 </div>
-                <div class="spec-item">
-                    <span class="spec-label">Sodium</span>
-                    <span class="spec-value">5 mg</span>
+                <div class="detail-item">
+                    <span class="detail-label">Millésime</span>
+                    <span class="detail-value"><?=esc_html($year)?></span>
                 </div>
-                <div class="spec-item">
-                    <span class="spec-label">Carbohydrates</span>
-                    <span class="spec-value">1 g</span>
+                <div class="detail-item">
+                    <span class="detail-label">Teneur en alcool</span>
+                    <span class="detail-value"><?=esc_html($alcohol)?></span>
                 </div>
             </div>
         </div>
+
+        <div class="product-details-section">
+            <h2>Valeurs Nutritionnelles (pour 100ml)</h2>
+            <div class="details-list">
+                <div class="detail-item">
+                    <span class="detail-label">Calories</span>
+                    <span class="detail-value"><?=esc_html($calories)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Énergie</span>
+                    <span class="detail-value"><?=esc_html($energy)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Glucides</span>
+                    <span class="detail-value"><?=esc_html($carbohydrates)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Dont sucres</span>
+                    <span class="detail-value"><?=esc_html($sugars)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Lipides</span>
+                    <span class="detail-value"><?=esc_html($fat)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Dont acides gras saturés</span>
+                    <span class="detail-value"><?=esc_html($saturated_fat)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Protéines</span>
+                    <span class="detail-value"><?=esc_html($protein)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Sel</span>
+                    <span class="detail-value"><?=esc_html($salt)?></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-details-section">
+            <h2>Informations Complémentaires</h2>
+            <div class="details-list">
+                <div class="detail-item">
+                    <span class="detail-label">Allergènes</span>
+                    <span class="detail-value"><?=esc_html($allergens)?></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Portion recommandée</span>
+                    <span class="detail-value"><?=esc_html($serving_size)?></span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="product-footer">
+            <p>&copy; 2023 Votre Marque. Tous droits réservés.</p>
+        </footer>
     </div>
 </div>
 
