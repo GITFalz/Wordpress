@@ -1,0 +1,169 @@
+/* Basic Reset & Body Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  background-color: #f0f2f5; /* Light grey background for the page */
+  color: #333;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Main Product Page Container */
+.product-page-container {
+  max-width: 600px; /* Max width for mobile-first, will expand slightly on larger screens */
+  margin: 0 auto; /* Center the container */
+  background-color: #ffffff; /* White background for the content area */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+  border-radius: 0; /* No border-radius on mobile for edge-to-edge feel */
+  overflow: hidden; /* Ensures content stays within bounds */
+}
+
+/* Product Header Section (Image, Title, Description) */
+.product-header {
+  padding: 0 20px 20px; /* Padding around text, no top padding for image */
+  text-align: center;
+}
+
+.product-main-image {
+  width: 100%;
+  height: 300px; /* Fixed height for the main image */
+  object-fit: cover; /* Ensures image covers the area */
+  display: block;
+  margin-bottom: 20px;
+}
+
+.product-title {
+  font-size: 1.8rem; /* Large, prominent title */
+  font-weight: 700;
+  color: #2c3e50; /* Darker blue-grey for headings */
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.product-description {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0;
+}
+
+/* Product Details Sections (e.g., Key Info, Nutritional Values) */
+.product-details-section {
+  padding: 20px;
+  border-top: 1px solid #f0f0f0; /* Light separator between sections */
+}
+
+.product-details-section:first-of-type {
+  border-top: none; /* No top border for the very first section */
+}
+
+.product-details-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+/* Grid layout for key information (e.g., Origine, Cépage) */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Responsive 2-column layout */
+  gap: 15px; /* Space between grid items */
+}
+
+/* List layout for nutritional values and additional info */
+.details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* No gap, as items have their own padding/border */
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between; /* Pushes label and value to ends */
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5; /* Very light separator for each line */
+  font-size: 0.95rem;
+}
+
+.detail-item:last-child {
+  border-bottom: none; /* No border on the last item in a list */
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #444;
+  flex-shrink: 0; /* Prevent label from shrinking */
+  padding-right: 10px; /* Space between label and value */
+}
+
+.detail-value {
+  font-weight: 400;
+  color: #666;
+  text-align: right; /* Align value to the right */
+  flex-grow: 1; /* Allow value to take up remaining space */
+}
+
+.product-id-value {
+  font-family: monospace; /* Monospace font for product ID */
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Footer */
+.product-footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 20px;
+}
+
+/* Media Query for Larger Screens (e.g., Tablets) */
+@media (min-width: 768px) {
+  .product-page-container {
+    max-width: 700px; /* Slightly wider on tablets */
+    margin: 40px auto; /* Add vertical margin */
+    border-radius: 12px; /* Rounded corners for a card effect */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+  }
+
+  .product-main-image {
+    height: 350px; /* Slightly taller image */
+    border-top-left-radius: 12px; /* Match container radius */
+    border-top-right-radius: 12px; /* Match container radius */
+  }
+
+  .product-header {
+    padding: 0 30px 30px;
+  }
+
+  .product-title {
+    font-size: 2.2rem;
+  }
+
+  .product-description {
+    font-size: 1.05rem;
+  }
+
+  .product-details-section {
+    padding: 25px 30px;
+  }
+
+  .product-details-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .detail-item {
+    padding: 14px 0;
+  }
+
+  .product-footer {
+    padding: 25px 30px;
+  }
+}

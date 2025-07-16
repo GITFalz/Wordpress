@@ -3,7 +3,7 @@
  * Single NutriCode Template
  */
 
-require_once '../includes/nc-functions.php';
+require_once DF_NUTRICODE_PATH . 'includes/dfnc-utils.php';
 
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>

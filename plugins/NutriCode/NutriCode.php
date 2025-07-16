@@ -77,7 +77,15 @@ if ( ! class_exists( 'NutriCode' ) )
 
             $file = DF_NUTRICODE_PATH . 'templates/single-nutricode.php';
 
-            if( file_exists( $file ) ) $single_template = $file;
+            if( file_exists( $file ) ) {
+				$single_template = $file;
+				wp_enqueue_style(
+					'nutricode-single-style',
+					DF_NUTRICODE_URL . 'styles/nutricode-single.css',
+					[],
+					'1.0'
+				);
+			}
 
             return $single_template;
         }
