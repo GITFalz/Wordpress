@@ -123,7 +123,7 @@ function get_product_html(product, type) {
     }
 
     let image_element = document.createElement('img');
-    image_element.src = product.Image === 'false' ? "https://ui-avatars.com/api/?name=i+g&size=250" : product.Image;
+    image_element.src = product.Image === false ? "https://ui-avatars.com/api/?name=i+g&size=250" : product.Image;
     image_element.alt = product.Name;
     image_element.className = 'product-image';
 
