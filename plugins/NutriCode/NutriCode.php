@@ -68,7 +68,6 @@ if ( ! class_exists( 'NutriCode' ) )
 			});
 
 			add_action('save_post_nutricode', [$this, 'save_post_data']); 
-			add_action('wp_trash_post', [$this, 'my_custom_on_trash_action']);
             add_filter( 'single_template', [$this, 'override_single_template']);
 		}
 
