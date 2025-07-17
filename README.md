@@ -12,7 +12,7 @@
 Rendez-vous dans le dossier `bin` pour toutes les commandes :
 
 ```bash
-# Naviguer vers le dossier bin
+# Naviguer vers le dossier bin pour effectuer les commandes
 cd bin
 
 # Démarrer l'environnement
