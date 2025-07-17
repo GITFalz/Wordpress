@@ -213,18 +213,24 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = 
         ];
     }, $query->posts);
 
+    $max_pages = $query->max_num_pages;
+
     if ($add_fake && $page_number == $query->max_num_pages) {
         $current_product_count = count($products);
         if ($current_product_count < $p_per_page) {
             $products = array_merge($products, FAKE_PRODUCTS);
-            if (count($products) > $p_per_page) {
+            $product_count = count($products);
+            if ($product_count > $p_per_page) {
                 $products = array_slice($products, 0, $p_per_page);
+                $left_over = $product_count - $p_per_page;
+                $extra_pages = ceil($left_over / $p_per_page);
+                $max_pages += $extra_pages;
             }
         }
     }
 
     $data['products'] = $products;
-    $data['max_pages'] = $query->max_num_pages;
+    $data['max_pages'] = $max_pages;
     $data['current_page'] = $page_number;
 
     return $data;
