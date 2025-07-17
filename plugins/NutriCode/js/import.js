@@ -49,7 +49,7 @@ let current_page = 1;
                 product_previous.hidden = true;
                 product_next.hidden = true;
             }
-        }, 300);
+        }, 600);
     });
 
     product_pet_page.addEventListener('input', function() {
@@ -70,7 +70,7 @@ let current_page = 1;
                 product_list.innerHTML = '';
                 product_error.textContent = '';
             }
-        }, 300);
+        }, 600);
     });
 
     product_page_number.addEventListener('input', function() {
@@ -91,7 +91,7 @@ let current_page = 1;
                 product_error.textContent = '';
                 product_page_number.value = 1;
             }
-        }, 300);
+        }, 600);
     });
 
     product_previous.addEventListener('click', function() {
