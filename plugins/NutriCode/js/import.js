@@ -29,7 +29,7 @@ let current_page = 1;
     product_input.addEventListener('input', function() {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(() => {
-            const name = product_input.value.trim();
+            let name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
                 if (name.endsWith('-fake')) {
@@ -53,7 +53,7 @@ let current_page = 1;
     product_pet_page.addEventListener('input', function() {
         clearTimeout(product_per_page_debounceTimeout);
         product_per_page_debounceTimeout = setTimeout(() => {
-            const name = product_input.value.trim();
+            let name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
                 if (name.endsWith('-fake')) {
@@ -74,7 +74,7 @@ let current_page = 1;
     product_page_number.addEventListener('input', function() {
         clearTimeout(product_page_number_debounceTimeout);
         product_page_number_debounceTimeout = setTimeout(() => {
-            const name = product_input.value.trim();
+            let name = product_input.value.trim();
             if (name.length > 0) {
                 if (name.endsWith('-fake')) {
                     name = name.slice(0, -5).trim();
@@ -96,7 +96,7 @@ let current_page = 1;
         if (current_page > 1) {
             current_page--;
             product_page_number.value = current_page;
-            const name = product_input.value.trim();
+            let name = product_input.value.trim();
             if (name.endsWith('-fake')) {
                 name = name.slice(0, -5).trim();
                 get_product_info(name, true);
@@ -112,7 +112,7 @@ let current_page = 1;
         if (current_page < max_pages) {
             current_page++;
             product_page_number.value = current_page;
-            const name = product_input.value.trim();
+            let name = product_input.value.trim();
             if (name.endsWith('-fake')) {
                 name = name.slice(0, -5).trim();
                 get_product_info(name, true);
