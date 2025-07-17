@@ -166,7 +166,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Show up to 2 lines */
   -webkit-box-orient: vertical;
   flex: 1 1 100%; /* Full width for description */
   margin-top: 10px; /* Space above description */

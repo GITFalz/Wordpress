@@ -32,7 +32,14 @@ let current_page = 1;
             const name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
-                get_product_info(name);
+                if (name.endsWith('-fake')) {
+                    name = name.slice(0, -5).trim();
+                    get_product_info(name, true);
+                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
+                } else {
+                    get_product_info(name);
+                    product_error.textContent = '';
+                }
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -49,7 +56,14 @@ let current_page = 1;
             const name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
-                get_product_info(name);
+                if (name.endsWith('-fake')) {
+                    name = name.slice(0, -5).trim();
+                    get_product_info(name, true);
+                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
+                } else {
+                    get_product_info(name);
+                    product_error.textContent = '';
+                }
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -62,7 +76,14 @@ let current_page = 1;
         product_page_number_debounceTimeout = setTimeout(() => {
             const name = product_input.value.trim();
             if (name.length > 0) {
-                get_product_info(name);
+                if (name.endsWith('-fake')) {
+                    name = name.slice(0, -5).trim();
+                    get_product_info(name, true);
+                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
+                } else {
+                    get_product_info(name);
+                    product_error.textContent = '';
+                }
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -76,7 +97,14 @@ let current_page = 1;
             current_page--;
             product_page_number.value = current_page;
             const name = product_input.value.trim();
-            get_product_info(name);
+            if (name.endsWith('-fake')) {
+                name = name.slice(0, -5).trim();
+                get_product_info(name, true);
+                product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
+            } else {
+                get_product_info(name);
+                product_error.textContent = '';
+            }
         }
     });
 
@@ -85,7 +113,14 @@ let current_page = 1;
             current_page++;
             product_page_number.value = current_page;
             const name = product_input.value.trim();
-            get_product_info(name);
+            if (name.endsWith('-fake')) {
+                name = name.slice(0, -5).trim();
+                get_product_info(name, true);
+                product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
+            } else {
+                get_product_info(name);
+                product_error.textContent = '';
+            }
         }
     });
 
@@ -112,7 +147,7 @@ function select_product(product_element) {
     }
 }
 
-function get_product_info(name) {
+function get_product_info(name, add_fake = false) {
     fetch(stepData.ajaxUrl, {
         method: "POST",
         headers: {
@@ -122,7 +157,8 @@ function get_product_info(name) {
             action: "df_get_products",
             name: name,
             p_per_page: document.getElementById('product-product-per-page').value || 10,
-            page_number: document.getElementById('product-page-number').value || 1
+            page_number: document.getElementById('product-page-number').value || 1,
+            add_fake: add_fake ? 'true' : 'false'
         })
     })
     .then(res => res.json())

@@ -218,14 +218,33 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1) {
 
 function handle_df_get_products() {
     try {
-        dfnc_check_post('name', 'p_per_page', 'page_number');
+        dfnc_check_post('name', 'p_per_page', 'page_number', 'add_fake');
 
         $name = sanitize_text_field($_POST['name']);
         $p_per_page = intval($_POST['p_per_page']);
         $page_number = intval($_POST['page_number']);
+        $add_fake = $_POST['add_fake'] === 'true';
 
         if (empty($name)) {
             throw new DfNutricodeException('Product name cannot be empty.', ['action' => 'get_products']);
+        }
+
+        if ($add_fake) {
+            $data1 = df_get_fake_products(-1, $p_per_page, $page_number);
+            $data2 = df_get_products($name, $p_per_page, $page_number);
+            $data = array_merge($data1['products'], $data2['products']);
+
+            // re calculate max pages and current page
+            $total_products = count($data);
+            $max_pages = $p_per_page > 0 ? ceil($total_products / $p_per_page) : 1;
+            $data = [
+                'products'      => $data,
+                'max_pages'     => $max_pages,
+                'current_page'  => $page_number
+            ];
+
+            wp_send_json_success(['type' => 'fake', 'data' => $data]);
+            wp_die();
         }
 
         if (!df_check_woocommerce()) {
