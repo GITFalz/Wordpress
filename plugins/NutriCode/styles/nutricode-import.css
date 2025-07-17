@@ -1,9 +1,24 @@
+.nutricode-import-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px; /* Space between the inspector and product list */
+}
+
+
 /* Styling for the product inspector section */
 #product-inspector {
   display: flex; /* Use flexbox for layout */
   flex-direction: column; /* Stack elements vertically */
   padding-top: 20px; /* Space from the top separator */
   width: 40%; /* Full width for the inspector */
+}
+
+.selected-products {
+  display: flex;
+  flex-direction: column; /* Stack selected products vertically */
+  gap: 10px; /* Space between selected products */
+  margin-bottom: 20px; /* Space below the selected products section */
+  width: 40%; /* Full width for selected products */
 }
 
 #product-search {
@@ -37,6 +52,23 @@
 }
 
 #product-list {
+  /* No min-height, it will expand with content */
+  border: 1px dashed #cccccc; /* Dashed border to indicate an empty area */
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column; /* Stack product items vertically */
+  gap: 10px; /* Space between individual product items */
+  color: #999999;
+  font-style: italic;
+  background-color: #fdfdfd; /* Slightly different background */
+  max-height: 800px;   /* Limit height */
+  overflow-y: auto;    /* Add vertical scroll when needed */
+  padding-right: 10px; /* Optional: space for scrollbar */
+
+}
+
+#selected-products-list {
   /* No min-height, it will expand with content */
   border: 1px dashed #cccccc; /* Dashed border to indicate an empty area */
   border-radius: 8px;
@@ -92,6 +124,17 @@
 #import-products-button {
   margin-left: auto; /* Push the button to the right */
   background-color: #28a745; /* Green color for import button */
+  color: #ffffff; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 8px 12px; /* Padding for the button */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Smaller font size for button */
+  transition: background-color 0.2s ease; /* Smooth transition for hover effect */
+}
+
+.delete-selected-product {
+  background-color: #dc3545; /* Red color for delete button */
   color: #ffffff; /* White text for contrast */
   border: none; /* Remove default border */
   border-radius: 8px; /* Rounded corners */

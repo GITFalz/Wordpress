@@ -159,7 +159,18 @@ function select_product(product_element) {
             Name: product_name,
             Description: product_description,
             Image: product_image
+        }, false);
+
+        let delete_button = document.createElement('button');
+        delete_button.textContent = 'Supprimer';
+        delete_button.className = 'delete-selected-product';
+        delete_button.addEventListener('click', function(event) {
+            event.stopPropagation();
+            delete selected_product_ids[product_id];
+            product_element.classList.remove('product-selected');
+            selected_products_list.removeChild(selected_product_div);
         });
+        selected_product_div.appendChild(delete_button);
         selected_products_list.appendChild(selected_product_div);
     }
 }
@@ -238,12 +249,14 @@ function check_page_number_visibility(current_page, max_pages) {
     product_page_number.min = 1;
 }
 
-function get_product_html(product) {
+function get_product_html(product, can_be_selected = true) {
     let div = document.createElement('div');
     div.dataset.productId = product.ID;
-    div.addEventListener('click', function() {
-        select_product(this);
-    });
+    if (can_be_selected) {
+        div.addEventListener('click', function() {
+            select_product(this);
+        });
+    }
     div.className = 'product-item';
 
     let image_element = document.createElement('img');
@@ -263,7 +276,7 @@ function get_product_html(product) {
     div.appendChild(name_element);
     div.appendChild(description_element);
 
-    if (selected_product_ids[product.ID]) {
+    if (can_be_selected && selected_product_ids[product.ID]) {
         div.classList.add('product-selected');
     } else {
         div.classList.remove('product-selected');
