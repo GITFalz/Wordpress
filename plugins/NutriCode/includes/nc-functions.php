@@ -240,7 +240,7 @@ function handle_df_get_products() {
             $data2 = df_get_products($name, $p_per_page, $page_number);
             $data = array_merge($data2['products'], $data1['products']);
 
-            $total_products = count($data);
+            $total_products = count($data['products']);
             $max_pages = $p_per_page > 0 ? ceil($total_products / $p_per_page) : 1;
             $data = [
                 'products'      => $data,
