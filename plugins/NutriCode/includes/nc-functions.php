@@ -236,10 +236,10 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = 
         }
     }
 
-    if (add_fake) {
+    if ($add_fake) {
         if ($max_pages == 0) {
             $max_pages = ceil(count(FAKE_PRODUCTS) / $p_per_page);
-            $products = array_slice(FAKE_PRODUCTS, $page_number * $p_per_page, $p_per_page);
+            $products = array_slice(FAKE_PRODUCTS, ($page_number - 1) * $p_per_page, $p_per_page);
         } else if ($page_number <= $max_pages) {
             // If we still are in the range of having real products, we just add the fake products to the end of the list.
             $current_product_count = count($products);
@@ -247,17 +247,17 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = 
                 // We just have to add the amount of pages that are needed to display all the fake products.
                 $max_pages += ceil(count(FAKE_PRODUCTS) / $p_per_page);
             } else { 
-                // It should be impossible for current_product_count to be greater than p_per_page, so we can safely assume that it is less.
-                $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
+                // It should be impossible for current_product_count to be greater than p_per_page, so we can safely assume that it is less.           
                 $left_over = $p_per_page - $current_product_count;
                 $products = array_merge($products, array_slice(FAKE_PRODUCTS, 0, $left_over));
+                $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
             }
         } else {
-            // If we are now on a page where no real products exist, we just return the fake products.
-            $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
+            // If we are now on a page where no real products exist, we just return the fake products.    
             $fake_page_number = $page_number - ($max_pages + 1);
             $fake_post_offset = $p_per_page - $last_page_post_count;
             $products = array_slice(FAKE_PRODUCTS, $fake_page_number * $p_per_page + $fake_post_offset, $p_per_page);
+            $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
         }
     }
 
