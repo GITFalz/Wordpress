@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - NutriCode
  * Description: System de génération de qr codes pour en savoir plus sur la nutrition des produits.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */

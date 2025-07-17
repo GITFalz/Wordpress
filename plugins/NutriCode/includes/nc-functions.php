@@ -7,67 +7,65 @@ function df_check_woocommerce() {
     return class_exists('WooCommerce');
 }
 
-function df_get_fake_products($id = -1, $p_per_page = 10, $page_number = 1) {
-    $all_products = [
-        [
-            'ID' => 1,
-            'Image' => 'https://picsum.photos/id/237/200/300',
-            'Name' => 'Fake Product 1',
-            'Description' => 'This is a fake product description for testing purposes.'
-        ],
-        [
-            'ID' => 2,
-            'Image' => 'https://picsum.photos/seed/picsum/200/300',
-            'Name' => 'Fake Product 2',
-            'Description' => 'This is another fake product description for testing purposes.'
-        ],
-        [
-            'ID' => 3,
-            'Image' => 'https://picsum.photos/id/238/200/300',
-            'Name' => 'Fake Product 3',
-            'Description' => 'This is a third fake product description for testing purposes.'
-        ],
-        [
-            'ID' => 4,
-            'Image' => 'https://picsum.photos/id/239/200/300',
-            'Name' => 'Fake Product 4',
-            'Description' => 'This is a fourth fake product description for testing purposes.'
-        ],
-        [   'ID' => 5,
-            'Image' => 'https://picsum.photos/id/240/200/300',
-            'Name' => 'Fake Product 5',
-            'Description' => 'This is a fifth fake product description for testing purposes.'
-        ],
-        [   'ID' => 6,
-            'Image' => 'https://picsum.photos/id/241/200/300',
-            'Name' => 'Fake Product 6',
-            'Description' => 'This is a sixth fake product description for testing purposes.'
-        ],
-        [   'ID' => 7,
-            'Image' => 'https://picsum.photos/id/242/200/300',
-            'Name' => 'Fake Product 7',
-            'Description' => 'This is a seventh fake product description for testing purposes.'
-        ],
-        [   'ID' => 8,
-            'Image' => 'https://picsum.photos/id/243/200/300',
-            'Name' => 'Fake Product 8',
-            'Description' => 'This is an eighth fake product description for testing purposes.'
-        ],
-        [   'ID' => 9,
-            'Image' => 'https://picsum.photos/id/244/200/300',
-            'Name' => 'Fake Product 9',
-            'Description' => 'This is a ninth fake product description for testing purposes.'
-        ],
-        [   'ID' => 10,
-            'Image' => 'https://picsum.photos/id/245/200/300',
-            'Name' => 'Fake Product 10',
-            'Description' => 'This is a tenth fake product description for testing purposes.'
-        ]
-    ];
+define('FAKE_PRODUCTS', [
+    [
+        'ID' => 1,
+        'Image' => 'https://picsum.photos/id/237/200/300',
+        'Name' => 'Fake Product 1',
+        'Description' => 'This is a fake product description for testing purposes.'
+    ],
+    [
+        'ID' => 2,
+        'Image' => 'https://picsum.photos/seed/picsum/200/300',
+        'Name' => 'Fake Product 2',
+        'Description' => 'This is another fake product description for testing purposes.'
+    ],
+    [
+        'ID' => 3,
+        'Image' => 'https://picsum.photos/id/238/200/300',
+        'Name' => 'Fake Product 3',
+        'Description' => 'This is a third fake product description for testing purposes.'
+    ],
+    [
+        'ID' => 4,
+        'Image' => 'https://picsum.photos/id/239/200/300',
+        'Name' => 'Fake Product 4',
+        'Description' => 'This is a fourth fake product description for testing purposes.'
+    ],
+    [   'ID' => 5,
+        'Image' => 'https://picsum.photos/id/240/200/300',
+        'Name' => 'Fake Product 5',
+        'Description' => 'This is a fifth fake product description for testing purposes.'
+    ],
+    [   'ID' => 6,
+        'Image' => 'https://picsum.photos/id/241/200/300',
+        'Name' => 'Fake Product 6',
+        'Description' => 'This is a sixth fake product description for testing purposes.'
+    ],
+    [   'ID' => 7,
+        'Image' => 'https://picsum.photos/id/242/200/300',
+        'Name' => 'Fake Product 7',
+        'Description' => 'This is a seventh fake product description for testing purposes.'
+    ],
+    [   'ID' => 8,
+        'Image' => 'https://picsum.photos/id/243/200/300',
+        'Name' => 'Fake Product 8',
+        'Description' => 'This is an eighth fake product description for testing purposes.'
+    ],
+    [   'ID' => 9,
+        'Image' => 'https://picsum.photos/id/244/200/300',
+        'Name' => 'Fake Product 9',
+        'Description' => 'This is a ninth fake product description for testing purposes.'
+    ],
+    [   'ID' => 10,
+        'Image' => 'https://picsum.photos/id/245/200/300',
+        'Name' => 'Fake Product 10',
+        'Description' => 'This is a tenth fake product description for testing purposes.'
+    ]
+]);
 
-    if ($id < 1 || $id > count($all_products)) {
-        $id = -1;
-    }
+function df_get_fake_products($id = -1, $p_per_page = 10, $page_number = 1) {
+    $all_products = FAKE_PRODUCTS;
 
     if ($id !== -1) {
         $all_products = array_values(array_filter($all_products, function($product) use ($id) {
@@ -187,7 +185,7 @@ function df_get_product($id) {
     ];
 }
 
-function df_get_products($name, $p_per_page = 10, $page_number = 1) {
+function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = false) {
     $name = trim(sanitize_text_field($name));
     $data = [];
 
@@ -215,6 +213,16 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1) {
         ];
     }, $query->posts);
 
+    if ($add_fake && $page_number == $query->max_num_pages) {
+        $current_product_count = count($products);
+        if ($current_product_count < $p_per_page) {
+            $products = array_merge($products, FAKE_PRODUCTS);
+            if (count($products) > $p_per_page) {
+                $products = array_slice($products, 0, $p_per_page);
+            }
+        }
+    }
+
     $data['products'] = $products;
     $data['max_pages'] = $query->max_num_pages;
     $data['current_page'] = $page_number;
@@ -235,23 +243,6 @@ function handle_df_get_products() {
             throw new DfNutricodeException('Product name cannot be empty.', ['action' => 'get_products']);
         }
 
-        if ($add_fake) {
-            $data1 = df_get_fake_products(-1, $p_per_page, $page_number);
-            $data2 = df_get_products($name, $p_per_page, $page_number);
-            $data = array_merge($data2['products'], $data1['products']);
-
-            $total_products = count($data['products']);
-            $max_pages = $p_per_page > 0 ? ceil($total_products / $p_per_page) : 1;
-            $data = [
-                'products'      => $data,
-                'max_pages'     => $max_pages,
-                'current_page'  => $page_number
-            ];
-
-            wp_send_json_success(['type' => 'fake', 'data' => $data]);
-            wp_die();
-        }
-
         if (!df_check_woocommerce()) {
             //throw new DfDevisException('WooCommerce is not active.', ['action' => 'get_products']);
             $data = df_get_fake_products(-1, $p_per_page, $page_number);
@@ -259,7 +250,7 @@ function handle_df_get_products() {
             wp_die();
         }
 
-        $data = df_get_products($name, $p_per_page, $page_number);
+        $data = df_get_products($name, $p_per_page, $page_number, $add_fake);
         wp_send_json_success(['type' => 'real', 'data' => $data]);
         wp_die();
     } catch (DfNutricodeException $e) {
