@@ -188,29 +188,35 @@ function df_get_product($id) {
 }
 
 function df_get_products($name, $p_per_page = 10, $page_number = 1) {
+    $name = trim(sanitize_text_field($name));
     $data = [];
 
+    if (empty($name)) {
+        return ['products' => [], 'max_pages' => 1, 'current_page' => 1];
+    }
+
     $args = [
-        'limit'      => $p_per_page,
-        'page'       => $page_number,
-        'status'     => 'publish',
-        'paginate'   => true,
-        'search'     => $name
+        'post_type'      => 'product',
+        'posts_per_page' => $p_per_page,
+        'paged'          => $page_number,
+        's'              => $name,
+        'post_status'    => 'publish'
     ];
 
-    $query = new WC_Product_Query($args);
-    $results = $query->get_products();
+    $query = new WP_Query($args);
 
-    $data['products'] = array_map(function($product) {
+    $products = array_map(function($post) {
+        $product = wc_get_product($post->ID);
         return [
-            'ID' => $product->get_id(),
-            'Image' => wp_get_attachment_url($product->get_image_id()),
-            'Name' => $product->get_name(),
-            'Description' => $product->get_description()
+            'ID'          => $product->get_id(),
+            'Image'       => wp_get_attachment_url($product->get_image_id()) ?: '',
+            'Name'        => $product->get_name(),
+            'Description' => wp_strip_all_tags($product->get_description())
         ];
-    }, $results);
+    }, $query->posts);
 
-    $data['max_pages']    = $query->get_pages();
+    $data['products'] = $products;
+    $data['max_pages'] = $query->max_num_pages;
     $data['current_page'] = $page_number;
 
     return $data;
@@ -231,9 +237,18 @@ function handle_df_get_products() {
 
         if ($add_fake) {
             $data1 = df_get_fake_products(-1, $p_per_page, $page_number);
-            
+            $data2 = df_get_products($name, $p_per_page, $page_number);
+            $data = array_merge($data2['products'], $data1['products']);
 
-            wp_send_json_success(['type' => 'fake', 'data' => $data1]);
+            $total_products = count($data);
+            $max_pages = $p_per_page > 0 ? ceil($total_products / $p_per_page) : 1;
+            $data = [
+                'products'      => $data,
+                'max_pages'     => $max_pages,
+                'current_page'  => $page_number
+            ];
+
+            wp_send_json_success(['type' => 'fake', 'data' => $data]);
             wp_die();
         }
 
