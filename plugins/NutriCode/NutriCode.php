@@ -334,6 +334,7 @@ if ( ! class_exists( 'NutriCode' ) )
 			?>
 			<div class="nutricode-import-container">
 				<div id="product-inspector">
+					<h2>Importer de WooCommerce</h2>
 					<input type="text" id="product-search" placeholder="Search by name"/>
 					<div class="product-pagination">
 						<label for="product-product-per-page">Produits par page:
