@@ -26,4 +26,33 @@ let meta_box_element;
         link.download = 'qr-code.png';
         link.click();
     });
+
+    let imagePreview = document.getElementById('selected-product-image');
+    let imageInput = document.getElementById('nutricode_product_image');
+    let fileFrame = null;
+
+    imagePreview.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        if (fileFrame) {
+            fileFrame.open();
+            return;
+        }
+
+        fileFrame = wp.media({
+            title: 'Select or Upload an Image',
+            button: {
+                text: 'Use this image'
+            },
+            multiple: false
+        });
+
+        fileFrame.on('select', function () {
+            var attachment = fileFrame.state().get('selection').first().toJSON();
+            imageInput.value = attachment.url;
+            imagePreview.src = attachment.url;
+        });
+
+        fileFrame.open();
+    });
 })();

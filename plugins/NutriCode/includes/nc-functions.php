@@ -271,3 +271,47 @@ function handle_df_get_products() {
     }
 }
 add_action('wp_ajax_df_get_products', 'handle_df_get_products');
+
+
+function handle_df_import_products() {
+    try {
+        dfnc_check_post('products');
+
+        $products = json_decode(stripslashes($_POST['products']), true);
+        if (empty($products) || !is_array($products)) {
+            throw new DfNutricodeException('Invalid products data.', ['action' => 'import_products']);
+        }
+
+        foreach ($products as $product_data) {
+            $post_data = [
+                'post_title'    => '' . sanitize_text_field($product_data['name']) . '',
+                'post_content'  => '' . sanitize_textarea_field($product_data['description']) . '',
+                'post_status'   => 'publish',
+                'post_type'     => 'nutricode',
+            ];
+
+            $post_id = wp_insert_post($post_data);
+
+            if (!is_wp_error($post_id)) {
+                update_post_meta($post_id, '_nutricode_product_image', esc_url_raw($product_data['image']));
+                update_post_meta($post_id, '_nutricode_name', sanitize_text_field($product_data['name']));
+                update_post_meta($post_id, '_nutricode_description', sanitize_textarea_field($product_data['description']));
+                update_post_meta($post_id, '_nutricode_product_id', intval($product_data['id']));
+
+                error_log("Post created: ID $post_id");
+            } else {
+                error_log('Failed to create post: ' . $post_id->get_error_message());
+            }
+        }
+
+        wp_send_json_success(['message' => 'Products imported successfully.']);    
+        wp_die();
+    } catch (DfNutricodeException $e) {
+        wp_send_json_error([
+            'message' => $e->getMessage(),
+            'context' => $e->getContext()
+        ]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_df_import_products', 'handle_df_import_products');

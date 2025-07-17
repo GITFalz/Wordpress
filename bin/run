@@ -9,3 +9,6 @@ sleep 5
 
 # Import database
 ./import
+
+# Run a command in the bash
+docker-compose exec wordpress bash -c "apt-get update && apt-get install nano"

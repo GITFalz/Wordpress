@@ -129,9 +129,9 @@
   color: #999999;
   font-style: italic;
   background-color: #fdfdfd; /* Slightly different background */
-  /* If you want a scrollable list with a fixed height, uncomment these: */
-  /* max-height: 400px; */
-  /* overflow-y: auto; */
+  max-height: 500px;   /* Limit height */
+  overflow-y: auto;    /* Add vertical scroll when needed */
+  padding-right: 10px; /* Optional: space for scrollbar */
 }
 
 /* Basic styling for individual product items within #product-list */
@@ -204,6 +204,44 @@
 .product-item:hover {
   transform: translateY(-2px); /* Lift the item slightly on hover */
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow on hover */
+}
+
+.product-pagination {
+  gap: 10px; /* Space between controls */
+  width: auto; /* Full width for pagination controls */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space between controls */
+  margin-bottom: 15px; /* Space above pagination */
+}
+
+#product-page-previous,
+#product-page-next {
+  background-color: #333333; /* Primary button color */
+  height: 34px; /* Fixed height for buttons */
+  color: #ffffff; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 8px 12px; /* Padding for the buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Smaller font size for buttons */
+  transition: background-color 0.2s ease; /* Smooth transition for hover effect */
+}
+
+#product-product-per-page,
+#product-page-number {
+  width: 80px; /* Fixed width for input fields */
+  height: 34px; /* Fixed height for input fields */
+  padding: 8px; /* Padding inside the input fields */
+  border: 1px solid #cccccc; /* Light border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 0.9rem; /* Smaller font size for inputs */
+  color: #333333; /* Dark text color */
+  background-color: #f9f9f9; /* Light background for inputs */
+}
+
+.product-pagination label {
+  font-size: 0.9rem; /* Smaller font for pagination labels */
+  color: #777777; /* Darker color for better readability */
 }
 
 @media (max-width: 1800px) {

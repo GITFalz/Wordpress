@@ -42,3 +42,44 @@
   background-color: #004085; /* Even darker on click */
   transform: translateY(0);
 }
+
+.selected-product-info {
+  display: flex;
+  flex-direction: column; /* Stack image and text vertically */
+  align-items: center; /* Center items horizontally */
+  gap: 10px; /* Space between image and text */
+  margin-top: 20px; /* Space above the selected product info */
+}
+
+#selected-product-image {
+  width: 200px; /* Fixed width for the selected product image */
+  height: 200px; /* Fixed height for the selected product image */
+  object-fit: cover; /* Ensure image covers the area */
+  border-radius: 8px; /* Rounded corners for the image */
+}
+#selected-product-name,
+#selected-product-description {
+  width: 100%;
+  max-width: 600px; /* Optional: limit input width for better layout */
+  padding: 12px 15px;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333333;
+  background-color: #f9f9f9;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+}
+
+/* Optional: tweak the textarea separately if needed */
+#selected-product-description {
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 100px;
+}
+
+#selected-product-name:focus,
+#selected-product-description:focus {
+  outline: none;
+  border-color: #a0c4ff;
+  box-shadow: 0 0 0 3px rgba(160, 196, 255, 0.3);
+}

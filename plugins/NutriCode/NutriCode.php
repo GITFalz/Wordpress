@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - NutriCode
  * Description: System de génération de qr codes pour en savoir plus sur la nutrition des produits.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */
@@ -82,8 +82,8 @@ if ( ! class_exists( 'NutriCode' ) )
 			add_action('admin_menu', function() {
 				add_submenu_page(
 					'edit.php?post_type=nutricode',
-					'Import NutriCode Data',
-					'Import', 
+					'Importer NutriCode Data',
+					'Importer', 
 					'manage_options',
 					'nutricode_import',
 					[$this, 'render_nutricode_import_page']
@@ -102,12 +102,6 @@ if ( ! class_exists( 'NutriCode' ) )
 
             if( file_exists( $file ) ) {
 				$single_template = $file;
-				wp_enqueue_style(
-					'nutricode-single-style',
-					DF_NUTRICODE_URL . 'styles/nutricode-single.css',
-					[],
-					'1.0'
-				);
 			}
 
             return $single_template;
@@ -115,32 +109,6 @@ if ( ! class_exists( 'NutriCode' ) )
 
 		function render_nutricode_meta_box($post) {
 
-			wp_enqueue_script(
-	            'main-script-handle',
-	            DF_NUTRICODE_URL . 'js/main.js',
-	            ['jquery'],
-	            '1.0',
-	            true
-	        );
-
-			wp_localize_script(
-	            'main-script-handle', 
-	            'stepData', [
-					'permalink' => get_permalink($post->ID),
-					'post_id' => $post->ID,
-					'ajaxUrl' => admin_url('admin-ajax.php'),
-				]
-	        );
-
-			wp_enqueue_style(
-				'nutricode-creation-style',
-				DF_NUTRICODE_URL . 'styles/nutricode-creation.css',
-				[],
-				'1.0'
-			);
-
-			wp_nonce_field('nutricode_meta_box', 'nutricode_meta_box_nonce');
-			
 			$origin = get_post_meta($post->ID, '_nutricode_origin', true);
 			$grape = get_post_meta($post->ID, '_nutricode_grape', true);
 			$year = get_post_meta($post->ID, '_nutricode_year', true);
@@ -156,6 +124,38 @@ if ( ! class_exists( 'NutriCode' ) )
 			$allergens = get_post_meta($post->ID, '_nutricode_allergens', true);
 			$serving_size = get_post_meta($post->ID, '_nutricode_serving_size', true);
 			$product_id = get_post_meta($post->ID, '_nutricode_product_id', true);
+			$product_image = get_post_meta($post->ID, '_nutricode_product_image', true);
+			$product_name = get_post_meta($post->ID, '_nutricode_name', true);
+			$product_description = get_post_meta($post->ID, '_nutricode_description', true);
+
+			wp_enqueue_script(
+	            'main-script-handle',
+	            DF_NUTRICODE_URL . 'js/main.js',
+	            ['jquery'],
+	            '1.0',
+	            true
+	        );
+
+			wp_localize_script(
+	            'main-script-handle', 
+	            'stepData', [
+					'permalink' => get_permalink($post->ID),
+					'post_id' => $post->ID,
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+					'image' => $product_image,
+					'name' => $product_name,
+					'description' => $product_description,
+				]
+	        );
+
+			wp_enqueue_style(
+				'nutricode-creation-style',
+				DF_NUTRICODE_URL . 'styles/nutricode-creation.css',
+				[],
+				'1.0'
+			);
+
+			wp_nonce_field('nutricode_meta_box', 'nutricode_meta_box_nonce');
 
 			?>
 			<div class="nutricode-meta-box">
@@ -165,11 +165,11 @@ if ( ! class_exists( 'NutriCode' ) )
 						<label for="product-product-per-page">Produits par page:
 							<input type="number" id="product-product-per-page" value="10" min="1" max="100" />
 						</label>
-						<button id="product-page-previous"><</button>
+						<button type="button" id="product-page-previous"><</button>
 						<label for="product-page-number">Page:
 							<input type="number" id="product-page-number" value="1" min="1" />
 						</label>
-						<button id="product-page-next">></button>
+						<button type="button" id="product-page-next">></button>
 					</div>
 					<div id="product-error"></div>
 					<div id="product-list"></div>
@@ -258,6 +258,7 @@ if ( ! class_exists( 'NutriCode' ) )
 		}
 
 		public function render_nutricode_side_box($post) {
+			wp_enqueue_media();
 			wp_enqueue_script(
 				'qr-code-library',
 				'https://unpkg.com/qrious@4.0.2/dist/qrious.min.js',
@@ -293,6 +294,14 @@ if ( ! class_exists( 'NutriCode' ) )
 			<div class="nutricode-qr-code">
 				<canvas id="qr-code-canvas"></canvas>
 				<button id="download-qr-button">Download QR Code</button>
+			</div>
+			<div class="selected-product-info">
+				<img id="selected-product-image" src="" alt="Selected Product Image" />
+				<input type="hidden" name="nutricode_product_image" id="nutricode_product_image" value=""/>
+				<label for="selected-product-name">Nom:</label>
+				<input name="nutricode_name" type="text" id="selected-product-name" value=""/>
+				<label for="selected-product-description">Description:</label>
+				<textarea name="nutricode_description" id="selected-product-description" rows="4" cols="50"></textarea>
 			</div>
 			<?php
 		}
@@ -330,12 +339,12 @@ if ( ! class_exists( 'NutriCode' ) )
 						<label for="product-product-per-page">Produits par page:
 							<input type="number" id="product-product-per-page" value="10" min="1" max="100" />
 						</label>
-						<button id="product-page-previous" hidden><</button>
+						<button type="button" id="product-page-previous" hidden><</button>
 						<label for="product-page-number" hidden>Page:
 							<input type="number" id="product-page-number" value="1" min="1" />
 						</label>
-						<button id="product-page-next" hidden>></button>
-						<button id="import-products-button">Importer</button>	
+						<button type="button" id="product-page-next" hidden>></button>
+						<button type="button" id="import-products-button">Importer</button>	
 					</div>
 					<div id="product-error"></div>
 					<div id="product-list"></div>
@@ -398,6 +407,18 @@ if ( ! class_exists( 'NutriCode' ) )
 			}
 			if (isset($_POST['nutricode_product_id'])) {
 				update_post_meta($post_id, '_nutricode_product_id', sanitize_text_field($_POST['nutricode_product_id']));
+			}
+			if (isset($_POST['nutricode_product_image'])) {
+				update_post_meta($post_id, '_nutricode_product_image', sanitize_text_field($_POST['nutricode_product_image']));
+			}
+			if (isset($_POST['nutricode_name'])) {
+				update_post_meta($post_id, '_nutricode_name', sanitize_text_field($_POST['nutricode_name']));
+				error_log('NutriCode name updated: ' . sanitize_text_field($_POST['nutricode_name'])); // Debugging line
+			} else {
+				error_log('NutriCode name not set'); // Debugging line
+			}
+			if (isset($_POST['nutricode_description'])) {
+				update_post_meta($post_id, '_nutricode_description', sanitize_textarea_field($_POST['nutricode_description']));
 			}
 		}
     }

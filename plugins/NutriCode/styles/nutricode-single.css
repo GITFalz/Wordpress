@@ -28,10 +28,12 @@ body {
 }
 
 .product-main-image {
-  width: 100%;
+  width: 300px;
   height: 300px; /* Fixed height for the main image */
-  object-fit: cover; /* Ensures image covers the area */
-  display: block;
+  display: flex;
+  align-items: center; /* Center image vertically */
+  justify-content: center; /* Center image horizontally */
+  margin: 0 auto; /* Center the image */
   margin-bottom: 20px;
 }
 
@@ -69,8 +71,8 @@ body {
 
 /* Grid layout for key information (e.g., Origine, Cépage) */
 .details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Responsive 2-column layout */
+  display: flex;
+  flex-direction: column;
   gap: 15px; /* Space between grid items */
 }
 
@@ -134,7 +136,7 @@ body {
   }
 
   .product-main-image {
-    height: 350px; /* Slightly taller image */
+    height: 300px; /* Slightly taller image */
     border-top-left-radius: 12px; /* Match container radius */
     border-top-right-radius: 12px; /* Match container radius */
   }

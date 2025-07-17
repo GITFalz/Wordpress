@@ -26,6 +26,8 @@ let current_page = 1;
     product_previous = document.getElementById('product-page-previous');    
     product_next = document.getElementById('product-page-next');
 
+    product_import_button = document.getElementById('import-products-button');
+
     product_input.addEventListener('input', function() {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(() => {
@@ -124,6 +126,34 @@ let current_page = 1;
         }
     });
 
+    product_import_button.addEventListener('click', function() {
+        fetch(stepData.ajaxUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ 
+                action: "df_import_products",
+                products: JSON.stringify(selected_product_ids)
+            })
+        })
+        .then(res => res.json())
+        .then(data => { 
+            if (data.success) {
+                alert('Produits importés avec succès !');
+
+                selected_product_ids = {};
+                let product_items = document.querySelectorAll('.product-item');
+                product_items.forEach(item => {
+                    item.classList.remove('product-selected');
+                });
+            }
+            else {
+                console.error('Error importing products:', data.data.message);
+                product_error.textContent = data.data.message;
+            }
+        })
+    });
 })();
 
 function select_product(product_element) {

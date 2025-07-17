@@ -5,6 +5,9 @@
 
 require_once DF_NUTRICODE_PATH . 'includes/dfnc-utils.php';
 
+$style_path = DF_NUTRICODE_URL . 'styles/nutricode-single.css';
+$style_path = preg_replace('/:3000(?=\/|$)/', '', $style_path); // Can be removed, only used on my stupid ass local server >:(
+
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -12,16 +15,15 @@ require_once DF_NUTRICODE_PATH . 'includes/dfnc-utils.php';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php the_title(); ?> | <?php bloginfo('name'); ?></title>
     <?php wp_head(); ?>
+    <link rel="stylesheet" href="<?=$style_path?>">
 </head>
 <body <?php body_class(); ?>>
 
 <div class="nutricode-container">
     <?php
-    // Ensure we get the correct post, even if loop not started yet
     $post = get_queried_object();
-    setup_postdata($post); // safely sets global $post
+    setup_postdata($post);
 
-    
     $origin         = get_post_meta($post->ID, '_nutricode_origin', true);
     $grape          = get_post_meta($post->ID, '_nutricode_grape', true);
     $year           = get_post_meta($post->ID, '_nutricode_year', true);
@@ -37,17 +39,17 @@ require_once DF_NUTRICODE_PATH . 'includes/dfnc-utils.php';
     $allergens      = get_post_meta($post->ID, '_nutricode_allergens', true);
     $serving_size   = get_post_meta($post->ID, '_nutricode_serving_size', true);
     $product_id     = get_post_meta($post->ID, '_nutricode_product_id', true);
-
-    $product_data = df_get_product_by_id(intval($product_id));
-
+    $product_image = get_post_meta($post->ID, '_nutricode_product_image', true);
+    $product_name = get_post_meta($post->ID, '_nutricode_name', true);
+    $product_description = get_post_meta($post->ID, '_nutricode_description', true);
     ?>
     
     <div class="product-page-container">
         <div class="product-header">
-            <img src="<?=$product_data['Image']?>" alt="<?=$product_data['Name']?>" class="product-main-image">
-            <h1 class="product-title"><?=$product_data['Name']?></h1>
+            <img src="<?=$product_image?>" alt="<?=$product_name?>" class="product-main-image">
+            <h1 class="product-title"><?=$product_name?></h1>
             <p class="product-description">
-                <?=$product_data['Description']?>
+                <?=$product_description?>
             </p>
         </div>
 
