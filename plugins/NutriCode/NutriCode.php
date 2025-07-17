@@ -349,6 +349,9 @@ if ( ! class_exists( 'NutriCode' ) )
 					<div id="product-error"></div>
 					<div id="product-list"></div>
 				</div>
+				<div class="selected-products">
+					<h2>Produits sélectionnés</h2>
+					<div id="selected-products-list"></div>
 			</div>
 			<?php
 		}

@@ -2,6 +2,7 @@ let product_container;
 let product_input;
 let product_error;
 let product_list;
+let selected_products_list;
 let product_pet_page;
 let product_page_number;
 let debounceTimeout;
@@ -17,6 +18,7 @@ let current_page = 1;
     product_input = document.getElementById('product-search');
     product_error = document.getElementById('product-error');
     product_list = document.getElementById('product-list');
+    selected_products_list = document.getElementById('selected-products-list');
 
     product_container = document.getElementById('product-inspector');
 
@@ -34,14 +36,8 @@ let current_page = 1;
             let name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
-                if (name.endsWith('-fake')) {
-                    name = name.slice(0, -5).trim();
-                    get_product_info(name, true);
-                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
-                } else {
-                    get_product_info(name);
-                    product_error.textContent = '';
-                }
+                get_product_info(name);
+                product_error.textContent = '';
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -58,14 +54,8 @@ let current_page = 1;
             let name = product_input.value.trim();
             if (name.length > 0) {
                 document.getElementById('product-page-number').value = 1;
-                if (name.endsWith('-fake')) {
-                    name = name.slice(0, -5).trim();
-                    get_product_info(name, true);
-                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
-                } else {
-                    get_product_info(name);
-                    product_error.textContent = '';
-                }
+                get_product_info(name);
+                product_error.textContent = '';
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -78,14 +68,8 @@ let current_page = 1;
         product_page_number_debounceTimeout = setTimeout(() => {
             let name = product_input.value.trim();
             if (name.length > 0) {
-                if (name.endsWith('-fake')) {
-                    name = name.slice(0, -5).trim();
-                    get_product_info(name, true);
-                    product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
-                } else {
-                    get_product_info(name);
-                    product_error.textContent = '';
-                }
+                get_product_info(name);
+                product_error.textContent = '';
             } else {
                 product_list.innerHTML = '';
                 product_error.textContent = '';
@@ -99,14 +83,8 @@ let current_page = 1;
             current_page--;
             product_page_number.value = current_page;
             let name = product_input.value.trim();
-            if (name.endsWith('-fake')) {
-                name = name.slice(0, -5).trim();
-                get_product_info(name, true);
-                product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
-            } else {
-                get_product_info(name);
-                product_error.textContent = '';
-            }
+            get_product_info(name);
+            product_error.textContent = '';
         }
     });
 
@@ -115,14 +93,8 @@ let current_page = 1;
             current_page++;
             product_page_number.value = current_page;
             let name = product_input.value.trim();
-            if (name.endsWith('-fake')) {
-                name = name.slice(0, -5).trim();
-                get_product_info(name, true);
-                product_error.textContent = "Des produits fictifs ont été renvoyés à des fins de test.";
-            } else {
-                get_product_info(name);
-                product_error.textContent = '';
-            }
+            get_product_info(name);
+            product_error.textContent = '';
         }
     });
 
@@ -165,6 +137,13 @@ function select_product(product_element) {
     if (selected_product_ids[product_id]) {
         delete selected_product_ids[product_id];
         product_element.classList.remove('product-selected');
+        // Remove this element from the selected products list
+        let selected_product_divs = selected_products_list.querySelectorAll('.product-item');
+        selected_product_divs.forEach(div => {
+            if (div.dataset.productId === product_id) {
+                selected_products_list.removeChild(div);
+            }
+        });
     }
     else {
         selected_product_ids[product_id] = {
@@ -174,10 +153,18 @@ function select_product(product_element) {
             image: product_image
         };
         product_element.classList.add('product-selected');
+        // Copy this element to the selected products list
+        let selected_product_div = get_product_html({
+            ID: product_id,
+            Name: product_name,
+            Description: product_description,
+            Image: product_image
+        });
+        selected_products_list.appendChild(selected_product_div);
     }
 }
 
-function get_product_info(name, add_fake = false) {
+function get_product_info(name) {
     fetch(stepData.ajaxUrl, {
         method: "POST",
         headers: {
@@ -187,8 +174,7 @@ function get_product_info(name, add_fake = false) {
             action: "df_get_products",
             name: name,
             p_per_page: document.getElementById('product-product-per-page').value || 10,
-            page_number: document.getElementById('product-page-number').value || 1,
-            add_fake: add_fake ? 'true' : 'false'
+            page_number: document.getElementById('product-page-number').value || 1
         })
     })
     .then(res => res.json())
@@ -209,7 +195,7 @@ function get_product_info(name, add_fake = false) {
         let products = data.data.data.products;
         for (let i = 0; i < products.length; i++) {
             let product = products[i];
-            let div = get_product_html(product, data.data.type);
+            let div = get_product_html(product);
             product_list.appendChild(div);
         }
 
@@ -252,10 +238,9 @@ function check_page_number_visibility(current_page, max_pages) {
     product_page_number.min = 1;
 }
 
-function get_product_html(product, type) {
+function get_product_html(product) {
     let div = document.createElement('div');
     div.dataset.productId = product.ID;
-    div.dataset.productType = type;
     div.addEventListener('click', function() {
         select_product(this);
     });
@@ -277,6 +262,12 @@ function get_product_html(product, type) {
     div.appendChild(image_element);
     div.appendChild(name_element);
     div.appendChild(description_element);
+
+    if (selected_product_ids[product.ID]) {
+        div.classList.add('product-selected');
+    } else {
+        div.classList.remove('product-selected');
+    }
 
     return div;
 }
