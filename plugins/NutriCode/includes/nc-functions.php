@@ -227,6 +227,19 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = 
                 $max_pages += $extra_pages;
             }
         }
+    } else if ($add_fake && $page_number >= $query->max_num_pages) {
+        $args['paged'] = $max_pages;
+        $query_last_page = new WP_Query($args);
+        $real_products_last_page = $query_last_page->posts;
+        $real_count_last_page = count($real_products_last_page);
+
+        $fake_page_number = $page_number - $query->max_num_pages + 1;
+        $fake_post_offset = $p_per_page - $real_count_last_page;
+
+        $fake_page_count = count(FAKE_PRODUCTS);
+        $max_pages += ceil(($fake_page_count + $real_count_last_page) / $p_per_page);
+
+        $products = array_slice(FAKE_PRODUCTS, $fake_page_number * $p_per_page + $fake_post_offset, $p_per_page);
     }
 
     $data['products'] = $products;
