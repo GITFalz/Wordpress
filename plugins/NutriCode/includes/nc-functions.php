@@ -214,32 +214,51 @@ function df_get_products($name, $p_per_page = 10, $page_number = 1, $add_fake = 
     }, $query->posts);
 
     $max_pages = $query->max_num_pages;
-
-    if ($add_fake && $page_number == $query->max_num_pages) {
-        $current_product_count = count($products);
-        if ($current_product_count < $p_per_page) {
-            $products = array_merge($products, FAKE_PRODUCTS);
-            $product_count = count($products);
-            if ($product_count > $p_per_page) {
-                $products = array_slice($products, 0, $p_per_page);
-                $left_over = $product_count - $p_per_page;
-                $extra_pages = ceil($left_over / $p_per_page);
-                $max_pages += $extra_pages;
-            }
+    $last_page_post_count = count($products);
+    if ($max_pages == 0) {
+        /* 
+        If the total amount of pages is 0 it means that there either are no posts, or the page 
+        number is greater then the amount of total pages so it sets max pages to 0.
+        This allows to check if there are in fact 0 pages or if they were just not registered,
+        by checking id there is page 1 in the first place.
+       */
+        $args['paged'] = 1;
+        $query_first_page = new WP_Query($args);
+        $max_pages = $query_first_page->max_num_pages;
+        if ($max_pages != 0) {
+            /*
+            Now that we know that there is in fact a page, we can get the amount of posts in the last page.
+            In any other case the amount of pages will be the correct amount or simply 0.
+            */
+            $args['paged'] = $max_pages;
+            $query_last_page = new WP_Query($args);
+            $last_page_post_count = count($query_last_page->posts);
         }
-    } else if ($add_fake && $page_number >= $query->max_num_pages) {
-        $args['paged'] = $max_pages;
-        $query_last_page = new WP_Query($args);
-        $real_products_last_page = $query_last_page->posts;
-        $real_count_last_page = count($real_products_last_page);
+    }
 
-        $fake_page_number = $page_number - $query->max_num_pages + 1;
-        $fake_post_offset = $p_per_page - $real_count_last_page;
-
-        $fake_page_count = count(FAKE_PRODUCTS);
-        $max_pages += ceil(($fake_page_count + $real_count_last_page) / $p_per_page);
-
-        $products = array_slice(FAKE_PRODUCTS, $fake_page_number * $p_per_page + $fake_post_offset, $p_per_page);
+    if (add_fake) {
+        if ($max_pages == 0) {
+            $max_pages = ceil(count(FAKE_PRODUCTS) / $p_per_page);
+            $products = array_slice(FAKE_PRODUCTS, $page_number * $p_per_page, $p_per_page);
+        } else if ($page_number <= $max_pages) {
+            // If we still are in the range of having real products, we just add the fake products to the end of the list.
+            $current_product_count = count($products);
+            if ($current_product_count == $p_per_page) {
+                // We just have to add the amount of pages that are needed to display all the fake products.
+                $max_pages += ceil(count(FAKE_PRODUCTS) / $p_per_page);
+            } else { 
+                // It should be impossible for current_product_count to be greater than p_per_page, so we can safely assume that it is less.
+                $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
+                $left_over = $p_per_page - $current_product_count;
+                $products = array_merge($products, array_slice(FAKE_PRODUCTS, 0, $left_over));
+            }
+        } else {
+            // If we are now on a page where no real products exist, we just return the fake products.
+            $max_pages += ceil((count(FAKE_PRODUCTS) + $last_page_post_count - ($last_page_post_count != 0 ? $p_per_page : 0)) / $p_per_page);
+            $fake_page_number = $page_number - ($max_pages + 1);
+            $fake_post_offset = $p_per_page - $last_page_post_count;
+            $products = array_slice(FAKE_PRODUCTS, $fake_page_number * $p_per_page + $fake_post_offset, $p_per_page);
+        }
     }
 
     $data['products'] = $products;
