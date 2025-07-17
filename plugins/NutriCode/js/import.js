@@ -167,7 +167,12 @@ function select_product(product_element) {
         delete_button.addEventListener('click', function(event) {
             event.stopPropagation();
             delete selected_product_ids[product_id];
-            product_element.classList.remove('product-selected');
+            let product_items = document.querySelectorAll('.product-item');
+            product_items.forEach(item => {
+                if (item.dataset.productId === product_id) {
+                    item.classList.remove('product-selected');
+                }
+            });
             selected_products_list.removeChild(selected_product_div);
         });
         selected_product_div.appendChild(delete_button);
