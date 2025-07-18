@@ -2,6 +2,8 @@ let container;
 let current_step;
 let history = {};
 
+let isRunning = false;
+
 document.addEventListener('DOMContentLoaded', () => {
 	container = document.querySelector(".devis-container");
 	current_step = 0;
@@ -159,6 +161,11 @@ function set_slected_step(step_index) {
 }
 
 async function get_step_by_group(postid, step_index, group_name) {
+	if (isRunning) {
+		return;
+	}
+	isRunning = true;
+
 	let step_div = document.getElementById(`step_${step_index}`) ? 'true' : 'false';
 	let step_info = document.querySelector(`.step-info-${step_index}`) ? 'true' : 'false';
 	let type_div = document.querySelector(`.step-type.group_${group_name}`) ? 'true' : 'false';
@@ -218,6 +225,8 @@ async function get_step_by_group(postid, step_index, group_name) {
 		stepDiv.dataset.group = group_name;
 
 		set_slected_step(step_index);
+
+		isRunning = false;
 	})
 	.catch(error => {
 		console.error('Fetch error:', error);
