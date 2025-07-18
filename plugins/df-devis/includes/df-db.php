@@ -784,6 +784,10 @@ function handle_dfdb_get_email_by_step_and_group() {
 }
 add_action('wp_ajax_dfdb_get_email_by_step_and_group', 'handle_dfdb_get_email_by_step_and_group');
 
+function dfdb_get_all_steps() {
+    global $wpdb;
+    return $wpdb->get_results("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " ORDER BY post_id ASC, step_index ASC");
+}   
 
 function dfdb_get_types($step_id) {
     global $wpdb;
@@ -1100,6 +1104,29 @@ function handle_dfdb_remove_unused_data() {
         if ($result_email === false) {
             throw new DfDevisException
             ("Failed to delete unused email: " . dfdb_error());
+        }
+
+        // Get all the steps in the db
+        $steps = dfdb_get_all_steps();
+
+        error_log("Checking steps for post ID $post_id");
+
+        // check if the post associated with the step exists
+        foreach ($steps as $step) {
+            $post_id = intval($step->post_id);
+
+            // Get the actual post here
+            $post = get_post($post_id);
+
+            if ($post && !in_array($post->post_status, ['auto-draft', 'trash'])) {
+                // Nothing to do, the post exists and is not trashed
+            } else {
+                // If the post does not exist or is trashed, delete the step
+                $result = dfdb_delete_step($step->id);
+                if ($result === false) {
+                    throw new DfDevisException("Failed to delete step: " . dfdb_error());
+                }
+            }
         }
 
         wp_send_json_success(['message' => 'Unused data deleted successfully']);

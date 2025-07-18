@@ -115,6 +115,7 @@ let fileFrame = null;
 				remove_button.dataset.index = count;
 				remove_button.textContent = 'Remove Element';
 				remove_button.type = 'button';
+				remove_button.addEventListener('click', remove_option_element);
 				div.appendChild(remove_button);
 
 				button_select_image.addEventListener('click', function(e) {
@@ -329,6 +330,7 @@ function select_image(e, button) {
 	let image = button.parentElement.querySelector('.option-element-image-preview');
 	let count = parseInt(button.closest('.option-element').dataset.index);
 	e.preventDefault();
+	console.log("count: " + count + " id: " + parseInt(button.closest('.option').dataset.id));
 	select_image_from_media_library(e, function(imageUrl) {
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
