@@ -334,10 +334,7 @@ function select_image(e) {
 	const count = parseInt(button.closest('.option-element').dataset.index);
 	const id = parseInt(button.closest('.option').dataset.id);
 
-	console.log("Selecting image for option ID:", id, "and count:", count);
-
 	select_image_from_media_library(e, count, id, function(imageUrl, option_id, index) {
-		console.log("Selected image URL:", imageUrl, "Updating database with ID:", option_id, "and count:", index);
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
 			headers: {
@@ -444,12 +441,7 @@ function select_image_from_media_library(e, count, id, callback) {
 	console.log("Opening media library for option ID:", id, "and count:", count);
 	e.preventDefault();
 
-	if (fileFrame) {
-		fileFrame.open();
-		return;
-	}
-
-	fileFrame = wp.media({
+	const frame = wp.media({
 		title: 'Select or Upload an Image',
 		button: {
 			text: 'Use this image'
@@ -457,14 +449,14 @@ function select_image_from_media_library(e, count, id, callback) {
 		multiple: false
 	});
 
-	fileFrame.on('select', function () {
-		const attachment = fileFrame.state().get('selection').first().toJSON();
+	frame.on('select', function () {
+		const attachment = frame.state().get('selection').first().toJSON();
 		if (typeof callback === 'function') {
 			callback(attachment.url, id, count);
 		}
 	});
 
-	fileFrame.open();
+	frame.open();
 }
 
 
