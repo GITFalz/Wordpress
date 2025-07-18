@@ -334,8 +334,8 @@ function select_image(e, button) {
 
 	console.log("Selecting image for option ID:", id, "and count:", count);
 
-	select_image_from_media_library(e, function(imageUrl) {
-		console.log("Selected image URL:", imageUrl, "Updating database with ID:", id, "and count:", count);
+	select_image_from_media_library(e, count, id, function(imageUrl, option_id, index) {
+		console.log("Selected image URL:", imageUrl, "Updating database with ID:", option_id, "and count:", index);
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
 			headers: {
@@ -343,8 +343,8 @@ function select_image(e, button) {
 			},
 			body: new URLSearchParams({
 				action: "dfdb_option_update_data_value",
-				option_id: id,
-				index: count,
+				option_id: option_id,
+				index: index,
 				type: "image",
 				value: imageUrl
 			})
@@ -438,7 +438,7 @@ function set_selected_step(step_index) {
 }
 
 
-function select_image_from_media_library(e, callback) {
+function select_image_from_media_library(e, count, id, callback) {
 	e.preventDefault();
 
 	if (fileFrame) {
@@ -457,7 +457,7 @@ function select_image_from_media_library(e, callback) {
 	fileFrame.on('select', function () {
 		const attachment = fileFrame.state().get('selection').first().toJSON();
 		if (typeof callback === 'function') {
-			callback(attachment.url);
+			callback(attachment.url, id, count);
 		}
 	});
 
