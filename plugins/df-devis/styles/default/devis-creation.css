@@ -228,8 +228,8 @@
 }
 
 .option-image-preview {
-  max-width: 75px;
-  max-height: 75px;
+  max-width: 60px;
+  max-height: 60;
   border-radius: 4px;
   object-fit: cover;
 }
