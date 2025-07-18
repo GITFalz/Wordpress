@@ -335,6 +335,7 @@ function select_image(e, button) {
 	console.log("Selecting image for option ID:", id, "and count:", count);
 
 	select_image_from_media_library(e, function(imageUrl) {
+		console.log("Selected image URL:", imageUrl, "Updating database with ID:", id, "and count:", count);
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
 			headers: {
