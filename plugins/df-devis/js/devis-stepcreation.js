@@ -329,8 +329,8 @@ function remove_option_element(e) {
 function select_image(e, button) {
 	e.preventDefault();
 	let image = button.parentElement.querySelector('.option-element-image-preview');
-	let count = parseInt(button.closest('.option-element').dataset.index);
-	let id = parseInt(button.closest('.option').dataset.id);
+	const count = parseInt(button.closest('.option-element').dataset.index);
+	const id = parseInt(button.closest('.option').dataset.id);
 
 	console.log("Selecting image for option ID:", id, "and count:", count);
 
