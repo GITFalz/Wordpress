@@ -27,7 +27,7 @@ async function view_option(e, element) {
 	if (!type_name) {
 		return; // If the step could not be fetched, exit
 	}
-	
+
 	let step_infos = document.querySelectorAll('.step-info');
 	step_infos.forEach(info => {
 		if (info.classList.contains('step-info-'+(current_step+1))) {
@@ -71,6 +71,10 @@ async function view_option(e, element) {
 
 async function view_history(e, element) {
 	let type_name = await get_step_by_group(container.dataset.postid, current_step+1, element.dataset.activate);
+	if (!type_name) {
+		return; // If the step could not be fetched, exit
+	}
+	
 	let step_infos = document.querySelectorAll('.step-info');
 	step_infos.forEach(info => {
 		if (info.classList.contains('step-info-'+(current_step+1))) {
