@@ -4,6 +4,9 @@ let debounceMap;
 let currentStepIndex = 0;
 let currentGroup = "Root";
 
+// media
+let fileFrame = null;
+
 (function(){
 	container = document.querySelector('.devis-container');
 	steps_container = document.querySelector('.steps-container');
@@ -34,6 +37,95 @@ let currentGroup = "Root";
 		}
 		if (e.target.classList.contains('devis-step-view')) {
 			display_step_content(e.target.parentElement.parentElement.dataset.stepindex, false);
+		}
+		if (e.target.classList.contains('devis-add-option-element')) {
+			// number of elements before adding a new one
+			let option_elements = e.target.parentElement.querySelectorAll('.option-element');
+			let count = option_elements.length;
+
+			fetch(stepData.ajaxUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded"
+				},
+				body: new URLSearchParams({
+					action: "dfdb_option_add_data_value",
+					option_id: parseInt(e.target.closest('.option').dataset.id),
+					type: "text",
+					value: "Option"+(count+1)
+				})
+			})
+			.then(res => res.json())
+			.then(data => {
+				if (!data.success) {
+					console.error(data.data.message);
+					return;
+				}
+
+				let div = document.createElement('div');
+				div.classList.add('option-element');
+				div.dataset.index = count;
+
+				let typeDiv = document.createElement('div');
+				typeDiv.classList.add('option-element-type');
+
+				let text = document.createElement('p');
+				text.classList.add('option-element-type-text');
+				text.textContent = "Text";
+				typeDiv.appendChild(text);
+
+				let select = document.createElement('select');
+				select.classList.add('option-element-type-select');
+				select.innerHTML = `
+					<option value="text">Text</option>
+					<option value="image">Image</option>`;
+				select.addEventListener('change', function(e) {
+						change_option_element_type(e.target);
+					});
+				typeDiv.appendChild(select);
+
+				div.appendChild(typeDiv);
+
+				let input = document.createElement('input');
+				input.classList.add('option-element-input');
+				input.type = 'text';
+				input.placeholder = 'Enter value...';
+				input.value = "Option" + (count + 1);
+				input.addEventListener('input', on_text_input);
+				div.appendChild(input);
+
+				let imageDiv = document.createElement('div');
+				imageDiv.classList.add('option-element-image');
+				imageDiv.classList.add('hidden'); // Initially hidden, shown when type is image
+
+				let button_select_image = document.createElement('button');
+				button_select_image.classList.add('option-element-select-image');
+				button_select_image.textContent = 'Select Image';
+				button_select_image.type = 'button';
+				imageDiv.appendChild(button_select_image);
+
+				let image = document.createElement('img');
+				image.classList.add('option-element-image-preview');
+				image.src = 'https://ui-avatars.com/api/?name=i+g&size=250'; // Default image
+				imageDiv.appendChild(image);
+				div.appendChild(imageDiv);
+
+				let remove_button = document.createElement('button');
+				remove_button.classList.add('remove-option-element');
+				remove_button.dataset.index = count;
+				remove_button.textContent = 'Remove Element';
+				remove_button.type = 'button';
+				div.appendChild(remove_button);
+
+				button_select_image.addEventListener('click', function(e) {
+					select_image(e, button_select_image);
+				});
+
+				let element = e.target;
+				let option = e.target.parentElement;
+
+				option.insertBefore(div, element);
+			});
 		}
 	});
 
@@ -155,6 +247,176 @@ let currentGroup = "Root";
 	set_max_step_visibility(0);
 })();
 
+
+function on_text_input(e) {
+	let input = e.target;
+	let option = input.closest('.option');
+	let option_element = input.closest('.option-element');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let count = parseInt(option_element.dataset.index);
+	let id = parseInt(option.dataset.id);
+
+	let debounceId = id + "_text_input_" + count;
+	clearTimeout(debounceMap.get(debounceId));
+	let timeout = setTimeout(() => {
+		fetch(stepData.ajaxUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				action: "dfdb_option_update_data_value",
+				option_id: id,
+				index: count,
+				type: "text",
+				value: input.value
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			if (!data.success) {
+				console.error(data.data.message);
+			}
+			debounceMap.delete(debounceId);
+		});
+	}, 2000);
+	// Store the timeout in the debounceMap
+	debounceMap.set(debounceId, timeout);
+}
+
+function remove_option_element(e) {
+	let option_element = e.target.closest('.option-element');
+	if (!option_element) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let option = option_element.closest('.option');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let count = parseInt(option_element.dataset.index);
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_option_remove_data_value",
+			option_id: parseInt(option.dataset.id),
+			index: count
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+		option_element.remove();
+		let option_elements = option.querySelectorAll('.option-element');
+		option_elements.forEach((el, index) => {
+			el.dataset.index = index; // Update the index of each element
+		});
+	});
+}
+
+
+function select_image(e, button) {
+	let image = button.parentElement.querySelector('.option-element-image-preview');
+	let count = parseInt(button.closest('.option-element').dataset.index);
+	e.preventDefault();
+	select_image_from_media_library(e, function(imageUrl) {
+		fetch(stepData.ajaxUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				action: "dfdb_option_update_data_value",
+				option_id: parseInt(e.target.closest('.option').dataset.id),
+				index: count,
+				type: "image",
+				value: imageUrl
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			if (!data.success) {
+				console.error(data.data.message);
+				return;
+			}
+			image.src = imageUrl; // Update the image preview
+		});
+	});
+}
+
+
+function change_option_element_type(element) {
+
+	let type = element.value;
+	let value;
+	if (type === "text") {
+		value = element.closest('.option-element').querySelector('.option-element-input').value;``
+		element.closest('.option-element').querySelector('.option-element-type-text').textContent = "Text";
+	}
+	else if (type === "image") {
+		value = element.closest('.option-element').querySelector('.option-element-image-preview').src;
+		element.closest('.option-element').querySelector('.option-element-type-text').textContent = "Image";
+	} else {
+		console.error("Invalid type selected: " + type);
+		return;
+	}
+
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_option_update_data_value",
+			option_id: parseInt(element.closest('.option').dataset.id),
+			index: parseInt(element.closest('.option-element').dataset.index),
+			type: type,
+			value: value
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+
+		let optionElement = element.closest('.option-element');
+		if (!optionElement) {
+			console.error("Option element does not exist.");
+			return;
+		}
+
+		let imageDiv = optionElement.querySelector('.option-element-image');
+		let textInput = optionElement.querySelector('.option-element-input');
+
+		let type = element.value;
+		if (type === "text") {
+			imageDiv.classList.add('hidden');
+			textInput.classList.remove('hidden');
+		} 
+		else if (type === "image") {
+			imageDiv.classList.remove('hidden');
+			textInput.classList.add('hidden');
+		}
+		else {
+			console.error("Invalid type selected: " + type);
+			return;
+		}
+	});
+}
+		
+
 function next_step() { return currentStepIndex + 1; }
 
 function set_selected_step(step_index) {
@@ -169,6 +431,32 @@ function set_selected_step(step_index) {
 	});
 }
 
+
+function select_image_from_media_library(e, callback) {
+	e.preventDefault();
+
+	if (fileFrame) {
+		fileFrame.open();
+		return;
+	}
+
+	fileFrame = wp.media({
+		title: 'Select or Upload an Image',
+		button: {
+			text: 'Use this image'
+		},
+		multiple: false
+	});
+
+	fileFrame.on('select', function () {
+		const attachment = fileFrame.state().get('selection').first().toJSON();
+		if (typeof callback === 'function') {
+			callback(attachment.url);
+		}
+	});
+
+	fileFrame.open();
+}
 
 
 /* DATABASE FUNCTIONS */

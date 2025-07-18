@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - Devis
  * Description: Mise en place d'un system de devis pour les sites créés par DEFACTO.
- * Version: 2.1.0
+ * Version: 2.2.0
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */
@@ -205,6 +205,8 @@ if ( ! class_exists( 'DFDevis' ) )
 
 
 	    function render_devis_meta_box($post) {
+			wp_enqueue_media();
+
 	    	wp_enqueue_script(
 	            'step-content-handle',
 	            DF_DEVIS_URL . 'js/devis-stepcontent.js',
@@ -272,6 +274,7 @@ if ( ! class_exists( 'DFDevis' ) )
 					'option_name' => $option->option_name,
 					'group_name' => $option->group_name,
 					'type_id' => $option->type_id,
+					'data' => json_decode($option->data, true) ?: [],
 				];
 			}
 

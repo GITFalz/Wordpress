@@ -589,6 +589,25 @@
   background: #059669;
 }
 
+.devis-container .option-element {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.devis-container .option-element-image-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-top: 0.5rem;
+  display: block;
+}
+
+
 /* Responsive design */
 @media (max-width: 768px) {
   .devis-container {

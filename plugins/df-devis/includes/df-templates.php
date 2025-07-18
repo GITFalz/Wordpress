@@ -75,22 +75,62 @@ function handle_dfdb_create_step_html() {
 add_action('wp_ajax_dfdb_create_step_html', 'handle_dfdb_create_step_html');
 
 /* OPTION HTML GENERATION */
-function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden, $is_customizable = true) {
+function df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden, $elements, $is_customizable = true) {
     ob_start(); ?>
     <div data-id="<?=$option_id?>" class="option group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" <?php if (!$is_customizable): ?>onclick="view_option(event, this)"<?php endif; ?>>
         <?php if ($is_customizable): ?>
             <label>Option Name: 
                 <input class="set-name" type="text" value="<?=$option_name?>">
             </label>    
+            <?php foreach ($elements as $index => $element): ?>
+                <?=df_get_option_element_html($element['type'], $element['value'], $index, $is_customizable)?>
+            <?php endforeach; ?>
+            <button type="button" class="devis-add-option-element">Add Element</button>
         <?php else: ?>
-            <p class="option-name"><?=$option_name?></p>  
+            <?php foreach ($elements as $index => $element): ?>
+                <?=df_get_option_element_html($element['type'], $element['value'], $index, $is_customizable)?>
+            <?php endforeach; ?>
         <?php endif; ?>
         
         <?php if ($is_customizable): ?>      
-            <button type="button" data-activate="gp_<?=$option_id?>" class="remove-option">Remove Option</button>
-            <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+            <div class="devis-option-elements">
+                <button type="button" data-activate="gp_<?=$option_id?>" class="remove-option">Remove Option</button>
+                <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+            </div>
         <?php endif; ?>
     </div>	<?php
+    return ob_get_clean();
+}
+
+function df_get_option_element_html($type, $value, $index, $is_customizable) {
+    ob_start(); ?>
+    <div class="option-element" data-index="<?=$index?>">
+        <?php if ($is_customizable): ?>
+            <div class="option-element-type">
+                <p class="option-element-type-text">
+                    <?=($type === 'text' ? 'Text' : 'Image')?>
+                </p>
+                <select class="option-element-type-select" onchange="change_option_element_type(this)">
+                    <option value="text" <?=selected($type, 'text')?>>Text</option>
+                    <option value="image" <?=selected($type, 'image')?>>Image</option>
+                </select>
+            </div>
+        <?php endif; ?>
+        <?php if ($is_customizable): ?>
+            <input class="option-element-input <?=($type === 'text' ? '' : 'hidden')?>" type="text" placeholder="Enter value..." value="<?=$type=== 'text' ? esc_attr($value) : 'Option1'?>" oninput="on_text_input(event)">
+            <div class="option-element-image <?=($type === 'image' ? '' : 'hidden')?>">    
+                <button type="button" class="option-element-select-image" onclick="select_image(event, this)">Select Image</button>
+                <img class="option-element-image-preview" src="<?=$type === 'image' ? esc_url($value) : 'https://ui-avatars.com/api/?name=i+g&size=250'?>" alt="Option Element Image">
+            </div>
+            <button type="button" class="remove-option-element" data-index="<?=$index?>" onclick="remove_option_element(event)">Remove Element</button>
+        <?php else: ?>
+            <?php if ($type === 'text'): ?>
+                <p class="option-element-type-text"><?=$value?></p>
+            <?php elseif ($type === 'image'): ?>
+                <img class="option-element-image-preview" src="<?=esc_url($value)?>" alt="Option Element Image">
+            <?php endif; ?>
+        <?php endif; ?>
+    </div> <?php
     return ob_get_clean();
 }
 
@@ -99,7 +139,8 @@ function df_get_option_html_array($option, $hidden = true) {
     $group_name = $option['group_name'] ?? throw new DfDevisException("Missing group name in option data");
     $option_name = $option['option_name'] ?? throw new DfDevisException("Missing option name in option data");
     $option_id = $option['id'] ?? throw new DfDevisException("Missing option ID in option data");
-    return df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden);
+    $data = $option['data'] ?? [];
+    return df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden, $data);
 }
 
 function handle_df_get_option_html() {
@@ -111,7 +152,7 @@ function handle_df_get_option_html() {
         $option_id = intval($_POST['option_id']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden);
+        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, $hidden, []); // for now, no elements are passed
         wp_send_json_success(['message' => 'Option HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -133,7 +174,7 @@ function handle_df_get_options_html_by_step_and_group() {
         
         $content = '';
         foreach ($options as $option) {
-            $content .= df_get_option_html_base($type_id, $group_name, $option->name, $option->id, false);
+            $content .= df_get_option_html_base($type_id, $group_name, $option->name, $option->id, false, json_decode($option->data, true));
         }
         
         wp_send_json_success(['message' => 'Options HTML generated successfully', 'content' => $content]);
@@ -158,7 +199,7 @@ function handle_df_create_step_option_get_html() {
             throw new DfDevisException("Failed to create step option");
         }
         $option_id = dfdb_id();
-        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, false);
+        $content = df_get_option_html_base($type_id, $group_name, $option_name, $option_id, false, []); // for now, no elements are passed
         wp_send_json_success(['message' => 'Step option created successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -343,7 +384,7 @@ function df_get_default_type_html($type_id, $step_index, $group_name, $option_id
     <div class="step-type step-type-<?=$type_id?> group_<?=$group_name?>" data-typeid="<?=$type_id?>" data-typename="options"> 
         <div class="options-container options-step-<?=$step_index?>">
             <?php if ($option_id): ?>
-                <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false)?>
+                <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false, [])?>
             <?php endif; ?>
             <button type="button" class="add-option">Add Option</button>
         </div>
@@ -432,7 +473,7 @@ function handle_df_get_step_html_by_index() {
                 $data['type_content'] .= '<div class="options-container options-step-'.$step_index.'">';
                 $option = dfdb_get_type_options($type->id);
                 foreach ($option as $opt) {
-                    $data['type_content'] .= df_get_option_html_base($type->id, $group_name, $opt->option_name, $opt->id, false, false);
+                    $data['type_content'] .= df_get_option_html_base($type->id, $group_name, $opt->option_name, $opt->id, false, json_decode($opt->data, true), false);
                 }
                 $data['type_content'] .= '</div>';
             } else if ($type_name === 'historique') {

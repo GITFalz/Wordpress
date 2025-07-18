@@ -46,6 +46,7 @@ function dfdb_create_database() {
 	    type_id mediumint(9) NOT NULL,
 	    option_name VARCHAR(255) NOT NULL,
         activate_group VARCHAR(255) DEFAULT NULL,
+        data JSON,
 	    PRIMARY KEY (id),
 	    KEY type_id (type_id),
 	    FOREIGN KEY (type_id) REFERENCES " . DFDEVIS_TABLE_TYPES . " (id) ON DELETE CASCADE
@@ -92,7 +93,7 @@ function dfdb_create_type($step_id, $type_name, $group_name) {
 
 function dfdb_create_option($type_id, $option_name) {
     global $wpdb;
-    $result = $wpdb->insert(DFDEVIS_TABLE_OPTIONS, ["type_id" => $type_id, "option_name" => $option_name]);
+    $result = $wpdb->insert(DFDEVIS_TABLE_OPTIONS, ["type_id" => $type_id, "option_name" => $option_name, "data" => json_encode([])]);
     if ($result === false) {
         return false;
     }
@@ -234,6 +235,167 @@ function handle_dfdb_set_option_name() {
     }
 }
 add_action('wp_ajax_dfdb_set_option_name', 'handle_dfdb_set_option_name');
+
+
+// Add json value to an option's data
+function dfdb_option_add_data_value($option_id, $type, $value) {
+    global $wpdb;
+    $option = dfdb_get_option($option_id);
+    if (!$option) {
+        throw new DfDevisException("Option not found");
+    }
+
+    $added = ['type' => $type, 'value' => $value];
+
+    $data = json_decode($option->data, true);
+    if (!is_array($data)) {
+        $data = [];
+    }
+    $data[] = $added;
+    $data_json = json_encode($data);
+
+    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
+    if ($result === false) {
+        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
+    }
+    return $result;
+}
+
+function handle_dfdb_option_add_data_value() {
+    try {
+        df_check_post('option_id', 'type', 'value');
+        $option_id = intval($_POST['option_id']);
+        $type = sanitize_text_field($_POST['type']);
+        $value = sanitize_text_field($_POST['value']);
+
+        if ($option_id <= 0 || empty($type) || empty($value)) {
+            throw new DfDevisException
+            ("Invalid option ID, type or value");
+        }
+
+        $result = dfdb_option_add_data_value($option_id, $type, $value);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to add data value: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Data value added successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_add_data_value', 'handle_dfdb_option_add_data_value');
+
+
+// Update a specific data value in an option's data
+function dfdb_option_update_data_value($option_id, $index, $type, $value) {
+    global $wpdb;
+    $option = dfdb_get_option($option_id);
+    if (!$option) {
+        throw new DfDevisException("Option not found");
+    }
+
+    $data = json_decode($option->data, true);
+    if (!is_array($data) || !isset($data[$index])) {
+        throw new DfDevisException("Invalid data index");
+    }
+
+    $data[$index] = ['type' => $type, 'value' => $value];
+    $data_json = json_encode($data);
+
+    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
+    if ($result === false) {
+        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
+    }
+    return $result;
+}
+
+function handle_dfdb_option_update_data_value() {
+    try {
+        df_check_post('option_id', 'index', 'type', 'value');
+        $option_id = intval($_POST['option_id']);
+        $index = intval($_POST['index']);
+        $type = sanitize_text_field($_POST['type']);
+        $value = sanitize_text_field($_POST['value']);
+
+        if ($option_id <= 0 || $index < 0 || empty($type) || empty($value)) {
+            throw new DfDevisException
+            ("Invalid option ID, index, type or value");
+        }
+
+        $result = dfdb_option_update_data_value($option_id, $index, $type, $value);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to update data value: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Data value updated successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_update_data_value', 'handle_dfdb_option_update_data_value');
+
+
+// Remove a data value from an option's data
+function dfdb_option_remove_data_value($option_id, $index) {
+    global $wpdb;
+    $option = dfdb_get_option($option_id);
+    if (!$option) {
+        throw new DfDevisException("Option not found");
+    }
+
+    $data = json_decode($option->data, true);
+    if (!is_array($data) || !isset($data[$index])) {
+        throw new DfDevisException("Invalid data index");
+    }
+
+    unset($data[$index]);
+    $data = array_values($data); // Re-index the array
+    $data_json = json_encode($data);
+
+    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
+    if ($result === false) {
+        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
+    }
+    return $result;
+}
+
+function handle_dfdb_option_remove_data_value() {
+    try {
+        df_check_post('option_id', 'index');
+        $option_id = intval($_POST['option_id']);
+        $index = intval($_POST['index']);
+
+        if ($option_id <= 0 || $index < 0) {
+            throw new DfDevisException
+            ("Invalid option ID or index");
+        }
+
+        $result = dfdb_option_remove_data_value($option_id, $index);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to remove data value: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Data value removed successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_remove_data_value', 'handle_dfdb_option_remove_data_value');
+
+
+
 
 function handle_dfdb_set_history_group() {
     global $wpdb;
@@ -666,6 +828,11 @@ function dfdb_get_type_email($type_id) {
 function dfdb_get_options_type_id($option_id) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare("SELECT type_id FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE id = %d", $option_id) );
+}
+
+function dfdb_get_option($option_id) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE id = %d", $option_id) );
 }
 
 function dfdb_get_options_activate_group($option_id) {

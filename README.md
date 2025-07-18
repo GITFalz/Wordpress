@@ -83,4 +83,7 @@ docker-compose logs -f wordpress
 
 ### Jour 13
 - Finition du plugin QR code avec ajout de fonctionnalités
+
+### Jour 14
+
 - Début de l'ajout de fonctionnalités au plugin devis
