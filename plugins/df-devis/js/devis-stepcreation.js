@@ -441,6 +441,7 @@ function set_selected_step(step_index) {
 
 
 function select_image_from_media_library(e, count, id, callback) {
+	console.log("Opening media library for option ID:", id, "and count:", count);
 	e.preventDefault();
 
 	if (fileFrame) {
