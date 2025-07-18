@@ -326,6 +326,8 @@ function handle_dfdb_option_update_data_value() {
             ("Invalid option ID, index, type or value");
         }
 
+        error_log("Updating data value for option ID: $option_id, index: $index, type: $type, value: $value");
+
         $result = dfdb_option_update_data_value($option_id, $index, $type, $value);
         if ($result === false) {
             throw new DfDevisException
