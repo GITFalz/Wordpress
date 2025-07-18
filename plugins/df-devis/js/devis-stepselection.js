@@ -24,6 +24,10 @@ function render_devis(postid) {
 
 async function view_option(e, element) {
 	let type_name = await get_step_by_group(container.dataset.postid, current_step+1, "gp_"+element.dataset.id);
+	if (!type_name) {
+		return; // If the step could not be fetched, exit
+	}
+	
 	let step_infos = document.querySelectorAll('.step-info');
 	step_infos.forEach(info => {
 		if (info.classList.contains('step-info-'+(current_step+1))) {
@@ -161,7 +165,7 @@ function set_slected_step(step_index) {
 
 async function get_step_by_group(postid, step_index, group_name) {
 	if (isRunning) {
-		return;
+		return false;
 	}
 	isRunning = true;
 
