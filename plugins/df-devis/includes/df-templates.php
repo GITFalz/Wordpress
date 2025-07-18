@@ -119,7 +119,7 @@ function df_get_option_element_html($type, $value, $index, $is_customizable) {
         <?php if ($is_customizable): ?>
             <input class="option-element-input <?=($type === 'text' ? '' : 'hidden')?>" type="text" placeholder="Enter value..." value="<?=$type=== 'text' ? esc_attr($value) : 'Option1'?>" oninput="on_text_input(event)">
             <div class="option-element-image <?=($type === 'image' ? '' : 'hidden')?>">    
-                <button type="button" class="option-element-select-image" onclick="select_image(event, this)">Select Image</button>
+                <button type="button" class="option-element-select-image" onclick="select_image(event)">Select Image</button>
                 <img class="option-element-image-preview" src="<?=$type === 'image' ? esc_url($value) : 'https://ui-avatars.com/api/?name=i+g&size=250'?>" alt="Option Element Image">
             </div>
             <button type="button" class="remove-option-element" data-index="<?=$index?>" onclick="remove_option_element(event)">Remove Element</button>

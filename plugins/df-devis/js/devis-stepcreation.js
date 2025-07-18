@@ -118,9 +118,9 @@ let fileFrame = null;
 				remove_button.addEventListener('click', remove_option_element);
 				div.appendChild(remove_button);
 
-				button_select_image.addEventListener('click', function(e) {
-					select_image(e, button_select_image);
-				});
+				button_select_image.onclick = function(e) {
+					select_image(e);
+				}
 
 				let element = e.target;
 				let option = e.target.parentElement;
@@ -326,8 +326,10 @@ function remove_option_element(e) {
 }
 
 
-function select_image(e, button) {
+function select_image(e) {
 	e.preventDefault();
+
+	let button = e.target;
 	let image = button.parentElement.querySelector('.option-element-image-preview');
 	const count = parseInt(button.closest('.option-element').dataset.index);
 	const id = parseInt(button.closest('.option').dataset.id);
