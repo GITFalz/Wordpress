@@ -327,10 +327,13 @@ function remove_option_element(e) {
 
 
 function select_image(e, button) {
+	e.preventDefault();
 	let image = button.parentElement.querySelector('.option-element-image-preview');
 	let count = parseInt(button.closest('.option-element').dataset.index);
-	e.preventDefault();
-	console.log("count: " + count + " id: " + parseInt(button.closest('.option').dataset.id));
+	let id = parseInt(button.closest('.option').dataset.id);
+
+	console.log("Selecting image for option ID:", id, "and count:", count);
+
 	select_image_from_media_library(e, function(imageUrl) {
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
@@ -339,7 +342,7 @@ function select_image(e, button) {
 			},
 			body: new URLSearchParams({
 				action: "dfdb_option_update_data_value",
-				option_id: parseInt(e.target.closest('.option').dataset.id),
+				option_id: id,
 				index: count,
 				type: "image",
 				value: imageUrl
