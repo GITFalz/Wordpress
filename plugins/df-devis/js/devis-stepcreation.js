@@ -6,6 +6,7 @@ let currentGroup = "Root";
 
 // media
 let fileFrame = null;
+let costDebouncedTimeout = null;
 
 (function(){
 	container = document.querySelector('.devis-container');
@@ -37,96 +38,6 @@ let fileFrame = null;
 		}
 		if (e.target.classList.contains('devis-step-view')) {
 			display_step_content(e.target.parentElement.parentElement.dataset.stepindex, false);
-		}
-		if (e.target.classList.contains('devis-add-option-element')) {
-			// number of elements before adding a new one
-			let option_elements = e.target.parentElement.querySelectorAll('.option-element');
-			let count = option_elements.length;
-
-			fetch(stepData.ajaxUrl, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded"
-				},
-				body: new URLSearchParams({
-					action: "dfdb_option_add_data_value",
-					option_id: parseInt(e.target.closest('.option').dataset.id),
-					type: "text",
-					value: "Option"+(count+1)
-				})
-			})
-			.then(res => res.json())
-			.then(data => {
-				if (!data.success) {
-					console.error(data.data.message);
-					return;
-				}
-
-				let div = document.createElement('div');
-				div.classList.add('option-element');
-				div.dataset.index = count;
-
-				let typeDiv = document.createElement('div');
-				typeDiv.classList.add('option-element-type');
-
-				let text = document.createElement('p');
-				text.classList.add('option-element-type-text');
-				text.textContent = "Text";
-				typeDiv.appendChild(text);
-
-				let select = document.createElement('select');
-				select.classList.add('option-element-type-select');
-				select.innerHTML = `
-					<option value="text">Text</option>
-					<option value="image">Image</option>`;
-				select.addEventListener('change', function(e) {
-						change_option_element_type(e.target);
-					});
-				typeDiv.appendChild(select);
-
-				div.appendChild(typeDiv);
-
-				let input = document.createElement('input');
-				input.classList.add('option-element-input');
-				input.type = 'text';
-				input.placeholder = 'Enter value...';
-				input.value = "Option" + (count + 1);
-				input.addEventListener('input', on_text_input);
-				div.appendChild(input);
-
-				let imageDiv = document.createElement('div');
-				imageDiv.classList.add('option-element-image');
-				imageDiv.classList.add('hidden'); // Initially hidden, shown when type is image
-
-				let button_select_image = document.createElement('button');
-				button_select_image.classList.add('option-element-select-image');
-				button_select_image.textContent = 'Select Image';
-				button_select_image.type = 'button';
-				imageDiv.appendChild(button_select_image);
-
-				let image = document.createElement('img');
-				image.classList.add('option-element-image-preview');
-				image.src = 'https://ui-avatars.com/api/?name=i+g&size=250'; // Default image
-				imageDiv.appendChild(image);
-				div.appendChild(imageDiv);
-
-				let remove_button = document.createElement('button');
-				remove_button.classList.add('remove-option-element');
-				remove_button.dataset.index = count;
-				remove_button.textContent = 'Remove Element';
-				remove_button.type = 'button';
-				remove_button.addEventListener('click', remove_option_element);
-				div.appendChild(remove_button);
-
-				button_select_image.onclick = function(e) {
-					select_image(e);
-				}
-
-				let element = e.target;
-				let option = e.target.parentElement;
-
-				option.insertBefore(div, element);
-			});
 		}
 	});
 
@@ -330,22 +241,19 @@ function select_image(e) {
 	e.preventDefault();
 
 	let button = e.target;
-	let image = button.parentElement.querySelector('.option-element-image-preview');
-	const count = parseInt(button.closest('.option-element').dataset.index);
-	const id = parseInt(button.closest('.option').dataset.id);
+	let imageDiv = button.parentElement.querySelector('.option-image-preview-div');
+	let id = parseInt(button.closest('.option').dataset.id);
 
-	select_image_from_media_library(e, count, id, function(imageUrl, option_id, index) {
+	select_image_from_media_library(e, id, function(imageUrl, option_id) {
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded"
 			},
 			body: new URLSearchParams({
-				action: "dfdb_option_update_data_value",
+				action: "dfdb_option_set_image",
 				option_id: option_id,
-				index: index,
-				type: "image",
-				value: imageUrl
+				image_url: imageUrl
 			})
 		})
 		.then(res => res.json())
@@ -354,11 +262,146 @@ function select_image(e) {
 				console.error(data.data.message);
 				return;
 			}
-			image.src = imageUrl; // Update the image preview
+
+			let image = imageDiv.querySelector('.option-image-preview');
+			if (!image) {
+				console.error("Image element does not exist.");
+				return;
+			}
+			image.src = imageUrl;
+			imageDiv.classList.remove('hidden');
 		});
 	});
 }
 
+function remove_image(e) {
+	e.preventDefault();
+
+	let button = e.target;
+	let imageDiv = button.parentElement;
+	let option = imageDiv.closest('.option');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let id = parseInt(option.dataset.id);
+
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_option_set_image",
+			option_id: id
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+
+		let image = imageDiv.querySelector('.option-image-preview');
+		if (!image) {
+			console.error("Image element does not exist.");
+			return;
+		}
+		image.src = '';
+		imageDiv.classList.add('hidden');
+	});
+}
+
+function toggle_history_visibility(e) {
+	let checkbox = e.target;
+	let option = checkbox.closest('.option');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let id = parseInt(option.dataset.id);
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_option_set_cost_history_visible",
+			option_id: id,
+			visible: checkbox.checked ? 1 : 0
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+	});
+}
+
+function set_cost(e) {
+	let input = e.target;
+	let option = input.closest('.option');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let id = parseInt(option.dataset.id);
+	if (costDebouncedTimeout) {
+		clearTimeout(costDebouncedTimeout);
+	}
+	costDebouncedTimeout = setTimeout(() => {
+		fetch(stepData.ajaxUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				action: "dfdb_option_set_data_cost",
+				option_id: id,
+				cost: input.value
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			if (!data.success) {
+				console.error(data.data.message);
+				return;
+			}
+			// Optionally, you can update the UI or notify the user of success
+		});
+	}, 1000); // Adjust the debounce time as needed
+}	
+
+function toggle_option_visibility(e) {
+	let checkbox = e.target;
+	let option = checkbox.closest('.option');
+	if (!option) {
+		console.error("Option element does not exist.");
+		return;
+	}
+	let id = parseInt(option.dataset.id);
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_option_set_cost_option_visible",
+			option_id: id,
+			visible: checkbox.checked ? 1 : 0
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+	});
+}
 
 function change_option_element_type(element) {
 
@@ -437,26 +480,28 @@ function set_selected_step(step_index) {
 }
 
 
-function select_image_from_media_library(e, count, id, callback) {
-	console.log("Opening media library for option ID:", id, "and count:", count);
+function select_image_from_media_library(e, id, callback) {
 	e.preventDefault();
 
-	const frame = wp.media({
-		title: 'Select or Upload an Image',
-		button: {
-			text: 'Use this image'
-		},
-		multiple: false
-	});
+	if (!fileFrame) {
+		fileFrame = wp.media({
+			title: 'Select or Upload an Image',
+			button: { text: 'Use this image' },
+			multiple: false
+		});
+	}
 
-	frame.on('select', function () {
-		const attachment = frame.state().get('selection').first().toJSON();
+	// Remove previous event handlers to prevent stacking
+	fileFrame.off('select');
+
+	fileFrame.on('select', function () {
+		const attachment = fileFrame.state().get('selection').first().toJSON();
 		if (typeof callback === 'function') {
-			callback(attachment.url, id, count);
+			callback(attachment.url, id);
 		}
 	});
 
-	frame.open();
+	fileFrame.open();
 }
 
 

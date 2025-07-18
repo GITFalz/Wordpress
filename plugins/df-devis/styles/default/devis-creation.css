@@ -1,538 +1,412 @@
-/* Base container styling */
-.devis-container {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  min-height: 600px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Steps sidebar */
-.devis-container .steps-container {
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.devis-container .steps-container::before {
-  content: "Steps Configuration";
-  display: block;
-  font-size: 18px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-/* Individual step styling */
-.devis-container .devis-step {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.devis-container .devis-step::before {
-  content: attr(data-stepindex);
-  position: absolute;
-  top: -8px;
-  left: 16px;
-  background: #3b82f6;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  transform: translateY(-50%);
-}
-
-.devis-container .devis-step:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  transform: translateY(-2px);
-}
-
-.devis-container .devis-step label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #374151;
-  font-size: 14px;
-}
-
-.devis-container .devis-step input[type="text"],
-.devis-container .devis-step select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-  background: white;
-}
-
-.devis-container .devis-step input[type="text"]:focus,
-.devis-container .devis-step select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.devis-container .devis-step-view {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.devis-container .devis-step-view:hover {
-  background: #059669;
-}
-
-.devis-container .remove-step {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.devis-container .remove-step:hover {
-  background: #dc2626;
-}
-
-/* Main content area */
-.devis-container .step-info {
-  padding: 32px;
-  overflow-y: auto;
-  background: white;
-}
-
-.devis-container .step-info.hidden {
-  display: none;
-}
-
-/* Options styling */
-.devis-container .options-container {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.devis-container .option {
-  background: white;
-  border: 2px solid #3b82f6;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-  position: relative;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
-}
-
-.devis-container .option::before {
-  content: "⚡";
-  position: absolute;
-  top: -8px;
-  right: 16px;
-  background: #3b82f6;
-  color: white;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.devis-container .option:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
-  border-color: #1d4ed8;
-}
-
-.devis-container .option label {
-  display: block;
-  font-weight: 600;
-  color: #1e40af;
-  margin-bottom: 8px;
-}
-
-.devis-container .option input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #93c5fd;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #f0f9ff;
-}
-
-.devis-container .add-option,
-.devis-container .add-step {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-right: 8px;
-  margin-top: 8px;
-  transition: all 0.2s ease;
-}
-
-.devis-container .add-option:hover,
-.devis-container .add-step:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.devis-container .remove-option {
-  background: #f87171;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.devis-container .remove-option:hover {
-  background: #ef4444;
-}
-
-/* History styling */
-.devis-container .historique-container {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.devis-container .history-title {
-  color: #065f46;
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.devis-container .history-title::before {
-  content: "🕒";
-  margin-right: 8px;
-}
-
-.devis-container .history-entry {
-  background: white;
-  border-left: 4px solid #10b981;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.devis-container .history-entry:hover {
-  transform: translateX(4px);
-}
-
-.devis-container .history-date {
-  font-size: 12px;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-bottom: 8px;
-}
-
-.devis-container .history-action {
-  font-weight: 600;
-  color: #065f46;
-  margin-bottom: 8px;
-}
-
-.devis-container .history-details {
-  color: #374151;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Form styling */
-.devis-container .formulaire-container {
-  background: linear-gradient(135deg, #fae8ff 0%, #e9d5ff 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.devis-container .current-step {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border-color: #f59e0b;
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
-  transform: translateY(-4px);
-}
-
-.devis-container .current-step::before {
-  background: #d97706;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
-}
-
-.devis-container .current-step:hover {
-  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-  border-color: #d97706;
-  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.4);
-  transform: translateY(-6px);
-}
-
-.devis-container .form-title {
-  color: #7c2d92;
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.devis-container .form-title::before {
-  content: "📧";
-  margin-right: 8px;
-}
-
-.devis-container .email-form {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(139, 69, 193, 0.1);
-}
-
-.devis-container .email-label {
-  display: block;
-  font-weight: 500;
-  color: #7c2d92;
-  margin-bottom: 6px;
-  margin-top: 16px;
-}
-
-.devis-container .email-label:first-child {
-  margin-top: 0;
-}
-
-.devis-container .email-input,
-.devis-container .email-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #d8b4fe;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-  background: #faf5ff;
-}
-
-.devis-container .email-input:focus,
-.devis-container .email-textarea:focus {
-  outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-}
-
-.devis-container .email-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.devis-container .email-submit {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
-  border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 20px;
-  width: 100%;
-  transition: all 0.2s ease;
-}
-
-.devis-container .email-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-}
-
-/* Hidden elements */
-.devis-container .hidden {
+/* Utility class for hiding elements */
+.hidden {
   display: none !important;
 }
 
+/* Main container layout */
+.devis-container {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  min-height: 600px; /* Ensure enough height for layout */
+}
 
+/* Steps container - vertical layout */
+.steps-container {
+  flex: 0 0 250px; /* Fixed width for steps */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border-right: 1px solid #e0e0e0;
+}
 
-.devis-option-elements {
-    display: flex;
-    align-items: center;
-    margin-top: 12px;
+/* Individual step styling */
+.devis-step {
+  background-color: #f0f2f5;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  padding: 12px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+}
+
+.devis-step:hover {
+  background-color: #e6e8eb;
+  border-color: #c0c0c0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.devis-step label {
+  font-weight: 600;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.devis-step input[type="text"] {
+  flex-grow: 1;
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.devis-step select {
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.devis-step-view {
+  background-color: #607d8b; /* Muted blue-gray */
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.devis-step-view:hover {
+  background-color: #455a64; /* Darker blue-gray on hover */
+}
+
+.remove-step {
+  background-color: #dc3545; /* Red for delete */
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.remove-step:hover {
+  background-color: #c82333;
+}
+
+/* Step info container - main content area */
+.step-info {
+  flex-grow: 1;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow-y: auto; /* Enable scrolling if content overflows */
+}
+
+/* Step type containers (options, historique, formulaire) */
+.step-type > div {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 15px; /* Spacing between different types if they were visible */
+}
+
+/* Options container - side by side options */
+.options-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  position: relative; /* For positioning add-option button */
+  padding-bottom: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  height: 400px;
+}
+
+/* Individual option styling */
+.option {
+  flex: 0 0 300px;
+  scroll-snap-align: start;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative; /* For positioning remove-option and add-step buttons */
+  display: flex;
+  flex-direction: column;
+  height: 250px;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.option-cost-visible {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+} 
+
+.option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .option label {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 8px;
+  font-weight: 500;
+  color: #444444;
+  display: block;
+  margin-bottom: 5px;
 }
 
-.option-element-image-preview {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-    object-fit: cover;
-    margin-right: 12px;
+.option input[type="text"],
+.option input[type="number"] {
+  width: calc(100% - 22px); /* Adjust for padding and border */
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-/* Option element styling */
-.option-element {
-    background: white;
-    border: 2px solid #3b82f6;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    position: relative;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+.option input[type="checkbox"] {
+  margin-right: 5px;
 }
 
-.option-element:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
-    border-color: #1d4ed8;
+.option .remove-option {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transition: background-color 0.2s ease;
 }
 
-.option-element-type {
-    margin-bottom: 12px;
+.option .remove-option:hover {
+  background-color: #c82333;
 }
 
-.option-element-type-text {
-    font-weight: 600;
-    color: #1e40af;
-    margin-bottom: 4px;
+.option .devis-set-image {
+  background-color: #607d8b;
+  color: white;
+  border: none;
+  height: 60px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  width: 200px;
 }
 
-.option-element-type-select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #93c5fd;
-    border-radius: 6px;
-    font-size: 14px;
-    background: #f0f9ff;
+.option-image {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-direction: row;
 }
 
-.option-element-input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #93c5fd;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f0f9ff;
-    margin-bottom: 12px;
+.option .devis-set-image:hover {
+  background-color: #455a64;
 }
 
-.option-element-image {
-    margin-bottom: 12px;
+.option-image-preview {
+  max-width: 75px;
+  max-height: 75px;
+  border-radius: 4px;
+  object-fit: cover;
 }
 
-.option-element-select-image {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-bottom: 12px;
-    transition: all 0.2s ease;
+.remove-option-image {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.option-element-select-image:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+.remove-option-image:hover {
+  background-color: #c82333;
 }
 
-.remove-option-element {
-    background: #f87171;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+.option .add-step {
+  background-color: #28a745; /* Green for add */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  position: absolute; /* Position relative to .option */
+  bottom: 10px;
+  right: 10px;
+  transition: background-color 0.2s ease;
 }
 
-.remove-option-element:hover {
-    background: #ef4444;
+.option .add-step:hover {
+  background-color: #218838;
 }
 
-.devis-add-option-element {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: all 0.2s ease;
+/* Add Option button - bottom right of options container */
+.add-option {
+  background-color: #007bff; /* Blue for primary action */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  transition: background-color 0.2s ease;
 }
 
-.devis-add-option-element:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+.add-option:hover {
+  background-color: #0056b3;
 }
 
-.set-name {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #93c5fd;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f0f9ff;
-    margin-left: 8px;
+/* Historique container styling */
+.historique {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .devis-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-    }
+.history-title {
+  color: #607d8b;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
 
-    .devis-container .steps-container {
-        border-right: none;
-        border-bottom: 1px solid #e2e8f0;
-        max-height: 200px;
-    }
+.history-entry {
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.history-date {
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 5px;
+}
+
+.history-action {
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 5px;
+}
+
+.history-details {
+  font-size: 14px;
+  color: #555555;
+}
+
+.add-history-step {
+  background-color: #6c757d; /* Gray for secondary action */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.add-history-step:hover {
+  background-color: #5a6268;
+}
+
+/* Formulaire container styling */
+.formulaire {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-title {
+  color: #607d8b;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.email-label {
+  font-weight: 500;
+  color: #444444;
+  margin-bottom: 5px;
+}
+
+.email-input,
+.email-textarea {
+  width: calc(100% - 22px); /* Adjust for padding and border */
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical; /* Allow vertical resizing for textarea */
+}
+
+.email-textarea {
+  min-height: 100px;
+}
+
+.email-submit {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  align-self: flex-start; /* Align button to the left */
+  transition: background-color 0.2s ease;
+}
+
+.email-submit:hover {
+  background-color: #0056b3;
 }

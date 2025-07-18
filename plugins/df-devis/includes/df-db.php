@@ -46,6 +46,7 @@ function dfdb_create_database() {
 	    type_id mediumint(9) NOT NULL,
 	    option_name VARCHAR(255) NOT NULL,
         activate_group VARCHAR(255) DEFAULT NULL,
+        image TEXT DEFAULT NULL,
         data JSON,
 	    PRIMARY KEY (id),
 	    KEY type_id (type_id),
@@ -236,7 +237,7 @@ function handle_dfdb_set_option_name() {
 }
 add_action('wp_ajax_dfdb_set_option_name', 'handle_dfdb_set_option_name');
 
-
+/*
 // Add json value to an option's data
 function dfdb_option_add_data_value($option_id, $type, $value) {
     global $wpdb;
@@ -395,6 +396,141 @@ function handle_dfdb_option_remove_data_value() {
     }
 }
 add_action('wp_ajax_dfdb_option_remove_data_value', 'handle_dfdb_option_remove_data_value');
+*/
+
+
+function dfdb_option_set_image($option_id, $image_url) {
+    global $wpdb;
+    return $wpdb->update(DFDEVIS_TABLE_OPTIONS, ["image" => $image_url], ["id" => $option_id]);
+}   
+
+function handle_dfdb_option_set_image() {
+    global $wpdb;
+    try {
+        df_check_post('option_id');
+        $option_id = intval($_POST['option_id']);
+        $image_url = isset($_POST['image_url']) ? sanitize_text_field($_POST['image_url']) : null;
+
+        if ($option_id <= 0) {
+            throw new DfDevisException
+            ("Invalid option ID or image URL");
+        }
+
+        $result = dfdb_option_set_image($option_id, $image_url);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to update option image: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Option image updated successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_set_image', 'handle_dfdb_option_set_image');
+
+
+function dfdb_option_set_data($option_id, $data) {
+    global $wpdb;
+    $data_json = json_encode($data);
+    return $wpdb->update(DFDEVIS_TABLE_OPTIONS, ["data" => $data_json], ["id" => $option_id]);
+}
+
+function handle_dfdb_option_set_data_cost() {
+    global $wpdb;
+    try {
+        df_check_post('option_id', 'cost');
+        $option_id = intval($_POST['option_id']);
+        $cost = floatval($_POST['cost']);
+        
+        if ($option_id <= 0) {
+            throw new DfDevisException("Invalid option ID");
+        }
+
+        $data = dfdb_get_option_data($option_id);
+        $data['cost']['money'] = $cost;
+
+        $result = dfdb_option_set_data($option_id, $data);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to update option data: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Option data updated successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_set_data_cost', 'handle_dfdb_option_set_data_cost');
+
+
+function handle_dfdb_option_set_cost_history_visible() {
+    global $wpdb;
+    try {
+        df_check_post('option_id', 'visible');
+        $option_id = intval($_POST['option_id']);
+        $visible = filter_var($_POST['visible'], FILTER_VALIDATE_BOOLEAN);
+
+        if ($option_id <= 0) {
+            throw new DfDevisException("Invalid option ID");
+        }
+
+        $data = dfdb_get_option_data($option_id);
+        $data['cost']['history_visible'] = $visible;
+
+        $result = dfdb_option_set_data($option_id, $data);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to update option data: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Option cost history visibility updated successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_set_cost_history_visible', 'handle_dfdb_option_set_cost_history_visible');
+
+
+
+function handle_dfdb_option_set_cost_option_visible() {
+    global $wpdb;
+    try {
+        df_check_post('option_id', 'visible');
+        $option_id = intval($_POST['option_id']);
+        $visible = filter_var($_POST['visible'], FILTER_VALIDATE_BOOLEAN);
+
+        if ($option_id <= 0) {
+            throw new DfDevisException("Invalid option ID");
+        }
+
+        $data = dfdb_get_option_data($option_id);
+        $data['cost']['option_visible'] = $visible;
+
+        $result = dfdb_option_set_data($option_id, $data);
+        if ($result === false) {
+            throw new DfDevisException
+            ("Failed to update option data: " . dfdb_error());
+        }
+
+        wp_send_json_success(['message' => 'Option cost visibility updated successfully']);
+        wp_die();
+    } catch (DfDevisException
+     $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_option_set_cost_option_visible', 'handle_dfdb_option_set_cost_option_visible');
 
 
 
@@ -872,13 +1008,26 @@ function dfdb_get_step_id_by_index($post_id, $step_index) {
     return $wpdb->get_var( $wpdb->prepare("SELECT id FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d AND step_index = %d", $post_id, $step_index) );
 }
 
+function dfdb_get_option_data($option_id) {
+    global $wpdb;
+    $option = dfdb_get_option($option_id);
+    if (!$option) {
+        throw new DfDevisException("Option not found");
+    }
+    $data = json_decode($option->data, true);
+    if (!is_array($data)) {
+        $data = [];
+    }
+    return $data;
+}
+
 function dfdb_id() {
     global $wpdb;
     return $wpdb->insert_id;
 }
 function dfdb_error() {
     global $wpdb;
-    return dfdb_error();
+    return $wpdb->last_error;
 }  
 
 

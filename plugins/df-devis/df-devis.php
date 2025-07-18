@@ -275,6 +275,7 @@ if ( ! class_exists( 'DFDevis' ) )
 					'group_name' => $option->group_name,
 					'type_id' => $option->type_id,
 					'data' => json_decode($option->data, true) ?: [],
+					'image' => $option->image ?? null,
 				];
 			}
 
