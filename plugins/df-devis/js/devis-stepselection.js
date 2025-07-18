@@ -43,13 +43,12 @@ async function view_option(e, element) {
 	});
 	history[current_step] = {
 		group: "gp_" + element.dataset.id,
-		name: "option: " + element.querySelector('.option-name').textContent,
+		name: "Option",
 		step_index: current_step + 1
 	};
 	current_step++;
 
 	if (type_name === "historique") {
-		console.log("Viewing history for group: " + element.dataset.id);
 		let type_element = document.querySelector(`.step-type.group_${"gp_"+element.dataset.id}`);
 		let history_entries = type_element.querySelector('.history-entries');
 		history_entries.innerHTML = ''; // Clear existing history entries
