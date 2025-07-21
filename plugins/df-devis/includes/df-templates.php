@@ -10,24 +10,32 @@ function df_get_step_html($step_id, $step_index, $step_name, $step_type, $is_cus
     ob_start(); ?>
     <div data-id="<?=$step_id?>" data-group="Root" data-stepindex=<?=$step_index?> class="devis-step" id="step_<?=$step_index?>" <?php if (!$is_customizable): ?>onclick="view_step(event, this)"<?php endif; ?>>
         <?php if ($is_customizable): ?>
-            <label>Step Name:      
-                <button type="button" class="devis-step-view">View</button>
-                <input class="set-step-name" type="text" value="<?=$step_name?>">                
-            </label>
+            <div class="devis-step-details">
+                <div class="devis-step-header">
+                    <p class="devis-step-index">Nom de l'étape:</p>
+                    <div class="devis-step-actions">
+                        <button type="button" class="devis-step-view">Voir</button>
+                        <?php if ($step_index !== 0): ?>
+                            <button data-stepindex="<?=$step_index?>" type="button" class="remove-step">X</button>         
+                        <?php endif; ?>  
+                    </div>
+                </div>
+                <input class="set-step-name" type="text" value="<?=$step_name?>">     
+            </div>
         <?php endif; ?>
         <?php if (!$is_customizable): ?>
             <p class="step-name"><?=$step_name?></p>
         <?php endif; ?>
         <?php if ($step_index !== 0 && $is_customizable): ?>
-            <label>Type:
+            <div class="devis-step-types">
+                <p class="devis-step-select-type">Type de l'étape:</p>
                 <select class="devis-step-selection" id="step-select">
                     <option value="" <?=selected($step_type, '')?>>Select a type</option>
                     <option value="options" <?=selected($step_type, 'options')?>>Options</option>
                     <option value="historique" <?=selected($step_type, 'historique')?>>Historique</option>
                     <option value="formulaire" <?=selected($step_type, 'formulaire')?>>Formulaire</option>
                 </select>
-            </label>
-            <button data-stepindex="<?=$step_index?>" type="button" class="remove-step">Delete</button>
+            </div>
         <?php endif; ?>
     </div> <?php
     return ob_get_clean();
@@ -94,24 +102,30 @@ function df_get_option_html_base($type_id, $group_name, $option_name, $option_id
         <?php if ($is_customizable): ?>
 
             <button type="button" class="remove-option">X</button>
-            <label>Option Name: 
-                <input class="set-name" type="text" value="<?= esc_attr($option_name) ?>">
-            </label>
-            <div class="option-image">
-                <button type="button" class="devis-set-image" onclick="select_image(event)">Select Image</button>
-                <?php if ($image): ?>
-                    <div class="option-image-preview-div">
-                        <img class="option-image-preview" src="<?=esc_url($image)?>" alt="Option Image">
+            <div class="option-display">
+                <div class="option-base">
+                    <div class="option-header">
+                        <p>Nom de l'option:</p>
+                        <input class="set-name" type="text" value="<?= esc_attr($option_name) ?>">
+                    </div>
+                    <div class="image-actions">
+                        <button type="button" class="devis-set-image" onclick="select_image(event)">Choisir une image</button>
                         <button type="button" class="remove-option-image" onclick="remove_image(event)">X</button>
                     </div>
-                <?php else: ?>
-                    <div class="option-image-preview-div hidden">
-                        <img class="option-image-preview" src="" alt="Option Image">
-                        <button type="button" class="remove-option-image" onclick="remove_image(event)">X</button>
-                    </div>
-                <?php endif; ?>
+                </div>
+                <div class="option-image">
+                    <?php if ($image): ?>
+                        <div class="option-image-preview-div">
+                            <img class="option-image-preview" src="<?=esc_url($image)?>" alt="Option Image">
+                        </div>
+                    <?php else: ?>
+                        <div class="option-image-preview-div hidden">
+                            <img class="option-image-preview" src="" alt="Option Image">
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <input type="number" class="set-cost" value="<?=isset($data['cost']['money']) ? esc_attr($data['cost']['money']) : ''?>" placeholder="Cost" oninput="set_cost(event)">
+            <input type="number" class="set-cost" value="<?=isset($data['cost']['money']) ? esc_attr($data['cost']['money']) : ''?>" placeholder="Prix" oninput="set_cost(event)">
             <div class="option-cost-visible">
                 <input type="checkbox" class="set-cost-history-visible set-cost-history-visible-option" <?=isset($data['cost']['history_visible']) && $data['cost']['history_visible'] ? 'checked' : ''?> onchange="toggle_history_visibility(event)">
                 <label>Visible dans l'historique</label>
@@ -125,6 +139,9 @@ function df_get_option_html_base($type_id, $group_name, $option_name, $option_id
             <p class="option-name"><?=$option_name?></p>
             <?php if ($image): ?>
                 <img class="option-image-preview" src="<?=esc_url($image)?>" alt="Option Image">
+            <?php endif; ?>
+            <?php if (isset($data['cost']['money']) && (isset($data['cost']['option_visible']) && !empty($data['cost']['option_visible']))): ?>
+                <p class="option-cost">Coût: <?=esc_html($data['cost']['money'])?>€</p>
             <?php endif; ?>
         <?php endif; ?>
     </div>	<?php
@@ -380,11 +397,15 @@ add_action('wp_ajax_df_get_email_html_by_step_and_group', 'handle_df_get_email_h
 function df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id) {
     ob_start(); ?>
     <div class="step-type step-type-<?=$type_id?> group_<?=$group_name?>" data-typeid="<?=$type_id?>" data-typename="options"> 
-        <div class="options-container options-step-<?=$step_index?>">
-            <?php if ($option_id): ?>
-                <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false, [], null)?>
-            <?php endif; ?>
-            <button type="button" class="add-option">Add Option</button>
+        <div class="option-container option-step-<?=$step_index?>">
+            <div class="options-container options-step-<?=$step_index?>">
+                <?php if ($option_id): ?>
+                    <?=df_get_option_html_base($type_id, $group_name, 'Option', $option_id, false, [], null)?>
+                <?php endif; ?>
+                <div class="option-add">
+                    <span class="option-add-text">+</span>
+                </div>
+            </div>
         </div>
         <div class="historique-container historique-step-<?=$step_index?> hidden">
             <?php if ($history_id): ?>

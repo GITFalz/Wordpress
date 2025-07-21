@@ -1245,121 +1245,117 @@ function handle_dfdb_remove_unused_data() {
         $post_id = intval($_POST['post_id']);
 
         if ($post_id <= 0) {
-            throw new DfDevisException
-            ("Invalid post ID");
+            throw new DfDevisException("Invalid post ID");
         }
+        // if the post exists
+        $post = get_post($post_id);
+        if ($post)
+        {
+            // If the post exists, we need to delete all options, history, and email entries that are not in use
+            $result_options = dfdb_delete_options_not_in_use($post_id);
+            if ($result_options === false) {
+                throw new DfDevisException("Failed to delete unused options: " . dfdb_error());
+            }
 
-        $result_options = dfdb_delete_options_not_in_use($post_id);
-        if ($result_options === false) {
-            throw new DfDevisException
-            ("Failed to delete unused options: " . dfdb_error());
-        }
+            $result_history = dfdb_delete_history_not_in_use($post_id);
+            if ($result_history === false) {
+                throw new DfDevisException("Failed to delete unused history: " . dfdb_error());
+            }
 
-        $result_history = dfdb_delete_history_not_in_use($post_id);
-        if ($result_history === false) {
-            throw new DfDevisException
-            ("Failed to delete unused history: " . dfdb_error());
-        }
+            $result_email = dfdb_delete_email_not_in_use($post_id);
+            if ($result_email === false) {
+                throw new DfDevisException("Failed to delete unused email: " . dfdb_error());
+            }
 
-        $result_email = dfdb_delete_email_not_in_use($post_id);
-        if ($result_email === false) {
-            throw new DfDevisException
-            ("Failed to delete unused email: " . dfdb_error());
+            // Get every option of the post
+            $options = dfdb_get_options($post_id);
+            $history = dfdb_get_history($post_id);
+            $types = dfdb_get_post_types($post_id);
+
+            // check if there are any types associated with the option's activate_group
+            foreach ($options as $option) {
+                foreach ($types as $type) {
+                    if ($option->activate_group === $type->group_name) {
+                        continue 2; // If a type is found with the same activate_group, we can skip this option
+                    }
+                }
+
+                // If no types are found, we need to create a formulaire type that is a follow-up of the option
+                // Get the step index if the option
+                $step_index = dfdb_get_option_step_index($option->id);
+                if ($step_index === null) {
+                    throw new DfDevisException("Option does not have a step index >:(");
+                }
+
+                // Check if a step exists with a step index of $step_index + 1
+                $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
+                if ($next_step === null) {
+                    // If no step exists with a step index of $step_index + 1, we need to create a new step
+                    $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
+                    if ($result === false) {
+                        throw new DfDevisException("Failed to create step: " . dfdb_error());
+                    }
+                    $step_id = dfdb_id(); // Get the newly created step ID
+                } else {
+                    $step_id = $next_step->id;
+                }
+
+                $result = dfdb_create_type($step_id, 'formulaire', $option->activate_group);
+                if ($result === false) {
+                    throw new DfDevisException("Failed to create type for option: " . dfdb_error());
+                }
+            }
+
+            // check if there are any types associated with the history's activate_group
+            foreach ($history as $hist) {
+                foreach ($types as $type) {
+                    if ($hist->activate_group === $type->group_name) {
+                        continue 2; // If a type is found with the same activate_group, we can skip this history
+                    }
+                }   
+                
+                // If no types are found, we need to create a historique type that is a follow-up of the history
+                // Get the step index if the history
+                $step_index = dfdb_get_option_step_index($hist->id);
+                if ($step_index === null) {
+                    throw new DfDevisException("History does not have a step index >:(");
+                }
+
+                // Check if a step exists with a step index of $step_index + 1
+                $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
+                if ($next_step === null) {
+                    // If no step exists with a step index of $step_index + 1, we need to create a new step
+                    $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
+                    if ($result === false) {
+                        throw new DfDevisException("Failed to create step:  " . dfdb_error());
+                    }
+                    $step_id = dfdb_id(); // Get the newly created step ID
+                } else {
+                    $step_id = $next_step->id;
+                }
+
+                $result = dfdb_create_type($step_id, 'historique', $hist->activate_group);
+                if ($result === false) {
+                    throw new DfDevisException("Failed to create type for history: " . dfdb_error());
+                }
+            }
         }
 
         // Get all the steps in the db
         $steps = dfdb_get_all_steps();
 
-        error_log("Checking steps for post ID $post_id");
-
         // check if the post associated with the step exists
         foreach ($steps as $step) {
-            $post_id = intval($step->post_id);
+            $postid = intval($step->post_id);
 
             // Get the actual post here
-            $post = get_post($post_id);
-
-            if ($post && !in_array($post->post_status, ['auto-draft', 'trash'])) {
-                // Nothing to do, the post exists and is not trashed
-            } else {
-                // If the post does not exist or is trashed, delete the step
+            $post = get_post($postid);
+            if (!$post || in_array($post->post_status, ['auto-draft', 'trash'])) {
+                // If the post does not exist but it is the one passed in the request, we need to save the post to not lose data
                 $result = dfdb_delete_step($step->id);
                 if ($result === false) {
                     throw new DfDevisException("Failed to delete step: " . dfdb_error());
                 }
-            }
-        }
-
-        // Get every option of the post
-        $options = dfdb_get_options($post_id);
-        $history = dfdb_get_history($post_id);
-        $types = dfdb_get_post_types($post_id);
-
-        // check if there are any types associated with the option's activate_group
-        foreach ($options as $option) {
-            foreach ($types as $type) {
-                if ($option->activate_group === $type->group_name) {
-                    continue 2; // If a type is found with the same activate_group, we can skip this option
-                }
-            }
-
-            // If no types are found, we need to create a formulaire type that is a follow-up of the option
-            // Get the step index if the option
-            $step_index = dfdb_get_option_step_index($option->id);
-            if ($step_index === null) {
-                throw new DfDevisException("Option does not have a step index >:(");
-            }
-
-            // Check if a step exists with a step index of $step_index + 1
-            $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
-            if ($next_step === null) {
-                // If no step exists with a step index of $step_index + 1, we need to create a new step
-                $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
-                if ($result === false) {
-                    throw new DfDevisException("Failed to create step: " . dfdb_error());
-                }
-                $step_id = dfdb_id(); // Get the newly created step ID
-            } else {
-                $step_id = $next_step->id;
-            }
-
-            $result = dfdb_create_type($step_id, 'formulaire', $option->activate_group);
-            if ($result === false) {
-                throw new DfDevisException("Failed to create type for option: " . dfdb_error());
-            }
-        }
-
-        // check if there are any types associated with the history's activate_group
-        foreach ($history as $hist) {
-            foreach ($types as $type) {
-                if ($hist->activate_group === $type->group_name) {
-                    continue 2; // If a type is found with the same activate_group, we can skip this history
-                }
-            }   
-            
-            // If no types are found, we need to create a historique type that is a follow-up of the history
-            // Get the step index if the history
-            $step_index = dfdb_get_option_step_index($hist->id);
-            if ($step_index === null) {
-                throw new DfDevisException("History does not have a step index >:(");
-            }
-
-            // Check if a step exists with a step index of $step_index + 1
-            $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
-            if ($next_step === null) {
-                // If no step exists with a step index of $step_index + 1, we need to create a new step
-                $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
-                if ($result === false) {
-                    throw new DfDevisException("Failed to create step:  " . dfdb_error());
-                }
-                $step_id = dfdb_id(); // Get the newly created step ID
-            } else {
-                $step_id = $next_step->id;
-            }
-
-            $result = dfdb_create_type($step_id, 'historique', $hist->activate_group);
-            if ($result === false) {
-                throw new DfDevisException("Failed to create type for history: " . dfdb_error());
             }
         }
 

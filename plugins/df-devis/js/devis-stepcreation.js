@@ -21,7 +21,7 @@ let costDebouncedTimeout = null;
 		if(e.target.classList.contains('remove-option')) {
 			dfdb_delete_option(e.target);
 		}
-		if(e.target.classList.contains('add-option')) {
+		if(e.target.classList.contains('option-add-text')) {
 			let stepDiv = document.getElementById("step_" + currentStepIndex);
 			if (!stepDiv) {
 				console.error("Step with index " + currentStepIndex + " does not exist.");
@@ -37,7 +37,9 @@ let costDebouncedTimeout = null;
 			dfdb_create_step(e.target.dataset.activate, next_step());
 		}
 		if (e.target.classList.contains('devis-step-view')) {
-			display_step_content(e.target.parentElement.parentElement.dataset.stepindex, false);
+			let stepDiv = e.target.closest('.devis-step');
+			let stepIndex = parseInt(stepDiv.dataset.stepindex);
+			display_step_content(stepIndex, false);
 		}
 	});
 
@@ -90,7 +92,7 @@ let costDebouncedTimeout = null;
 
 	container.addEventListener('input', function(e) {
 		if (e.target.classList.contains('set-name')) {
-			let option = e.target.parentElement.parentElement;
+			let option = e.target.closest('.option');
 			let id = option.dataset.id + "name";
 			clearTimeout(debounceMap.get(id));
 			timeout = setTimeout(() => {
@@ -119,6 +121,7 @@ let costDebouncedTimeout = null;
 		if (e.target.classList.contains('set-step-name')) {
 			let step = e.target.parentElement.parentElement;
 			let id = step.dataset.id + "step-name";
+			console.log("Setting step name for step ID: " + id);
 			clearTimeout(debounceMap.get(id));
 			timeout = setTimeout(() => {
 				fetch(stepData.ajaxUrl, {
@@ -143,11 +146,16 @@ let costDebouncedTimeout = null;
 			}, 2000);
 			debounceMap.set(id, timeout);
 		}
+		if (e.target.classList.contains('devis_owner_email')) {
+			// change the name attribute with the text of the input
+			let email = e.target.value;	
+			let save_info = e.target.parentElement.querySelector('.devis-save-info');
+			change_post_data_value('_devis_owner_email', email, save_info);
+		}
 	});
 
 	/* This part is to ensure that when leaving the editing page, you remove the excess data from the database that isn't going to be used anyways */
-	window.addEventListener("beforeunload", function () {
-		// Navigator is used to ensure that the request is sent even if the page is closed
+	window.addEventListener("unload", function () {
 		navigator.sendBeacon(stepData.ajaxUrl, new URLSearchParams({
 			action: "dfdb_remove_unused_data",
 			post_id: stepData.postId
@@ -158,6 +166,52 @@ let costDebouncedTimeout = null;
 	check_option_add_step_button_name(0);
 	set_max_step_visibility(0);
 })();
+
+
+
+function change_post_data_value(line, value, save_info) {
+	let id = "line";
+	clearTimeout(debounceMap.get(id));
+	if (save_info && debounceMap.get(id)) {
+		let spinner = save_info.querySelector('.devis-spinner');
+		let save = save_info.querySelector('.devis-save');
+		spinner.classList.remove('hidden');
+		save.classList.add('hidden');
+		save.classList.remove('show-and-fade');
+	}
+
+	let timeout = setTimeout(() => {
+		console.log("Changing post data value for line: " + line + " to value: " + value);
+		fetch(stepData.ajaxUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				action: "df_save_post_data",
+				post_id: stepData.postId,
+				post_line: line,
+				post_value: value
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			if (!data.success) {
+				console.error(data.data.message);
+			}
+			debounceMap.delete(id);
+			if (save_info) {
+			let spinner = save_info.querySelector('.devis-spinner');
+			let save = save_info.querySelector('.devis-save');
+			spinner.classList.add('hidden');
+			save.classList.remove('hidden');
+			save.classList.add('show-and-fade');
+		}
+		});
+	}
+	, 2000);
+	debounceMap.set(id, timeout);
+}
 
 
 function on_text_input(e) {
@@ -241,7 +295,7 @@ function select_image(e) {
 	e.preventDefault();
 
 	let button = e.target;
-	let imageDiv = button.parentElement.querySelector('.option-image-preview-div');
+	let imageDiv = button.closest(".option-display").querySelector('.option-image-preview-div');
 	let id = parseInt(button.closest('.option').dataset.id);
 
 	select_image_from_media_library(e, id, function(imageUrl, option_id) {
@@ -278,7 +332,7 @@ function remove_image(e) {
 	e.preventDefault();
 
 	let button = e.target;
-	let imageDiv = button.parentElement;
+	let imageDiv = button.closest(".option-display").querySelector('.option-image-preview-div');
 	let option = imageDiv.closest('.option');
 	if (!option) {
 		console.error("Option element does not exist.");
@@ -674,10 +728,6 @@ function dfdb_create_option(element, stepindex, group_name) {
 			return;
 		}
 
-		if (optionsContainer.children.length === 0) {
-			optionsContainer.innerHTML = '<button type="button" class="add-option">Add Option</button>';
-		}
-
 		const lastChild = optionsContainer.lastElementChild;
 		optionsContainer.insertBefore(
 			document.createRange().createContextualFragment(content),
@@ -867,10 +917,26 @@ function set_max_step_visibility(stepindex) {
 	stepDivs.forEach(step => {
 		let stepIndex = parseInt(step.dataset.stepindex);
 		if (stepIndex <= stepindex) {
-			step.classList.remove('hidden');
+			step.classList.remove('devis-step-hidden');
+			let viewButton = step.querySelector('.devis-step-view');
+			let stepType = step.querySelector('.devis-step-types');
+			if (viewButton) {
+				viewButton.classList.remove('hidden');
+			}
+			if (stepType) {
+				stepType.classList.remove('hidden');
+			}
 		}
 		else {
-			step.classList.add('hidden');
+			step.classList.add('devis-step-hidden');
+			let viewButton = step.querySelector('.devis-step-view');
+			let stepType = step.querySelector('.devis-step-types');
+			if (viewButton) {
+				viewButton.classList.add('hidden');
+			}
+			if (stepType) {
+				stepType.classList.add('hidden');
+			}
 		}
 	});
 }	
@@ -894,7 +960,7 @@ function set_step_info_visibility(stepindex) {
 }
 
 function set_type_element_visibility(type, type_name) {
-	let optionsContainer = type.querySelector('.options-container');
+	let optionsContainer = type.querySelector('.option-container');
 	let historiqueContainer = type.querySelector('.historique-container');
 	let formulaireContainer = type.querySelector('.formulaire-container');
 

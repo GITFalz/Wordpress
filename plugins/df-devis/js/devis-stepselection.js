@@ -45,11 +45,27 @@ async function view_option(e, element) {
 			info.classList.add('hidden');
 		}
 	});
+
+	let cost = element.dataset.cost;
+	let history_visible = element.dataset.history === '1';
+	let option_visible = element.dataset.option === '1';
+
 	history[current_step] = {
 		group: "gp_" + element.dataset.id,
-		name: "Option",
+		name: element.querySelector('.option-name').textContent.trim(),
 		step_index: current_step + 1
 	};
+
+	if (cost) {
+		history[current_step].cost = cost;
+		if (history_visible) {
+			history[current_step].history_visible = history_visible;
+		}
+		if (option_visible) {
+			history[current_step].option_visible = option_visible;
+		}
+	}
+
 	current_step++;
 
 	if (type_name === "historique") {
@@ -62,7 +78,7 @@ async function view_option(e, element) {
 			let entry = history[i];
 			let content = `
 			<div class="history-entry">
-				<div class="history-action">You clicked on a ${entry.name}</div>
+				<div class="history-action">Vous avez cliqué sur ${entry.name}${(entry['cost'] && entry['history_visible']) ? ' pour un coût de ' + entry.cost + "€" : ''}</div>
 			</div>`;
 			history_entries.insertAdjacentHTML('beforeend', content);
 		}
@@ -110,7 +126,7 @@ async function view_history(e, element) {
 			console.log(entry);
 			let content = `
 			<div class="history-entry">
-				<div class="history-action">You clicked on a ${entry.name}</div>
+				<div class="history-action">Vous avez cliqué sur ${entry.name}</div>
 			</div>`;
 			history_entries.insertAdjacentHTML('beforeend', content);
 		}

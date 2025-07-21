@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - Devis
  * Description: Mise en place d'un system de devis pour les sites créés par DEFACTO.
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */
@@ -82,6 +82,28 @@ if ( ! class_exists( 'DFDevis' ) )
 			register_deactivation_hook(__FILE__, 'dfdb_delete_database'); /* NEW DATABASE */
 
 			add_action('wp_ajax_render_devis_data', [$this, 'handle_render_devis_data']);
+			add_action('wp_ajax_df_save_post_data', [$this, 'handle_df_save_post_data']);
+
+			add_action('load-post-new.php', function() {
+				$post_type = $_GET['post_type'] ?? 'post';
+
+				if ($post_type === 'devis') {
+					global $pagenow;
+
+					if ($pagenow === 'post-new.php') {
+						$post_id = wp_insert_post([
+							'post_type' => $post_type,
+							'post_status' => 'draft',
+							'post_title' => 'Untitled',
+						]);
+
+						if (!is_wp_error($post_id)) {
+							wp_safe_redirect(admin_url("post.php?post=$post_id&action=edit"));
+							exit;
+						}
+					}
+				}
+			});
 		}
 
 		function add_devis_page() {
@@ -205,6 +227,7 @@ if ( ! class_exists( 'DFDevis' ) )
 
 
 	    function render_devis_meta_box($post) {
+			// Only act on autosave/new post
 			wp_enqueue_media();
 
 	    	wp_enqueue_script(
@@ -223,7 +246,7 @@ if ( ! class_exists( 'DFDevis' ) )
 	    	wp_enqueue_script(
 	            'step-creation-handle',
 	            DF_DEVIS_URL . 'js/devis-stepcreation.js',
-	            ['jquery'],
+	            ['jquery', 'wp-data'],
 	            '1.0',
 	            true
 	        );
@@ -318,47 +341,84 @@ if ( ! class_exists( 'DFDevis' ) )
 			?>
 			<link href="<?=DF_DEVIS_URL."styles/default/devis-creation.css"?>" rel="stylesheet" />
 			<div class="devis-container" data-postid="<?=$post->ID?>">
-				<div class="steps-container">
-				<?php foreach ($steps as $step_index => $step): ?>
-					<?=df_get_step_html($step->id, $step_index, esc_html($step->step_name), '')?>
-				<?php endforeach; ?>
-				</div>
-				<?php foreach ($steps as $step_index => $step): ?>
-					<div class="step-info step-info-<?=$step_index?> <?=$step_index===0?'':'hidden'?>" data-stepindex="<?=$step_index?>">
-						<?php foreach ($container_data[$step_index]['types'] as $type_index => $type): ?>
-							<div class="step-type step-type-<?=$type['id']?> group_<?=$type['group_name']?> <?=$step_index===0?'':'hidden'?>" data-typeid="<?=$type['id']?>" data-typename="<?=$type['type_name']?>">
-								<div class="options-container options-step-<?=$step_index?>">
-									<?php if (isset($type['options'])): ?>
-										<?php foreach ($type['options'] as $index => $option): ?>
-											<?=df_get_option_html_array($option, $step_index !== 0)?>
-										<?php endforeach; ?>
-									<?php endif; ?>
-									<button type="button" class="add-option">Add Option</button>
-								</div>
-								<div class="historique-container historique-step-<?=$step_index?> hidden">				
-									<?php if (isset($type['history'])): ?>									
-										<?php foreach ($type['history'] as $index => $history): ?>
-											<?=df_get_history_html_array($history, true)?>
-										<?php endforeach; ?>	
-									<?php endif; ?>
-								</div>
-								<div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
-									<?php if (isset($type['emails'])): ?>
-										<?php foreach ($type['emails'] as $index => $email): ?>
-											<?=df_get_email_html_array($email, true)?>
-										<?php endforeach; ?>								
-									<?php endif; ?>
-								</div>
+				<div class="devis-header">
+					<div class="devis-owner">
+						<p>Email du propriétaire du devis:</p>
+						<div class="devis-owner-email-container">
+							<input type="email" class="devis_owner_email" value="<?=esc_attr(get_post_meta($post->ID, '_devis_owner_email', true))?>" />
+							<div class="devis-save-info">
+								<div class="devis-spinner devis-owner-email-spinner hidden"></div>
+								<div class="devis-save devis-owner-email-save hidden">&#10003;</div>
 							</div>
-						<?php endforeach; ?>
+						</div>
 					</div>
-				<?php endforeach; ?>
+				</div>
+				<div class="devis-steps-container">
+					<div class="steps-container">
+					<?php foreach ($steps as $step_index => $step): ?>
+						<?=df_get_step_html($step->id, $step_index, esc_html($step->step_name), '')?>
+					<?php endforeach; ?>
+					</div>
+					<?php foreach ($steps as $step_index => $step): ?>
+						<div class="step-info step-info-<?=$step_index?> <?=$step_index===0?'':'hidden'?>" data-stepindex="<?=$step_index?>">
+							<?php foreach ($container_data[$step_index]['types'] as $type_index => $type): ?>
+								<div class="step-type step-type-<?=$type['id']?> group_<?=$type['group_name']?> <?=$step_index===0?'':'hidden'?>" data-typeid="<?=$type['id']?>" data-typename="<?=$type['type_name']?>">
+									<div class="option-container option-step-<?=$step_index?>">
+										<div class="options-container options-step-<?=$step_index?>">
+											<?php if (isset($type['options'])): ?>
+												<?php foreach ($type['options'] as $index => $option): ?>
+													<?=df_get_option_html_array($option, $step_index !== 0)?>
+												<?php endforeach; ?>
+											<?php endif; ?>
+											<div class="option-add">
+												<span class="option-add-text">+</span>
+											</div>
+										</div>
+									</div>
+									<div class="historique-container historique-step-<?=$step_index?> hidden">				
+										<?php if (isset($type['history'])): ?>									
+											<?php foreach ($type['history'] as $index => $history): ?>
+												<?=df_get_history_html_array($history, true)?>
+											<?php endforeach; ?>	
+										<?php endif; ?>
+									</div>
+									<div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
+										<?php if (isset($type['emails'])): ?>
+											<?php foreach ($type['emails'] as $index => $email): ?>
+												<?=df_get_email_html_array($email, true)?>
+											<?php endforeach; ?>								
+										<?php endif; ?>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
 			</div>
 			<?php
 		}
 
 		function save_post_data($post_id) {
-			// Nothing for now. All data has been saved in custom database tables.
+			// Save the email of the owner		
+		}
+
+		function handle_df_save_post_data() {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['post_line']) || ! isset($_POST['post_value']) ) {
+				wp_send_json_error(['message' => 'Missing or invalid data']);
+				wp_die();
+			}
+			$post_id = intval($_POST['post_id']);
+			$post_line = sanitize_text_field($_POST['post_line']);
+			$post_value = sanitize_text_field($_POST['post_value']);
+			// Check if the post exists
+			if ( ! get_post($post_id) ) {
+				wp_send_json_error(['message' => 'Post not found']);
+				wp_die();
+			}
+			// Save the data
+			update_post_meta($post_id, $post_line, $post_value);
+			wp_send_json_success(['message' => 'Data saved successfully']);
+			wp_die();
 		}
 
 		function my_custom_on_trash_action($post_id) {

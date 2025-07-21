@@ -7,13 +7,12 @@
 .devis-container {
   display: flex;
   gap: 20px;
-  max-width: 1200px;
   margin: 40px auto;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 20px;
   min-height: 600px; /* Ensure enough height for layout */
+  width: 100%;
 }
 
 /* Steps container - vertical layout */
@@ -45,7 +44,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.devis-step label {
+.devis-step p {
   font-weight: 600;
   color: #555555;
   display: flex;
@@ -53,12 +52,28 @@
   gap: 8px;
 }
 
-.devis-step input[type="text"] {
-  flex-grow: 1;
+.devis-step .devis-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.devis-step .set-step-name {
   padding: 8px 10px;
   border: 1px solid #cccccc;
   border-radius: 4px;
   font-size: 14px;
+  width: 100%;
+}
+
+.devis-step .remove-name {
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-left: auto; /* Align to the right */
 }
 
 .devis-step select {
@@ -68,6 +83,7 @@
   background-color: #ffffff;
   font-size: 14px;
   cursor: pointer;
+  width: 100%;
 }
 
 .devis-step-view {
@@ -85,6 +101,26 @@
   background-color: #455a64; /* Darker blue-gray on hover */
 }
 
+.devis-step-hidden {
+  background-color: #a3a8a9;
+  border: 1px solid #828385;
+}
+
+.devis-step-hidden input,
+.devis-step-hidden select {
+  background-color: #babebf;
+}
+
+.devis-step-hidden .set-step-name {
+  border: 1px solid #7e7e7e;
+}
+
+.devis-step-hidden:hover {
+  background-color: #a3aaac;
+  border-color: #cacaca;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
 .remove-step {
   background-color: #dc3545; /* Red for delete */
   color: white;
@@ -93,14 +129,14 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  transition: background-color 0.2s ease;
 }
 
 .remove-step:hover {
   background-color: #c82333;
+}
+
+.devis-step-hidden .remove-step {
+  background-color: #cd6973; /* Muted gray */
 }
 
 /* Step info container - main content area */
@@ -144,9 +180,30 @@
   position: relative; /* For positioning remove-option and add-step buttons */
   display: flex;
   flex-direction: column;
-  height: 250px;
+  height: auto;
   gap: 10px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.option-add {
+  height: auto;
+  border-radius: 8px;
+  border: 3px dashed #a5a5a5;
+  width: 300px;
+  min-width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.option-add-text {
+  font-size: 100px;
+  color: #a5a5a5;
+  text-align: center;
+  line-height: 100px; /* Center text vertically */
+  width: 100%;
+  cursor: pointer;
 }
 
 .option-cost-visible {
@@ -160,24 +217,39 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.option label {
+.option p {
   font-weight: 500;
   color: #444444;
   display: block;
   margin-bottom: 5px;
 }
 
-.option input[type="text"],
-.option input[type="number"] {
-  width: calc(100% - 22px); /* Adjust for padding and border */
-  padding: 10px;
+
+.option .option-header {
+  width: 100%; /* Adjust for padding and border */
+}
+
+.option .option-header p {
+  font-weight: 600;
+  color: #555555;
+  margin-bottom: 5px;
+}
+
+.option .option-header input {
+  width: 100%; /* Adjust for padding and border */
+  padding: 8px;
   border: 1px solid #cccccc;
   border-radius: 4px;
   font-size: 14px;
 }
 
+
 .option input[type="checkbox"] {
   margin-right: 5px;
+}
+
+.option .set-name {
+  width: 100px;
 }
 
 .option .remove-option {
@@ -198,6 +270,14 @@
   transition: background-color 0.2s ease;
 }
 
+.option .image-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  gap: 5px;
+}
+
 .option .remove-option:hover {
   background-color: #c82333;
 }
@@ -206,20 +286,19 @@
   background-color: #607d8b;
   color: white;
   border: none;
-  height: 60px;
-  padding: 8px 12px;
+  height: 30px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.2s ease;
-  width: 200px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .option-image {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
   flex-direction: row;
 }
 
@@ -227,30 +306,58 @@
   background-color: #455a64;
 }
 
-.option-image-preview {
-  max-width: 60px;
-  max-height: 60;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
 .remove-option-image {
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
   font-size: 12px;
   cursor: pointer;
+  position: relative;
   transition: background-color 0.2s ease;
 }
 
 .remove-option-image:hover {
   background-color: #c82333;
+}
+
+.option .option-base {
+  width: calc(100% - 105px); /* Adjust for padding and border */
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.option .option-display {
+  display: flex;
+  flex-direction: row;
+}
+
+.option-image-preview-div {
+  margin-top: 37px;
+  margin-left: 17px;
+  width: 84px;
+  height: 84px;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.option-image-preview {
+  width: 80px;
+  height: 80px;
+}
+
+.option .set-cost {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 .option .add-step {
@@ -281,8 +388,8 @@
   cursor: pointer;
   font-size: 16px;
   position: absolute;
-  bottom: 15px;
-  right: 15px;
+  bottom: 188px;
+  right: 30px;
   transition: background-color 0.2s ease;
 }
 
@@ -409,4 +516,68 @@
 
 .email-submit:hover {
   background-color: #0056b3;
+}
+
+
+.devis-owner-email-container {
+  display: flex;
+}
+
+.devis-save-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  width: 20px;
+  padding-left: 5px;
+  padding-top: 2px;
+}
+
+.devis-spinner {
+  width: 14px;
+  height: 14px;
+  border: 3px solid #ccc;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.devis-save {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 25px;
+  color: #4caf50; /* green for saved */
+  pointer-events: none;
+}
+
+.show-and-fade {
+  animation: popFade 2s ease-out forwards;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes popFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
 }
