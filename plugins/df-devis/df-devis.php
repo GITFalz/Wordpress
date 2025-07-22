@@ -556,6 +556,8 @@ if ( ! class_exists( 'DFDevis' ) )
 
 			$owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 
+			error_log("Sending email to: $email, Owner email: $owner_email");
+
 			if ( ! is_email($email) ) {
 				wp_send_json_error(['message' => 'Invalid email address']);
 				wp_die();
