@@ -1,4 +1,5 @@
 let container;
+let devis_steps_container;
 let steps_container;
 let debounceMap;
 let currentStepIndex = 0;
@@ -6,10 +7,10 @@ let currentGroup = "Root";
 
 // media
 let fileFrame = null;
-let costDebouncedTimeout = null;
 
 (function(){
 	container = document.querySelector('.devis-container');
+	devis_steps_container = document.querySelector('.devis-steps-container');
 	steps_container = document.querySelector('.steps-container');
 	debounceMap = new Map();
 
@@ -94,6 +95,13 @@ let costDebouncedTimeout = null;
 		if (e.target.classList.contains('set-name')) {
 			let option = e.target.closest('.option');
 			let id = option.dataset.id + "name";
+			let spinner = option.querySelector('.devis-spinner');
+			let save = option.querySelector('.devis-save');
+			if (spinner && save) {
+				spinner.classList.remove('hidden');
+				save.classList.add('hidden');
+				save.classList.remove('show-and-fade');
+			}
 			clearTimeout(debounceMap.get(id));
 			timeout = setTimeout(() => {
 				fetch(stepData.ajaxUrl, {
@@ -114,16 +122,28 @@ let costDebouncedTimeout = null;
 					}
 
 					debounceMap.delete(id);
+					if (spinner && save) {
+						spinner.classList.add('hidden');
+						save.classList.remove('hidden');
+						save.classList.add('show-and-fade');
+					}
 				});
 			}, 2000);
 			debounceMap.set(id, timeout);
 		}
 		if (e.target.classList.contains('set-step-name')) {
-			let step = e.target.parentElement.parentElement;
+			let step = e.target.closest('.devis-step');
 			let id = step.dataset.id + "step-name";
-			console.log("Setting step name for step ID: " + id);
+			let spinner = step.querySelector('.devis-spinner');
+			let save = step.querySelector('.devis-save');
+			if (spinner && save) {
+				spinner.classList.remove('hidden');
+				save.classList.add('hidden');
+				save.classList.remove('show-and-fade');
+			}
 			clearTimeout(debounceMap.get(id));
 			timeout = setTimeout(() => {
+				console.log("Changing step name for step ID: " + step.dataset.id + " to value: " + e.target.value);
 				fetch(stepData.ajaxUrl, {
 					method: "POST",
 					headers: {
@@ -142,6 +162,11 @@ let costDebouncedTimeout = null;
 					}
 
 					debounceMap.delete(id);
+					if (spinner && save) {
+						spinner.classList.add('hidden');
+						save.classList.remove('hidden');
+						save.classList.add('show-and-fade');
+					}
 				});
 			}, 2000);
 			debounceMap.set(id, timeout);
@@ -403,10 +428,17 @@ function set_cost(e) {
 		return;
 	}
 	let id = parseInt(option.dataset.id);
-	if (costDebouncedTimeout) {
-		clearTimeout(costDebouncedTimeout);
+	let spinner = option.querySelector('.devis-option-cost-spinner');
+	let save = option.querySelector('.devis-option-cost-save');
+	if (spinner && save) {
+		spinner.classList.remove('hidden');
+		save.classList.add('hidden');
+		save.classList.remove('show-and-fade');
 	}
-	costDebouncedTimeout = setTimeout(() => {
+
+	let debounceId = id + "_cost";
+	clearTimeout(debounceMap.get(debounceId));
+	let timeout = setTimeout(() => {
 		fetch(stepData.ajaxUrl, {
 			method: "POST",
 			headers: {
@@ -422,11 +454,16 @@ function set_cost(e) {
 		.then(data => {
 			if (!data.success) {
 				console.error(data.data.message);
-				return;
 			}
-			// Optionally, you can update the UI or notify the user of success
+			debounceMap.delete(debounceId);
+			if (spinner && save) {
+				spinner.classList.add('hidden');
+				save.classList.remove('hidden');
+				save.classList.add('show-and-fade');
+			}
 		});
-	}, 1000); // Adjust the debounce time as needed
+	}, 2000);
+	debounceMap.set(debounceId, timeout);
 }	
 
 function toggle_option_visibility(e) {
@@ -608,7 +645,7 @@ async function create_step_element_if_not_exist(next_step_index, steps_container
 		steps_container.insertAdjacentHTML('beforeend', content);
 
 		let step_info = create_step_info(next_step_index);
-		container.appendChild(step_info);
+		devis_steps_container.appendChild(step_info);
 
 		return { success: true, step_id: parseInt(step_data.data.step_id) };
 	} catch (err) {
@@ -783,7 +820,8 @@ function dfdb_remove_step(element) {
 				display_step_content(currentStepIndex);
 			}
 			else {
-				let group = stepDiv.dataset.group;
+				let currentStepDiv = document.getElementById("step_" + currentStepIndex);
+				let group = currentStepDiv.dataset.group;
 				let step_info_container = document.querySelector('.step-info-' + currentStepIndex);
 				if (!step_info_container) {
 					console.error("Step info container for step " + currentStepIndex + " does not exist.");

@@ -20,7 +20,13 @@ function df_get_step_html($step_id, $step_index, $step_name, $step_type, $is_cus
                         <?php endif; ?>  
                     </div>
                 </div>
-                <input class="set-step-name" type="text" value="<?=$step_name?>">     
+                <div class="devis-step-name">
+                    <input class="set-step-name" type="text" value="<?=$step_name?>">   
+                    <div class="devis-save-info">
+                        <div class="devis-spinner devis-owner-email-spinner hidden"></div>
+                        <div class="devis-save devis-owner-email-save hidden">&#10003;</div>
+                    </div>  
+                </div>
             </div>
         <?php endif; ?>
         <?php if (!$is_customizable): ?>
@@ -106,7 +112,13 @@ function df_get_option_html_base($type_id, $group_name, $option_name, $option_id
                 <div class="option-base">
                     <div class="option-header">
                         <p>Nom de l'option:</p>
-                        <input class="set-name" type="text" value="<?= esc_attr($option_name) ?>">
+                        <div class="option-name">
+                            <input class="set-name" type="text" value="<?= esc_attr($option_name) ?>">
+                            <div class="devis-save-info">
+                                <div class="devis-spinner devis-option-name-spinner hidden"></div>
+                                <div class="devis-save devis-option-name-save hidden">&#10003;</div>
+                            </div>  
+                        </div>
                     </div>
                     <div class="image-actions">
                         <button type="button" class="devis-set-image" onclick="select_image(event)">Choisir une image</button>
@@ -125,7 +137,13 @@ function df_get_option_html_base($type_id, $group_name, $option_name, $option_id
                     <?php endif; ?>
                 </div>
             </div>
-            <input type="number" class="set-cost" value="<?=isset($data['cost']['money']) ? esc_attr($data['cost']['money']) : ''?>" placeholder="Prix" oninput="set_cost(event)">
+            <div class="option-cost">
+                <input type="number" class="set-cost" value="<?=isset($data['cost']['money']) ? esc_attr($data['cost']['money']) : ''?>" placeholder="Prix" oninput="set_cost(event)">
+                <div class="devis-save-info">
+                    <div class="devis-spinner devis-option-cost-spinner hidden"></div>
+                    <div class="devis-save devis-option-cost-save hidden">&#10003;</div>
+                </div>  
+            </div>
             <div class="option-cost-visible">
                 <input type="checkbox" class="set-cost-history-visible set-cost-history-visible-option" <?=isset($data['cost']['history_visible']) && $data['cost']['history_visible'] ? 'checked' : ''?> onchange="toggle_history_visibility(event)">
                 <label>Visible dans l'historique</label>
@@ -317,48 +335,119 @@ function handle_df_get_history_html_by_step_and_group() {
 add_action('wp_ajax_df_get_history_html_by_step_and_group', 'handle_df_get_history_html_by_step_and_group');
 
 /* EMAIL HTML GENERATION */
-function df_get_email_html_base($email_id, $type_id, $group_name, $hidden = true) {
+function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden, $is_customizable = true) {
+    
+    $post = get_post($post_id);
+    $custom_fields = get_post_meta($post->ID, '_devis_custom_fields', true);
+    $price = get_post_meta($post->ID, 'formulaire_price', true);
+    
     ob_start(); ?>
-    <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
-        <h2 class="form-title">Contact & Quote Request</h2>		
-        <div class="email-form">
-            <label class="email-label" for="client-name">Full Name</label>
-            <input class="email-input" type="text" id="client-name" name="client_name" placeholder="Enter your full name">
-            
-            <label class="email-label" for="client-email">Email Address</label>
-            <input class="email-input" type="email" id="client-email" name="client_email" placeholder="your.email@example.com">
-            
-            <label class="email-label" for="client-phone">Phone Number</label>
-            <input class="email-input" type="tel" id="client-phone" name="client_phone" placeholder="+33 1 23 45 67 89">
-            
-            <label class="email-label" for="project-address">Project Address</label>
-            <input class="email-input" type="text" id="project-address" name="project_address" placeholder="Street address, City, Postal Code">
-            
-            <label class="email-label" for="additional-notes">Additional Notes</label>
-            <textarea class="email-textarea" id="additional-notes" name="additional_notes" placeholder="Please describe any specific requirements, timeline preferences, or questions you may have..."></textarea>
-            
-            <button type="button" class="email-submit">Send Quote Request</button>
+    <?php if ($is_customizable): ?>
+        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
+            <h2 class="formulaire-title">Contact & Quote Request</h2>		
+            <div class="email-form">
+                <label class="email-label" for="client-name">Full Name</label>
+                <input class="email-input" type="text" id="client-name" name="client_name" placeholder="Enter your full name">
+                
+                <label class="email-label" for="client-email">Email Address</label>
+                <input class="email-input" type="email" id="client-email" name="client_email" placeholder="your.email@example.com">
+                
+                <label class="email-label" for="client-phone">Phone Number</label>
+                <input class="email-input" type="tel" id="client-phone" name="client_phone" placeholder="+33 1 23 45 67 89">
+                
+                <label class="email-label" for="project-address">Project Address</label>
+                <input class="email-input" type="text" id="project-address" name="project_address" placeholder="Street address, City, Postal Code">
+                
+                <label class="email-label" for="additional-notes">Additional Notes</label>
+                <textarea class="email-textarea" id="additional-notes" name="additional_notes" placeholder="Please describe any specific requirements, timeline preferences, or questions you may have..."></textarea>
+                
+                <button type="button" class="email-submit">Send Quote Request</button>
+            </div>
         </div>
-    </div><?php
+    <?php else: ?>
+        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
+            <div class="formulaire-field" data-type="default_type">
+                <label class="formulaire-label" for="client-name">Nom Complet</label>
+                <input class="formulaire-input" type="text" id="client-name" name="client_name" value="" required>
+            </div>
+            <div class="formulaire-field" data-type="default_email">
+                <label class="formulaire-label" for="client-email">Adresse Email</label>
+                <input class="formulaire-input" type="email" id="client-email" name="client_email" value="" required>
+            </div>
+            <div class="formulaire-field" data-type="default_type">
+                <label class="formulaire-label" for="client-phone">Numéro de Téléphone</label>
+                <input class="formulaire-input" type="tel" id="client-phone" name="client_phone" value="" required>
+            </div>
+            <div class="formulaire-field" data-type="default_type">
+                <label class="formulaire-label" for="project-address">Adresse du Projet</label>
+                <input class="formulaire-input" type="text" id="project-address" name="project_address" value="" required>
+            </div>
+            <div class="formulaire-field" data-type="default_type">
+                <label class="formulaire-label" for="additional-code-postal">Code Postal</label>
+                <input class="formulaire-input" type="text" id="additional-code-postal" name="additional_code_postal" value="" required>
+            </div>
+            <div class="formulaire-field" data-type="default_type">
+                <label class="formulaire-label" for="formulaire-ville">Ville</label>
+                <input class="formulaire-input" type="text" id="formulaire-ville" name="formulaire-ville" value="" required>
+            </div>
+            <?php foreach ($custom_fields as $field): ?>
+                <div class="formulaire-field" data-type="<?=$field['type']?>">
+                    <label class="formulaire-label" for="custom-field-<?=$field['time']?>"><?=esc_html($field['name'])?></label>
+                    <?php if ($field['type'] === 'default_input'): ?>
+                        <input class="formulaire-input" type="text" id="custom-field-<?=$field['time']?>" name="custom_field_<?=$field['time']?>" value="">
+                    <?php elseif ($field['type'] === 'default_textarea'): ?>
+                        <textarea class="formulaire-textarea" id="custom-field-<?=$field['time']?>" name="custom_field_<?=$field['time']?>"></textarea>
+                    <?php elseif ($field['type'] === 'default_file'): // File selector ?>
+                        <input class="formulaire-file" type="file" id="custom-field-<?=$field['time']?>" name="custom_field_<?=$field['time']?>">
+                    <?php elseif ($field['type'] === 'region_checkbox'): // There are multiple checkboxes, they are in a textarea sperated by a line break ?>
+                        <div class="formulaire-region-checkbox">
+                            <?php foreach (explode("\n", $field['region']) as $option): ?>
+                                <label class="formulaire-label" for="custom-field-<?=$field['time']?>-<?=$option?>"><?=esc_html($option)?></label>
+                                <input class="formulaire-checkbox" type="checkbox" id="custom-field-<?=$field['time']?>-<?=$option?>" name="custom_field_<?=$field['time']?>[]" value="1">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php elseif ($field['type'] === 'region_select'): // There is a select with multiple options, they are in a textarea sperated by a line break ?>
+                        <select class="formulaire-select" id="custom-field-<?=$field['time']?>" name="custom_field_<?=$field['time']?>">
+                            <?php foreach (explode("\n", $field['region']) as $option): ?>
+                                <option value="<?=esc_attr($option)?>"><?=esc_html($option)?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    <?php elseif ($field['type'] === 'region_radio'): // There are multiple radio buttons, they are in a textarea sperated by a line break ?>
+                        <div class="formulaire-region-radio">
+                            <?php foreach (explode("\n", $field['region']) as $option): ?>
+                                <label class="formulaire-label" for="custom-field-<?=$field['time']?>-<?=$option?>"><?=esc_html($option)?></label>
+                                <input class="formulaire-radio" type="radio" id="custom-field-<?=$field['time']?>-<?=$option?>" name="custom_field_<?=$field['time']?>" value="<?=esc_attr($option)?>">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+            <div class="formulaire-send">
+                <button type="button" class="formulaire-send-button" onclick="formulaire_send_email(this)">Envoyer</button>
+                <p class="devis-sent-info"><p>
+            </div>
+        </div> 
+    <?php endif; ?><?php
     return ob_get_clean();
 }    
 
-function df_get_email_html_array($email, $hidden = true) {
+function df_get_email_html_array($post_id, $email, $hidden = true) {
     $email_id = $email['id'] ?? throw new DfDevisException("Missing email ID in email data");
     $type_id = $email['type_id'] ?? throw new DfDevisException("Missing type id in email data");
     $group_name = $email['group_name'] ?? throw new DfDevisException("Missing group name in email data");
-    return df_get_email_html_base($email_id, $type_id, $group_name, $hidden);
+    return df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden);
 }
 
 function handle_df_get_email_html() {
     try {
-        df_check_post('email_id', 'type_id', 'group_name', 'hidden');
+        df_check_post('post_id', 'email_id', 'type_id', 'group_name', 'hidden');
+        $post_id = intval($_POST['post_id']);
         $email_id = intval($_POST['email_id']);
         $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
         
-        $content = df_get_email_html_base($email_id, $type_id, $group_name, $hidden);
+        $content = df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden);
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -394,7 +483,7 @@ add_action('wp_ajax_df_get_email_html_by_step_and_group', 'handle_df_get_email_h
 
 
 
-function df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id) {
+function df_get_default_type_html($post_id, $type_id, $step_index, $group_name, $option_id, $history_id, $email_id) {
     ob_start(); ?>
     <div class="step-type step-type-<?=$type_id?> group_<?=$group_name?>" data-typeid="<?=$type_id?>" data-typename="options"> 
         <div class="option-container option-step-<?=$step_index?>">
@@ -414,7 +503,7 @@ function df_get_default_type_html($type_id, $step_index, $group_name, $option_id
         </div>
         <div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
             <?php if ($email_id): ?>
-                <?=df_get_email_html_base($email_id, $type_id, $group_name, false)?>
+                <?=df_get_email_html_base($post_id, $email_id, $type_id, $group_name, false)?>
             <?php endif; ?>
         </div>
     </div> <?php
@@ -423,7 +512,8 @@ function df_get_default_type_html($type_id, $step_index, $group_name, $option_id
 
 function handle_df_get_default_type_html() {
     try {
-        df_check_post('type_id', 'step_index', 'group_name', 'option_id', 'history_id', 'email_id');
+        df_check_post('post_id', 'type_id', 'step_index', 'group_name', 'option_id', 'history_id', 'email_id');
+        $post_id = intval($_POST['post_id']);
         $type_id = intval($_POST['type_id']);
         $step_index = intval($_POST['step_index']);
         $group_name = sanitize_text_field($_POST['group_name']);
@@ -431,7 +521,7 @@ function handle_df_get_default_type_html() {
         $history_id = intval($_POST['history_id']);
         $email_id = intval($_POST['email_id']);
 
-        $content = df_get_default_type_html($type_id, $step_index, $group_name, $option_id, $history_id, $email_id);
+        $content = df_get_default_type_html($post_id, $type_id, $step_index, $group_name, $option_id, $history_id, $email_id);
         wp_send_json_success(['message' => 'Default type HTML generated successfully', 'content' => $content]);
         wp_die();  
     } catch (DfDevisException $e) {
@@ -506,7 +596,7 @@ function handle_df_get_step_html_by_index() {
                 $data['type_content'] .= '<div class="formulaire-container formulaire-step-'.$step_index.'">';
                 $email = dfdb_get_email_by_step_and_group($step->id, $group_name);
                 if (!empty($email)) {
-                    $data['type_content'] .= df_get_email_html_base($email[0]->id, $type->id, $group_name, false, false);
+                    $data['type_content'] .= df_get_email_html_base($post_id, $email[0]->id, $type->id, $group_name, false, false);
                 }
                 $data['type_content'] .= '</div>';
             } else {

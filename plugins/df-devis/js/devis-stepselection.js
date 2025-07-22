@@ -257,3 +257,126 @@ async function get_step_by_group(postid, step_index, group_name) {
 
 	return typeName;
 }
+
+function formulaire_send_email(element) {
+	let data = [];
+	let formulaire = element.parentElement.parentElement;
+	let formulaireFields = formulaire.querySelectorAll('.formulaire-field');
+	let email = "";
+
+	formulaireFields.forEach((field) => {
+		const type = field.dataset.type;
+		const labelElement = field.querySelector('.formulaire-label');
+		const label = labelElement ? labelElement.textContent.trim() : '';
+
+		console.log("Processing field:", type, label);
+
+		if (!label) return;
+
+		if (type === 'default_email') {
+			const emailInput = field.querySelector('.formulaire-input');
+			if (emailInput && emailInput.value.trim()) {
+				email = emailInput.value.trim();
+			}
+		}
+
+		else if (type === 'default_type' || type === 'default_input') {
+			const input = field.querySelector('.formulaire-input');
+			if (input && input.value.trim()) {
+				data.push({
+					label: label,
+					value: input.value.trim()
+				});
+			}
+		}
+
+		else if (type === 'default_textarea') {
+			const textarea = field.querySelector('.formulaire-textarea');
+			if (textarea && textarea.value.trim()) {
+				data.push({
+					label: label,
+					value: textarea.value.trim()
+				});
+			}
+		}
+
+		else if (type === 'default_file') {
+			const fileInput = field.querySelector('.formulaire-file');
+			if (fileInput && fileInput.files.length > 0) {
+				const fileNames = Array.from(fileInput.files).map(file => file.name).join(', ');
+				data.push({
+					label: label,
+					value: fileNames
+				});
+			}
+		}
+
+		else if (type === 'region_checkbox') {
+			const checkboxes = field.querySelectorAll('.formulaire-checkbox');
+			const selectedValues = Array.from(checkboxes)
+				.filter(cb => cb.checked)
+				.map(cb => cb.value);
+			if (selectedValues.length > 0) {
+				data.push({
+					label: label,
+					value: selectedValues.join(', ')
+				});
+			}
+		}
+
+		else if (type === 'default_select') {
+			const select = field.querySelector('.formulaire-select');
+			if (select) {
+				const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+				if (selected.length > 0) {
+					data.push({
+						label: label,
+						value: selected.join(', ')
+					});
+				}
+			}
+		}
+
+		else if (type === 'default_radio') {
+			const radios = field.querySelectorAll('.formulaire-radio');
+			const checked = Array.from(radios).find(radio => radio.checked);
+			if (checked) {
+				data.push({
+					label: label,
+					value: checked.value
+				});
+			}
+		}
+	});
+
+	console.log("Sending email with data:", data);
+	console.log("Email address:", email);
+	console.log("Formulaire ID:", formulaire.dataset.id);
+	console.log("Post ID:", container.dataset.postid);
+
+	fetch(stepData.ajaxUrl, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		},
+		body: new URLSearchParams({
+			action: 'df_devis_send_email',
+			post_id: container.dataset.postid,
+			data: JSON.stringify(data),
+			email: email
+		})
+	})	
+	.then(res => res.json())
+	.then(data => {
+		if (data.success) {
+			alert('Email sent successfully!');
+		} else {
+			console.error('Error sending email:', data.data.message);
+			alert('Failed to send email: ' + data.data.message);
+		}
+	})
+	.catch(error => {
+		console.error('Fetch error:', error);
+		alert('An error occurred while sending the email.');
+	});
+}

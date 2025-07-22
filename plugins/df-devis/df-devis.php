@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - Devis
  * Description: Mise en place d'un system de devis pour les sites créés par DEFACTO.
- * Version: 2.2.1
+ * Version: 2.3.1
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */
@@ -62,10 +62,28 @@ if ( ! class_exists( 'DFDevis' ) )
 			add_action('add_meta_boxes', function() {
 			    add_meta_box(
 			        'devis_steps_options',
-			        'Steps & Options',
+			        'Etapes & Options',
 			        [$this, 'render_devis_meta_box'],
 			        'devis',
 			        'normal',
+			        'default'
+			    );
+
+				add_meta_box(
+			        'devis_steps_formulaire',
+			        'Creation du formulaire',
+			        [$this, 'render_custom_formulaire_meta_box'],
+			        'devis',
+			        'normal',
+			        'low'
+			    );
+
+				add_meta_box(
+			        'devis_custom_fields',
+			        'Informations Personnelles',
+			        [$this, 'render_info_perso_meta_box'],
+			        'devis',
+			        'side',
 			        'default'
 			    );
 			});
@@ -83,6 +101,12 @@ if ( ! class_exists( 'DFDevis' ) )
 
 			add_action('wp_ajax_render_devis_data', [$this, 'handle_render_devis_data']);
 			add_action('wp_ajax_df_save_post_data', [$this, 'handle_df_save_post_data']);
+
+			add_action('wp_ajax_df_add_formulaire_custom_field', [$this, 'handle_df_add_formulaire_custom_field']);
+			add_action('wp_ajax_df_remove_formulaire_custom_field', [$this, 'handle_df_remove_formulaire_custom_field']);
+			add_action('wp_ajax_df_update_formulaire_custom_field', [$this, 'handle_df_update_formulaire_custom_field']);
+
+			add_action('wp_ajax_df_devis_send_email', [$this, 'handle_df_devis_send_email']);
 
 			add_action('load-post-new.php', function() {
 				$post_type = $_GET['post_type'] ?? 'post';
@@ -341,18 +365,6 @@ if ( ! class_exists( 'DFDevis' ) )
 			?>
 			<link href="<?=DF_DEVIS_URL."styles/default/devis-creation.css"?>" rel="stylesheet" />
 			<div class="devis-container" data-postid="<?=$post->ID?>">
-				<div class="devis-header">
-					<div class="devis-owner">
-						<p>Email du propriétaire du devis:</p>
-						<div class="devis-owner-email-container">
-							<input type="email" class="devis_owner_email" value="<?=esc_attr(get_post_meta($post->ID, '_devis_owner_email', true))?>" />
-							<div class="devis-save-info">
-								<div class="devis-spinner devis-owner-email-spinner hidden"></div>
-								<div class="devis-save devis-owner-email-save hidden">&#10003;</div>
-							</div>
-						</div>
-					</div>
-				</div>
 				<div class="devis-steps-container">
 					<div class="steps-container">
 					<?php foreach ($steps as $step_index => $step): ?>
@@ -385,7 +397,7 @@ if ( ! class_exists( 'DFDevis' ) )
 									<div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
 										<?php if (isset($type['emails'])): ?>
 											<?php foreach ($type['emails'] as $index => $email): ?>
-												<?=df_get_email_html_array($email, true)?>
+												<?=df_get_email_html_array($post->ID, $email, true)?>
 											<?php endforeach; ?>								
 										<?php endif; ?>
 									</div>
@@ -397,6 +409,377 @@ if ( ! class_exists( 'DFDevis' ) )
 			</div>
 			<?php
 		}
+
+		function render_custom_formulaire_meta_box($post) {
+			wp_enqueue_script(
+	            'formulaire-creation-handle',
+	            DF_DEVIS_URL . 'js/devis-formulaireCreation.js',
+	            ['jquery', 'wp-data'],
+	            '1.0',
+	            true
+	        );
+
+	        wp_localize_script(
+	            'formulaire-creation-handle', 
+	            'stepData', [
+	                'ajaxUrl' => admin_url('admin-ajax.php'),
+					'postId' => $post->ID,
+	            ]
+	        );	
+
+			$custom_fields = get_post_meta($post->ID, '_devis_custom_fields', true);
+			if (empty($custom_fields) || !is_array($custom_fields)) {
+				$custom_fields = [];
+				update_post_meta($post->ID, '_devis_custom_fields', $custom_fields);
+			}
+
+			$price = get_post_meta($post->ID, 'formulaire_price', true);
+			if (empty($price)) {
+				$price = false;
+				update_post_meta($post->ID, 'formulaire_price', $price);
+			}
+
+			?>
+			<link href="<?=DF_DEVIS_URL."styles/default/formulaire-creation.css"?>" rel="stylesheet" />
+			<div class="formulaire-creation-container">
+				<div class="formulaire-creation-fields">
+					<div class="formulaire-creation-default-fields">
+						<div class="formulaire-creation-default-fields-header">
+							<h3>Champs par défaut</h3>
+							<div class="formulaire-creation-default-fields-view" onclick="toggle_default_fields()">Voir</div>
+						</div>
+						<div class="formulaire-creation-default-fields-content hidden">
+							<p>Nom complet</p>
+							<p>Adresse e-mail</p>
+							<p>Numéro de téléphone</p>
+							<p>Adresse du projet</p>
+							<p>Code postal</p>
+							<p>Ville</p>
+						</div>
+					</div>
+					<div class="formulaire-creation-custom-fields">
+						<div class="formulaire-creation-custom-fields-header">
+							<h3>Champs personnalisés</h3>
+							<div class="formulaire-creation-custom-fields-toggle">
+								<div class="formulaire-creation-custom-field-create" onclick="toggle_create_custom_fields()">Ajouter un nouveau champ</div>
+								<div class="formulaire-creation-custom-field-view" onclick="toggle_custom_fields()">Voir</div>
+							</div>
+						</div>
+						<div class="formulaire-creation-custom-fields-content hidden">
+							<?php if (!empty($custom_fields)): ?>
+								<?php foreach ($custom_fields as $index => $field): ?>
+									<?php if (isset($field['type']) && isset($field['time']) && isset($field['name'])): ?>
+										<div class="formulaire-creation-custom-field" data-type="<?php echo esc_attr($field['type']); ?>" data-index="<?php echo esc_attr($index); ?>" data-time="<?php echo esc_attr($field['time']); ?>">
+											<div class="formulaire-creation-custom-field-row">
+												<div class="formulaire-creation-custom-field-name">
+													<p><?php echo $this->get_type_name($field['type']); ?></p>
+													<input type="text" class="formulaire-creation-custom-field-input" name="custom_input_<?php echo esc_attr($field['time']); ?>" oninput="update_name(this)" value="<?php echo esc_attr($field['name']); ?>" />
+												</div>
+												<div class="formulaire-creation-custom-field-status">
+													<p>Statut de sauvegarde</p>
+													<div class="formulaire-creation-save-info">
+														<div class="formulaire-creation-spinner formulaire-creation-custom-field-<?php echo esc_attr($field['time']); ?>-spinner hidden"></div>
+														<div class="formulaire-creation-save formulaire-creation-custom-field-<?php echo esc_attr($field['time']); ?>-save hidden">&#10003;</div>
+														<div class="formulaire-creation-fail formulaire-creation-custom-field-<?php echo esc_attr($field['time']); ?>-fail hidden">&#10005;</div>
+													</div>
+												</div>
+												<div class="formulaire-creation-custom-field-actions">
+													<button type="button" class="formulaire-creation-custom-field-remove" onclick="remove_custom_field(this)">X</button>
+												</div>
+											</div>
+											<?php if ($field['type'] === 'region_checkbox' || $field['type'] === 'region_select' || $field['type'] === 'region_radio'): ?>
+												<textarea class="formulaire-creation-custom-field-input" name="custom_input_<?php echo esc_attr($field['time']); ?>" oninput="update_region(this)"><?php echo isset($field['region']) ? esc_textarea($field['region']) : ''; ?></textarea>
+											<?php endif; ?>
+										</div>
+									<?php endif; ?>
+								<?php endforeach; ?>
+							<?php endif; ?>
+								
+						</div>
+					</div>
+					<div class="formulaire-creation-optional-fields">
+						<div class="formulaire-creation-optional-fields-header">
+							<h3>Champs optionnels</h3>
+							<div class="formulaire-creation-optional-fields-view" onclick="toggle_optional_fields()">Voir</div>
+						</div>
+						<div class="formulaire-creation-optional-fields-content hidden">
+							<div class="formulaire-creation-optional-item">
+								<div class="formulaire-creation-optional-name">
+									<p>Prix inclus dans le mail</p>
+									<input type="checkbox" class="formulaire-creation-price-checkbox" name="formulaire_price" <?php echo $price ? 'checked' : ''; ?> onclick="update_optional_field(this)"/>
+								</div>
+								<div class="formulaire-creation-optional-save-info">
+									<div class="formulaire-creation-spinner formulaire-creation-price-spinner hidden"></div>
+									<div class="formulaire-creation-save formulaire-creation-price-save hidden">&#10003;</div>
+									<div class="formulaire-creation-fail formulaire-creation-price-fail hidden">&#10005;</div>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+				<div class="formulaire-creation-custom-fields-create-content hidden">
+					<button data-type="default_input" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Champ de saisie</button>
+					<button data-type="default_textarea" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Zone de texte</button>
+					<button data-type="default_file" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Fichier joint</button>
+					<button data-type="region_checkbox" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Case à cocher</button>
+					<button data-type="region_select" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Sélection</button>
+					<button data-type="region_radio" class="formulaire-create-custom-field" type="button" onclick="create_custom_field(this)">Boutons radio</button>
+				</div>
+			</div>
+			<?php
+
+			/* base HTML for a saving input
+			<input type="text" name="[input_name]" class="formulaire-champ"/>
+			<div class="formulaire-save-info">
+				<div class="formulaire-spinner formulaire-[input_name]-spinner hidden"></div>
+				<div class="formulaire-save formulaire-[input_name]-save hidden">&#10003;</div>
+			</div>
+			*/
+		}
+
+		function handle_df_devis_send_email() {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['email']) || ! isset($_POST['data']) || empty($_POST['email']) ) {
+				wp_send_json_error(['message' => 'Missing or invalid data']);
+				wp_die();
+			}
+
+			$post_id = intval($_POST['post_id']);
+			$email = sanitize_email($_POST['email']);
+			$data = isset($_POST['data']) ? json_decode(stripslashes($_POST['data']), true) : [];
+
+			$post = get_post($post_id);
+			if ( ! $post ) {
+				wp_send_json_error(['message' => 'Post not found']);
+				wp_die();
+			}
+
+			$owner_email = get_post_meta($post_id, '_devis_owner_email', true);
+
+			if ( ! is_email($email) ) {
+				wp_send_json_error(['message' => 'Invalid email address']);
+				wp_die();
+			}
+
+			$subject = 'Devis de ' . get_the_title($post_id);
+			$body = 'Voici les détails de votre devis :<br><br>';
+
+			foreach ($data as $field) {
+				if (!empty($field['label']) && isset($field['value'])) {
+					$body .= '<strong>' . esc_html($field['label']) . ':</strong> ' . nl2br(esc_html($field['value'])) . '<br>';
+				}
+			}
+
+			$body .= '<br>Merci de votre intérêt !';
+
+			$result1 = wp_mail($email, 'Test Email', 'This is a test email.');
+			$result2 = wp_mail($owner_email, 'Devis envoyé', 'Un devis a été envoyé à ' . $email . '.');
+			if (!$result1 || !$result2) {
+				wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.']);
+				wp_die();
+			} else {
+				wp_send_json_success(['message' => 'Email sent successfully']);
+				wp_die();
+			}
+
+			wp_send_json_success(['message' => 'Email sent successfully']);
+			wp_die();
+		}
+
+		function render_info_perso_meta_box($post) {
+			wp_enqueue_script(
+	            'info-perso-handle',
+	            DF_DEVIS_URL . 'js/devis-infoPerso.js',
+	            ['jquery'],
+	            '1.0',
+	            true
+	        );
+
+	        wp_localize_script(
+	            'info-perso-handle', 
+	            'stepData', [
+	                'ajaxUrl' => admin_url('admin-ajax.php'),
+					'postId' => $post->ID,
+	            ]
+	        );	
+
+			$custom_fields = get_post_meta($post->ID, '_devis_custom_fields', true);
+			if (empty($custom_fields) || !is_array($custom_fields)) {
+				$custom_fields = [];
+				update_post_meta($post->ID, '_devis_custom_fields', $custom_fields);
+			}
+
+			?>
+			<link href="<?=DF_DEVIS_URL."styles/default/devis-creation.css"?>" rel="stylesheet" />
+			<div class="info-perso-container">
+				<div class="devis-header">
+					<div class="devis-owner">
+						<p>Email du propriétaire du devis:</p>
+						<div class="devis-save-info">
+							<div class="devis-spinner devis-owner-email-spinner hidden"></div>
+							<div class="devis-save devis-owner-email-save hidden">&#10003;</div>
+						</div>
+					</div>
+					<div class="devis-owner-email-container">
+						<input type="email" class="devis_owner_email" value="<?=esc_attr(get_post_meta($post->ID, '_devis_owner_email', true))?>" />
+					</div>
+				</div>
+			</div>
+			<?php
+
+		}
+
+		function get_type_name($type) {
+			switch ($type) {
+				case 'default_input':
+					return 'Nom du champ texte';
+				case 'default_textarea':
+					return 'Nom de la zone de texte';
+				case 'default_file':
+					return 'Nom du champ de fichier jointé';
+				case 'region_checkbox':
+					return 'Nom de la case à cocher';
+				case 'region_select':
+					return 'Nom du champ de sélection';
+				case 'region_radio':
+					return 'Nom du champ radio';
+				default:
+					return 'Nom du champ personnalisé';
+			}
+		}
+
+		function handle_df_add_formulaire_custom_field() {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['type']) || ! isset($_POST['name']) || empty($_POST['time'])  ) {
+				wp_send_json_error(['message' => 'Missing or invalid data']);
+				wp_die();
+			}
+			$post_id = intval($_POST['post_id']);
+			$type = sanitize_text_field($_POST['type']);
+			$name = sanitize_text_field($_POST['name']);
+			$time = intval($_POST['time']);
+			$index = intval($_POST['index'] ?? -1);
+			$region = isset($_POST['region']) ? sanitize_textarea_field($_POST['region']) : '';
+
+			$is_region = in_array($type, ['region_checkbox', 'region_select', 'region_radio'], true);
+
+			if ( ! get_post($post_id) ) {
+				wp_send_json_error(['message' => 'Post not found']);
+				wp_die();
+			}
+
+			if ( ! $this->is_valid_custom_field_type($type) ) {
+				wp_send_json_error(['message' => 'Invalid custom field type']);
+				wp_die();
+			}
+
+			$custom_fields = get_post_meta($post_id, '_devis_custom_fields', true);
+			if ( ! is_array($custom_fields) ) { 
+				$custom_fields = []; 
+			}
+			
+			$new_field = [
+				'type' => $type,
+				'name' => $name,
+				'time' => $time,
+			];
+			if ($is_region ) {
+				$new_field['region'] = $region;
+			}
+
+			if ($index >= 0 && $index <= count($custom_fields)) {
+				array_splice($custom_fields, $index, 0, [$new_field]);
+			} else {
+				$custom_fields[] = $new_field;
+			}
+
+			$custom_fields = array_values($custom_fields);
+			update_post_meta($post_id, '_devis_custom_fields', $custom_fields);
+
+			wp_send_json_success([
+				'message' => 'Custom field added successfully',
+				'custom_field' => $new_field,
+				'index' => $index
+			]);
+			wp_die();
+		}
+
+		function handle_df_remove_formulaire_custom_field() {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['index']) ) {
+				wp_send_json_error(['message' => 'Missing or invalid data']);
+				wp_die();
+			}
+			$post_id = intval($_POST['post_id']);
+			$index = intval($_POST['index']);
+
+			if ( ! get_post($post_id) ) {
+				wp_send_json_error(['message' => 'Post not found']);
+				wp_die();
+			}
+
+			$custom_fields = get_post_meta($post_id, '_devis_custom_fields', true);
+			if ( ! is_array($custom_fields) || ! isset($custom_fields[$index]) ) {
+				wp_send_json_error(['message' => 'Invalid custom field index']);
+				wp_die();
+			}
+
+			unset($custom_fields[$index]);
+
+			$custom_fields = array_values($custom_fields);
+			update_post_meta($post_id, '_devis_custom_fields', $custom_fields);
+			wp_send_json_success(['message' => 'Custom field removed successfully']);
+			wp_die();
+		}
+
+		function handle_df_update_formulaire_custom_field() {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['index']) || ! isset($_POST['name']) || ! isset($_POST['type']) ) {
+				wp_send_json_error(['message' => 'Missing or invalid data']);
+				wp_die();
+			}
+			$post_id = intval($_POST['post_id']);
+			$index = intval($_POST['index']);
+			$name = sanitize_text_field($_POST['name']);
+			$type = sanitize_text_field($_POST['type']);
+			$region = isset($_POST['region']) ? sanitize_textarea_field($_POST['region']) : '';
+
+			$is_region = in_array($type, ['region_checkbox', 'region_select', 'region_radio'], true);
+
+			if ( ! get_post($post_id) ) {
+				wp_send_json_error(['message' => 'Post not found']);
+				wp_die();
+			}
+
+			if ( ! $this->is_valid_custom_field_type($type) ) {
+				wp_send_json_error(['message' => 'Invalid custom field type']);
+				wp_die();
+			}
+
+			$custom_fields = get_post_meta($post_id, '_devis_custom_fields', true);
+			if ( ! is_array($custom_fields) || ! isset($custom_fields[$index]) ) {
+				wp_send_json_error(['message' => 'Invalid custom field index']);
+				wp_die();
+			}
+
+			$custom_fields[$index]['name'] = $name;
+			$custom_fields[$index]['type'] = $type;
+			if ($is_region) {
+				$custom_fields[$index]['region'] = $region;
+			} else {
+				unset($custom_fields[$index]['region']);
+			}
+
+			update_post_meta($post_id, '_devis_custom_fields', $custom_fields);
+			wp_send_json_success([
+				'message' => 'Custom field updated successfully',
+				'custom_field' => $custom_fields[$index],
+				'index' => $index
+			]);
+			wp_die();
+		}
+
+		function is_valid_custom_field_type($type) {
+			$valid_types = ['default_input', 'default_textarea', 'default_file', 'region_checkbox', 'region_select', 'region_radio'];
+			return in_array($type, $valid_types, true);
+		}	
 
 		function save_post_data($post_id) {
 			// Save the email of the owner		

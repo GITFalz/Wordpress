@@ -370,7 +370,7 @@
   margin-top: 3rem;
 }
 
-.devis-container .form-title {
+.devis-container .formulaire-title {
   font-size: 1.75rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -571,8 +571,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Selected state */
@@ -607,46 +611,37 @@
   display: block;
 }
 
-
 /* Responsive design */
 @media (max-width: 768px) {
   .devis-container {
     padding: 1rem;
   }
-  
   .devis-container .steps-container {
     flex-direction: column;
     align-items: center;
   }
-  
   .devis-container .steps-container::before {
     display: none;
   }
-  
   .devis-container .devis-step {
     width: 100%;
     max-width: 280px;
   }
-  
   .devis-container .options-container {
     grid-template-columns: 1fr;
   }
-  
   .devis-container .df-devis-list {
     grid-template-columns: 1fr;
   }
-  
   .devis-container .devis-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
   .devis-container .view-devis,
   .devis-container .edit-devis {
     text-align: center;
     justify-content: center;
   }
-  
   .devis-container .devis-separator {
     display: none;
   }
@@ -656,16 +651,13 @@
   .devis-container {
     padding: 0.5rem;
   }
-  
   .devis-container .email-form {
     padding: 1.5rem;
   }
-  
   .devis-container .devis-step {
     padding: 0.75rem 1rem;
     font-size: 0.85rem;
   }
-  
   .devis-container .option {
     padding: 1rem;
     min-height: 160px;
@@ -673,17 +665,6 @@
 }
 
 /* Smooth animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .devis-container .step-info {
   animation: fadeIn 0.3s ease-out;
 }
@@ -708,4 +689,424 @@
   background: var(--text-muted);
   transform: none;
   box-shadow: none;
+}
+
+/* Additional Form Styles for Devis Page */
+
+/* Main formulaire container */
+.devis-container .formulaire {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.devis-container .formulaire:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.devis-container .formulaire.hidden {
+  display: none;
+}
+
+/* Form field styling */
+.devis-container .formulaire-field {
+  margin-bottom: 1.5rem;
+}
+
+.devis-container .formulaire-field:last-child {
+  margin-bottom: 0;
+}
+
+/* Label styling */
+.devis-container .formulaire-label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Input styling */
+.devis-container .formulaire-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  background: var(--card-background);
+  color: var(--text-primary);
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+.devis-container .formulaire-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.1);
+}
+
+.devis-container .formulaire-input:readonly {
+  background: var(--background-color);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.devis-container .formulaire-input:readonly:focus {
+  border-color: var(--border-color);
+  box-shadow: none;
+}
+
+/* Textarea styling */
+.devis-container .formulaire-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  background: var(--card-background);
+  color: var(--text-primary);
+  transition: var(--transition);
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.devis-container .formulaire-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.1);
+}
+
+/* File input styling */
+.devis-container .formulaire-file {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  background: var(--background-color);
+  color: var(--text-primary);
+  transition: var(--transition);
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.devis-container .formulaire-file:hover {
+  border-color: var(--primary-color);
+  background: rgba(74, 144, 164, 0.05);
+}
+
+.devis-container .formulaire-file:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.1);
+}
+
+/* Select styling */
+.devis-container .formulaire-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  background: var(--card-background);
+  color: var(--text-primary);
+  transition: var(--transition);
+  cursor: pointer;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.devis-container .formulaire-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.1);
+}
+
+/* Checkbox and Radio button containers */
+.devis-container .formulaire-region-checkbox,
+.devis-container .formulaire-region-radio {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+/* Checkbox styling */
+.devis-container .formulaire-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--card-background);
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: none;
+  position: relative;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.devis-container .formulaire-checkbox:checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.devis-container .formulaire-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.devis-container .formulaire-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.3);
+}
+
+/* Radio button styling */
+.devis-container .formulaire-radio {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--card-background);
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: none;
+  position: relative;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.devis-container .formulaire-radio:checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.devis-container .formulaire-radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.5rem;
+  height: 0.5rem;
+  background: white;
+  border-radius: 50%;
+}
+
+.devis-container .formulaire-radio:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.3);
+}
+
+/* Label styling for checkboxes and radio buttons */
+.devis-container .formulaire-region-checkbox .formulaire-label,
+.devis-container .formulaire-region-radio .formulaire-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.devis-container .formulaire-region-checkbox .formulaire-label:hover,
+.devis-container .formulaire-region-radio .formulaire-label:hover {
+  background: rgba(74, 144, 164, 0.05);
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .devis-container .formulaire {
+    padding: 1.5rem;
+  }
+  
+  .devis-container .formulaire-region-checkbox,
+  .devis-container .formulaire-region-radio {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .devis-container .formulaire {
+    padding: 1rem;
+  }
+  
+  .devis-container .formulaire-input,
+  .devis-container .formulaire-textarea,
+  .devis-container .formulaire-select,
+  .devis-container .formulaire-file {
+    padding: 0.625rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Animation for form appearance */
+.devis-container .formulaire {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Send button container and styling */
+.devis-container .formulaire-send {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.devis-container .formulaire-send-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  min-width: 180px;
+}
+
+.devis-container .formulaire-send-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.devis-container .formulaire-send-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 164, 0.3), var(--shadow-md);
+}
+
+.devis-container .formulaire-send-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.devis-container .formulaire-send-button:disabled {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.devis-container .formulaire-send-button:disabled:hover {
+  background: var(--text-muted);
+  transform: none;
+}
+
+/* Info text styling */
+.devis-container .devis-sent-info {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid var(--success-color);
+  border-radius: var(--border-radius);
+  color: var(--success-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: none; /* Hidden by default, shown via JS when email is sent */
+}
+
+.devis-container .devis-sent-info.show {
+  display: block;
+  animation: fadeInSlide 0.4s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading state for send button */
+.devis-container .formulaire-send-button.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.devis-container .formulaire-send-button.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Error state styling */
+.devis-container .devis-sent-info.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Success state styling */
+.devis-container .devis-sent-info.success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+/* Responsive adjustments for send section */
+@media (max-width: 480px) {
+  .devis-container .formulaire-send-button {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+  }
+  
+  .devis-container .devis-sent-info {
+    font-size: 0.85rem;
+    padding: 0.625rem 0.875rem;
+  }
 }

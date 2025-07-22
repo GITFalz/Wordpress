@@ -3,9 +3,46 @@
   display: none !important;
 }
 
+.devis-save-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  width: 20px;
+  padding-left: 5px;
+  padding-top: 2px;
+}
+
+.devis-spinner {
+  width: 14px;
+  height: 14px;
+  border: 3px solid #ccc;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.devis-save {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 25px;
+  color: #4caf50; /* green for saved */
+  pointer-events: none;
+}
+
+.show-and-fade {
+  animation: popFade 2s ease-out forwards;
+}
+
 /* Main container layout */
 .devis-container {
   display: flex;
+  flex-direction: column;
   gap: 20px;
   margin: 40px auto;
   background-color: #ffffff;
@@ -13,6 +50,30 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   min-height: 600px; /* Ensure enough height for layout */
   width: 100%;
+}
+
+.devis-container p {
+  font-weight: 600;
+  font-size: 14px;
+  color: #555555;
+  padding: 15px 0;
+  margin: 0;
+}
+
+.devis-header {
+  padding: 15px;
+  border-radius: 8px 8px 0 0;
+}
+
+.devis-header input {
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.devis-header .devis-save-info {
+  margin-top: 13px;
 }
 
 /* Steps container - vertical layout */
@@ -44,14 +105,6 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.devis-step p {
-  font-weight: 600;
-  color: #555555;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .devis-step .devis-step-header {
   display: flex;
   align-items: center;
@@ -61,11 +114,12 @@
 }
 
 .devis-step .set-step-name {
-  padding: 8px 10px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
+  padding: 10px;
   font-size: 14px;
-  width: 100%;
+  border: none;
+  border-radius: 6px;;
+  width: calc(100% - 30px);
+  margin-left: 0;
 }
 
 .devis-step .remove-name {
@@ -111,10 +165,6 @@
   background-color: #babebf;
 }
 
-.devis-step-hidden .set-step-name {
-  border: 1px solid #7e7e7e;
-}
-
 .devis-step-hidden:hover {
   background-color: #a3aaac;
   border-color: #cacaca;
@@ -137,6 +187,41 @@
 
 .devis-step-hidden .remove-step {
   background-color: #cd6973; /* Muted gray */
+}
+
+.devis-steps-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.devis-step-name {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #c6c6c6;
+  background-color: #ebebeb;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.devis-step-hidden .devis-step-name {
+  border: 1px solid #7e7e7e;
+  background-color: #a2a3a4;
+}
+
+.devis-step-name .devis-save-info {
+  padding-right: 5px;
+}
+
+.devis-step-hidden .devis-spinner {
+  border-top: 3px solid #7e7e7e;
+  opacity: 0.8;
+}
+
+.devis-step-hidden .devis-save {
+  color: #7e7e7e; /* Muted gray for saved state */
 }
 
 /* Step info container - main content area */
@@ -217,22 +302,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.option p {
-  font-weight: 500;
-  color: #444444;
-  display: block;
-  margin-bottom: 5px;
-}
 
 
 .option .option-header {
   width: 100%; /* Adjust for padding and border */
-}
-
-.option .option-header p {
-  font-weight: 600;
-  color: #555555;
-  margin-bottom: 5px;
 }
 
 .option .option-header input {
@@ -248,8 +321,42 @@
   margin-right: 5px;
 }
 
+.option-name {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #c6c6c6;
+  background-color: #ebebeb;
+  margin-left: 0;
+  padding-left: 0;
+}
+
 .option .set-name {
-  width: 100px;
+  padding: 10px; 
+  font-size: 14px;
+  border: none !important;
+  border-radius: 6px;
+  width: calc(100% - 30px) !important; /* Adjust for padding and border */
+  margin-left: 0;
+}
+
+.option .option-cost {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #c6c6c6;
+  background-color: #ebebeb;
+}
+
+.option .option-cost input {
+  width: calc(100% - 30px); /* Adjust for padding and border */
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  margin-left: 0;
+  font-size: 14px;
 }
 
 .option .remove-option {
@@ -350,14 +457,6 @@
 .option-image-preview {
   width: 80px;
   height: 80px;
-}
-
-.option .set-cost {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  font-size: 14px;
 }
 
 .option .add-step {
@@ -466,7 +565,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.form-title {
+.formulaire-title {
   color: #607d8b;
   margin-top: 0;
   margin-bottom: 20px;
@@ -523,41 +622,17 @@
   display: flex;
 }
 
-.devis-save-info {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  width: 20px;
-  padding-left: 5px;
-  padding-top: 2px;
+.devis-owner {
+  display: flex !important; 
+  flex-direction: row;
 }
 
-.devis-spinner {
-  width: 14px;
-  height: 14px;
-  border: 3px solid #ccc;
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.devis-owner p {
+  font-size: 14px;
+  color: #555555;
 }
 
-.devis-save {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  font-size: 25px;
-  color: #4caf50; /* green for saved */
-  pointer-events: none;
-}
 
-.show-and-fade {
-  animation: popFade 2s ease-out forwards;
-}
 
 @keyframes spin {
   to { transform: rotate(360deg); }
