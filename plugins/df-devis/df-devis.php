@@ -572,8 +572,9 @@ if ( ! class_exists( 'DFDevis' ) )
 
 			$body .= '<br>Merci de votre intérêt !';
 
-			$result1 = wp_mail($email, 'Test Email', 'This is a test email.');
-			$result2 = wp_mail($owner_email, 'Devis envoyé', 'Un devis a été envoyé à ' . $email . '.');
+			$result1 = wp_mail($email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
+			$result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
+
 			if (!$result1 || !$result2) {
 				wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.']);
 				wp_die();
