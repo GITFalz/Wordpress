@@ -607,236 +607,53 @@ if ( ! class_exists( 'DFDevis' ) )
 		function get_email($data) {
 			ob_start(); ?>
 			<!DOCTYPE html>
-			<html lang="fr">
-			<head>
-				<meta charset="UTF-8">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Votre Devis est Prêt !</title>
-				<style type="text/css">
-				
-					body {
-						width: 100%;
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-						justify-content: center;
-					}
-				
-					.devis-container {
-						display: flex;
-						flex-direction: column;
-						justify-content: center;
-						align-items: center;
-						width: 600px;
-					}
-				
-					.devis-header-container {
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						width: 100%;
-						padding: 10px 0;
-					}
-					
-					.devis-header-container p {
-						font-size: 30px;
-						font-weight: bold;
-					}
-					
-					.devis-info-container {
-						display: flex;
-						background-color: #eeeeee;
-						width: 100%;
-					}
-					
-					.devis-info-list {
-						display: flex;
-						flex-direction: column;
-						align-items: start;
-						width: 100%;
-						margin-top: 0;
-						padding-bottom: 20px;
-					}
-					
-					.devis-info-list > p {
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						background-color: #ea5223;
-						width: 100%;
-						margin-top: 0;
-						margin-bottom: 0;
-						padding: 10px 0;
-						color: #fff;
-						font-size: 25px;
-					}
-					
-					.devis-info-element {
-						display: flex;
-						padding-left: 10px;
-						gap: 10px;
-						height: 20px;
-						width: 100%;
-					}
-				
-					
-					.devis-info-element p {
-						color: #555555;
-					}
-					
-					.devis-product-container {
-						display: flex;
-						flex-direction: column;
-						width: 100%;
-						padding: 10px;
-					}
-					
-					.devis-product-container > p {
-						width: 100%;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						font-size: 21px;
-						font-weight: bold;
-					}
-					
-					.devis-product {
-						width: 100%;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						flex-direction: column;
-					}
-					
-					.devis-product-visual {
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-						justify-content: center;
-					}
-					
-					.devis-product-visual p {
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-						justify-content: center;
-						color: #555555;
-					}
-					
-					.devis-product-visual p:first-child {
-						font-weight: bold;
-					}
-					
-					.devis-product-info-list {
-						width: 100%;
-						padding: 0 10px;
-					}
-					
-					.devis-product-info {
-						display: flex;
-						gap: 10px;
-						height: 30px;
-						padding: 0 10px;
-					}
-					
-					.devis-product-info p:first-child {
-						font-weight: bold;
-					}
-					
-					.devis-product-info p {
-						color: #555555;
-					}
-					
-					.devis-description-container {
-						display: flex;
-						justify-content: start;
-						width: 100%;
-					}
-					
-					.devis-price-container {
-						background-color: #ea5223;
-						width: 100%;
-						display: flex;
-						justify-content: center;
-						color: #ffffff;
-						font-size: 30px;
-					}
-					
-					footer {
-						width: 100%;
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-						justify-content: center;
-					}
-					
-					.devis-footer {
-						display: flex;
-						justify-content: start;
-						align-items: center;
-						padding: 10px;
-						width: 600px;
-					}
-				</style>
-			</head>
-			<body>
-				<div class="devis-container">
-					<div class="devis-header-container">
-						<div class="devis-header">
-							<p>Nom du devis</p>
-						</div>
+			<html>
+			<body style="margin:0;padding:0;font-family:sans-serif;background-color:#f4f4f4;">
+				<table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;padding:20px;">
+				<tr>
+					<td align="center" style="font-size:30px;font-weight:bold;padding-bottom:20px;">
+					Nom du devis
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color:#eeeeee;padding:10px;">
+					<p style="font-size:25px;color:#fff;background-color:#ea5223;padding:10px 0;margin:0;text-align:center;">
+						Information du client
+					</p>
+					<p style="margin:10px 0;color:#555;">Nom complet: <strong>Schinkel Bjornar</strong></p>
+					<p style="margin:10px 0;color:#555;">Téléphone: <strong>0675916364</strong></p>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding:20px 0;">
+					<p style="font-size:21px;font-weight:bold;text-align:center;margin-bottom:10px;">Choix du produit</p>
+					<div style="text-align:center;">
+						<img src="https://picsum.photos/200/300" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
 					</div>
-					<div class="devis-info-container">
-						<div class="devis-info-list">
-							<p>Information du client</p>
-							<div class="devis-info-element">
-								<p>Nom complet</p>
-								<p>Schinkel Bjornar</p>
-							</div>
-							<div class="devis-info-element">
-								<p>Numero de téléphone</p>
-								<p>0675916364</p>
-							</div>
-						</div>
-					</div>
-					<div class="devis-product-container">
-						<p>Choix du produit</p>
-						<div class="devis-product">
-							<div class="devis-product-visual">
-								<img src="https://picsum.photos/200/300"/>
-								<div class="devis-product-name">
-									<p>Nom du produit</p>
-									<p>Autre chose</p>    
-								</div>
-							</div>
-							<div class="devis-product-info-list">
-								<div class="devis-product-info">
-									<p>Poids</p>
-									<p>200kg</p>
-								</div>
-								<div class="devis-product-info">
-									<p>Hauteur</p>
-									<p>1m</p>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="devis-description-container">
-						<p>
-							Ce produit est incroyable!
-						</p>
-					</div>
-					<div class="devis-price-container">
-						<p class="devis-ttc-price">TTC: 50000000 euro</p>
-					</div>
-				</div>
+					<p style="font-weight:bold;text-align:center;margin:10px 0 0;">Nom du produit</p>
+					<p style="text-align:center;margin:0;color:#555;">Autre chose</p>
+					<p style="margin:10px 0;color:#555;">Poids: <strong>200kg</strong></p>
+					<p style="margin:10px 0;color:#555;">Hauteur: <strong>1m</strong></p>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding:10px 0;">
+					<p style="color:#555;">Ce produit est incroyable!</p>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color:#ea5223;color:#fff;font-size:24px;text-align:center;padding:15px;">
+					TTC: 50000000 euro
+					</td>
+				</tr>
+				<tr>
+					<td style="padding-top:20px;text-align:center;color:#999;">
+					<p>mini info au cas ou ;)</p>
+					</td>
+				</tr>
+				</table>
 			</body>
-			<footer>
-				<div class="devis-footer">
-					<p>mini info au cas ou ;)</p>   
-				</div>
-			</footer>
-			</html>; <?php
+			</html> <?php
 			return ob_get_clean();
 		}
 
