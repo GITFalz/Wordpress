@@ -152,7 +152,10 @@ function df_get_option_html_base($type_id, $group_name, $option_name, $option_id
                 <input type="checkbox" class="set-cost-option-visible set-cost-option-visible-option" <?=isset($data['cost']['option_visible']) && $data['cost']['option_visible'] ? 'checked' : ''?> onchange="toggle_option_visibility(event)">
                 <label>Visible dans les options</label>
             </div>
-            <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+            <div class="option-footer">
+                <p class="option-status"></p>
+                <button type="button" data-group="Root" data-activate="gp_<?=$option_id?>" class="add-step">Add Step</button>
+            </div>
         <?php else: ?>
             <p class="option-name"><?=$option_name?></p>
             <?php if ($image): ?>
@@ -344,24 +347,9 @@ function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hid
     ob_start(); ?>
     <?php if ($is_customizable): ?>
         <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
-            <h2 class="formulaire-title">Contact & Quote Request</h2>		
-            <div class="email-form">
-                <label class="email-label" for="client-name">Full Name</label>
-                <input class="email-input" type="text" id="client-name" name="client_name" placeholder="Enter your full name">
-                
-                <label class="email-label" for="client-email">Email Address</label>
-                <input class="email-input" type="email" id="client-email" name="client_email" placeholder="your.email@example.com">
-                
-                <label class="email-label" for="client-phone">Phone Number</label>
-                <input class="email-input" type="tel" id="client-phone" name="client_phone" placeholder="+33 1 23 45 67 89">
-                
-                <label class="email-label" for="project-address">Project Address</label>
-                <input class="email-input" type="text" id="project-address" name="project_address" placeholder="Street address, City, Postal Code">
-                
-                <label class="email-label" for="additional-notes">Additional Notes</label>
-                <textarea class="email-textarea" id="additional-notes" name="additional_notes" placeholder="Please describe any specific requirements, timeline preferences, or questions you may have..."></textarea>
-                
-                <button type="button" class="email-submit">Send Quote Request</button>
+            <h2 class="formulaire-title">Formulaire</h2>		
+            <div class="formulaire-produit">
+                <p class="formulaire-produit-label">Produit:</p>
             </div>
         </div>
     <?php else: ?>

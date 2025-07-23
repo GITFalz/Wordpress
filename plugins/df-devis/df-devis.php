@@ -86,6 +86,15 @@ if ( ! class_exists( 'DFDevis' ) )
 			        'side',
 			        'default'
 			    );
+
+				add_meta_box(
+			        'devis_steps_email',
+			        'Personnalisation de l\'email',
+			        [$this, 'render_custom_email_meta_box'],
+			        'devis',
+			        'normal',
+			        'low'
+			    );
 			});
 			/* POST FUNCTIONS */ // Keeping these functions for future use.
 			add_action('save_post_devis', [$this, 'save_post_data']); 
@@ -441,7 +450,7 @@ if ( ! class_exists( 'DFDevis' ) )
 
 			?>
 			<link href="<?=DF_DEVIS_URL."styles/default/formulaire-creation.css"?>" rel="stylesheet" />
-			<div class="formulaire-creation-container">
+			<div class="formulaire-creation-container" style="width: 100%">
 				<div class="formulaire-creation-fields">
 					<div class="formulaire-creation-default-fields">
 						<div class="formulaire-creation-default-fields-header">
@@ -536,6 +545,175 @@ if ( ! class_exists( 'DFDevis' ) )
 				<div class="formulaire-save formulaire-[input_name]-save hidden">&#10003;</div>
 			</div>
 			*/
+		}
+
+		function render_custom_email_meta_box($post) {
+
+			wp_enqueue_script(
+	            'email-creation-handle',
+	            DF_DEVIS_URL . 'js/devis-emailCreation.js',
+	            ['jquery', 'wp-data'],
+	            '1.0',
+	            true
+	        );
+
+	        wp_localize_script(
+	            'email-creation-handle', 
+	            'stepData', [
+	                'ajaxUrl' => admin_url('admin-ajax.php'),
+					'postId' => $post->ID,
+	            ]
+	        );
+
+			$custom_email_title = get_post_meta($post->ID, '_custom_email_title', true);
+			if (empty($custom_email_title)) {
+				$custom_email_title = 'Nom du devis';
+				update_post_meta($post->ID, '_custom_email_title', $custom_email_title);
+			}
+
+			$custom_email_banner_text = get_post_meta($post->ID, '_custom_email_banner_text', true);
+			if (empty($custom_email_banner_text)) {
+				$custom_email_banner_text = 'Information du client';
+				update_post_meta($post->ID, '_custom_email_banner_text', $custom_email_banner_text);
+			}
+
+			$custom_email_info_color = get_post_meta($post->ID, '_custom_email_info_color', true);
+			if (empty($custom_email_info_color)) {
+				$custom_email_info_color = '#ea5223';
+				update_post_meta($post->ID, '_custom_email_info_color', $custom_email_info_color);
+			}
+
+			$custom_email_footer_color = get_post_meta($post->ID, '_custom_email_footer_color', true);
+			if (empty($custom_email_footer_color)) {
+				$custom_email_footer_color = '#eeeeee';
+				update_post_meta($post->ID, '_custom_email_footer_color', $custom_email_footer_color);
+			}
+
+			$custom_email_price_color = get_post_meta($post->ID, '_custom_email_price_color', true);
+			if (empty($custom_email_price_color)) {
+				$custom_email_price_color = '#ea5223';
+				update_post_meta($post->ID, '_custom_email_price_color', $custom_email_price_color);
+			}
+
+			$custom_email_footer = get_post_meta($post->ID, '_custom_email_footer', true);
+			if (empty($custom_email_footer)) {
+				$custom_email_footer = 'mini info au cas ou ;)';
+				update_post_meta($post->ID, '_custom_email_footer', $custom_email_footer);
+			}
+
+			?>
+			<link href="<?=DF_DEVIS_URL."styles/default/email-creation.css"?>" rel="stylesheet" />
+			<div class="custom-email-container">
+				<div class="custom-email-page">
+					<table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;padding:20px;">
+					<tr>
+						<td class="_custom_email_title" align="center" style="font-size:30px;font-weight:bold;padding-bottom:20px;">
+						<?=esc_html($custom_email_title)?>
+						</td>
+					</tr>
+					<tr>
+						<td class="_custom_email_footer_color" style="background-color:<?=esc_attr($custom_email_footer_color)?>;padding:10px;">
+						<p class="_custom_email_banner_text _custom_email_info_color" style="font-size:25px;color:#fff;background-color:<?=esc_attr($custom_email_info_color)?>;padding:10px 0;margin:0;text-align:center;">
+							<?=esc_html($custom_email_banner_text)?>
+						</p>
+						<p style="margin:10px 0;color:#555;">
+							<strong>Champ : </strong> Valeur
+						</p>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:20px 0;">
+						<p style="font-size:21px;font-weight:bold;text-align:center;margin-bottom:10px;">Choix du produit</p>
+						<div style="text-align:center;">
+							<img src="https://picsum.photos/200/300" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
+						</div>
+						<p style="font-weight:bold;text-align:center;margin:10px 0 0;">Nom du produit</p>
+						<p style="text-align:center;margin:0;color:#555;">Autre chose</p>
+						<p style="margin:10px 0;color:#555;">Poids: <strong>200kg</strong></p>
+						<p style="margin:10px 0;color:#555;">Hauteur: <strong>1m</strong></p>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:10px 0;">
+						<p style="color:#555;">Ce produit est incroyable!</p>
+						</td>
+					</tr>
+					<tr>
+						<td class="_custom_email_price_color" style="background-color:<?=esc_attr($custom_email_price_color)?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
+						TTC: 50000000 euro
+						</td>
+					</tr>
+					<tr>
+						<td style="padding-top:20px;text-align:center;color:#999;">
+						<p class="_custom_email_footer"><?=esc_html($custom_email_footer)?></p>
+						</td>
+					</tr>
+					</table>
+				</div> 
+				<div class="custom-email-actions">
+					<h2>Modifier le contenu</h2>
+
+					<div class="custom-email-field">
+						<label for="title">Nom du devis</label>
+						<input class="custom-email-input email-input" data-name="_custom_email_title" type="text" id="title" value="<?=esc_attr($custom_email_title)?>">
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+
+					<div class="custom-email-field">
+						<label for="bannerText">Texte bannière</label>
+						<input class="custom-email-input email-input" data-name="_custom_email_banner_text" type="text" id="bannerText" value="<?=esc_attr($custom_email_banner_text)?>">
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+
+					<div class="custom-email-field">
+						<label for="infoColor">Couleur fond "Information du client"</label>
+						<input class="custom-email-input email-bg-color" data-name="_custom_email_info_color" type="color" id="infoColor" value="<?=esc_attr($custom_email_info_color)?>">
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+			
+					<div class="custom-email-field">
+						<label for="footerColor">Couleur Informations</label>
+						<input class="custom-email-input email-bg-color" data-name="_custom_email_footer_color" type="color" id="footerColor" value="<?=esc_attr($custom_email_footer_color)?>">
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+
+					<div class="custom-email-field">
+						<label for="priceColor">Couleur fond TTC</label>
+						<input class="custom-email-input email-bg-color" data-name="_custom_email_price_color" type="color" id="priceColor" value="<?=esc_attr($custom_email_price_color)?>">
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+
+					<div class="custom-email-field">
+						<label for="footer">Texte bas de page</label>
+						<textarea class="custom-email-input email-textarea" data-name="_custom_email_footer" type="text" id="footer" ><?=esc_attr($custom_email_footer)?></textarea>
+						<div class="formulaire-creation-optional-save-info">
+							<div class="custom-email-spinner hidden"></div>
+							<div class="custom-email-save hidden">&#10003;</div>
+							<div class="custom-email-fail hidden">&#10005;</div>
+						</div>
+					</div>
+				</div>
+			</div> <?php
 		}
 
 		function handle_df_devis_send_email() {

@@ -8,6 +8,8 @@ let currentGroup = "Root";
 // media
 let fileFrame = null;
 
+let structure = [];
+
 (function(){
 	container = document.querySelector('.devis-container');
 	devis_steps_container = document.querySelector('.devis-steps-container');
@@ -190,6 +192,20 @@ let fileFrame = null;
 	set_selected_step(0);
 	check_option_add_step_button_name(0);
 	set_max_step_visibility(0);
+
+	structure = {
+		steps: [],
+		types: []
+	};
+	
+	let stepDivs = document.querySelectorAll('.devis-step');
+	stepDivs.forEach((stepDiv, index) => {
+		structure.steps.push({
+			id: stepDiv.dataset.id,
+			index: index+1, // Step index starts at 1
+			name: stepDiv.querySelector('.set-step-name').value
+		});
+	});
 })();
 
 
@@ -692,6 +708,7 @@ async function create_step_type_if_not_exist(next_step_index, group_name, step_i
 			},
 			body: new URLSearchParams({ 
 				action: "df_get_default_type_html",
+				post_id: stepData.postId,
 				type_id: type_id,
 				step_index: next_step_index,
 				group_name: group_name,

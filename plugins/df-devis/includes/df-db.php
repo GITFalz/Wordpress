@@ -737,31 +737,26 @@ function dfdb_create_specific_type($step_id, $type_name, $group_name) {
     global $wpdb;
     $result = dfdb_create_type($step_id, $type_name, $group_name);
     if ($result === false) {
-        throw new DfDevisException
-        ("Failed to create type: " . dfdb_error());
+        throw new DfDevisException("Failed to create type: " . dfdb_error());
     }
     $last_id = $wpdb->insert_id;
     if ($type_name === 'options') {
         $result = dfdb_create_option($last_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default option: " . dfdb_error());
+            throw new DfDevisException("Failed to create default option: " . dfdb_error());
         }
     } elseif ($type_name === 'historique') {
         $result = dfdb_create_history($last_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default history: " . dfdb_error());
+            throw new DfDevisException("Failed to create default history: " . dfdb_error());
         }
-    } elseif ($type_name === 'email') {
+    } elseif ($type_name === 'formulaire') {
         $result = dfdb_create_email($last_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default email: " . dfdb_error());
+            throw new DfDevisException("Failed to create default email: " . dfdb_error());
         }
     } else {
-        throw new DfDevisException
-        ("Unknown type name: $type_name");
+        throw new DfDevisException("Unknown type name: $type_name");
     }
     return $result;
 }
@@ -932,24 +927,34 @@ function dfdb_get_types($step_id) {
     return $wpdb->get_results( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_TYPES . " WHERE step_id = %d ORDER BY id ASC", $step_id) );
 }
 
-function dfdb_get_options($post_id) { // Returns all the options for a given post ordered by step index and type id
+function dfdb_get_options($post_id) { // Returns all the options for a given post ordered by step index, step id and type id
     global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, o.id ASC", $post_id) );
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, s.id AS step_id, t.id AS type_id, t.type_name, t.group_name as group_name, o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, o.id ASC", $post_id) );
 }
 
-function dfdb_get_history($post_id) { // Returns all the history for a given post ordered by step index and type id
+function dfdb_get_option_by_activate_group_and_post($activate_group, $post_id) {
     global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, h.id ASC", $post_id) );
+    return $wpdb->get_row( $wpdb->prepare("SELECT o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE o.activate_group = %s AND s.post_id = %d", $activate_group, $post_id) );
 }
 
-function dfdb_get_email($post_id) { // Returns all the email for a given post ordered by step index and type id
+function dfdb_get_history($post_id) { // Returns all the history for a given post ordered by step index, step id and type id
     global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, t.id AS type_id, t.type_name, t.group_name as group_name, e.* FROM " . DFDEVIS_TABLE_EMAIL . " e INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, e.id ASC", $post_id) );
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, s.id AS step_id, t.id AS type_id, t.type_name, t.group_name as group_name, h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, h.id ASC", $post_id) );
+}
+
+function dfdb_get_history_by_activate_group_and_post($activate_group, $post_id) {
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT h.* FROM " . DFDEVIS_TABLE_HISTORY . " h INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON h.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE h.activate_group = %s AND s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, h.id ASC", $activate_group, $post_id) );
+}
+
+function dfdb_get_email($post_id) { // Returns all the email for a given post ordered by step index, step id and type id
+    global $wpdb;
+    return $wpdb->get_results( $wpdb->prepare("SELECT s.step_index, s.id AS step_id, t.id AS type_id, t.type_name, t.group_name as group_name, e.* FROM " . DFDEVIS_TABLE_EMAIL . " e INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON e.type_id = t.id INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC, e.id ASC", $post_id) );
 }
 
 function dfdb_get_post_types($post_id) {
     global $wpdb;
-    return $wpdb->get_results( $wpdb->prepare(" SELECT s.step_index, t.* FROM " . DFDEVIS_TABLE_TYPES . " t INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC", $post_id) );
+    return $wpdb->get_results( $wpdb->prepare(" SELECT s.step_index, s.id AS step_id, t.* FROM " . DFDEVIS_TABLE_TYPES . " t INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE s.post_id = %d ORDER BY s.step_index ASC, t.id ASC", $post_id) );
 }
 
 function dfdb_get_type_options($type_id) {
@@ -980,6 +985,11 @@ function dfdb_get_option($option_id) {
 function dfdb_get_options_activate_group($option_id) {
     global $wpdb;
     return $wpdb->get_var( $wpdb->prepare("SELECT activate_group FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE id = %d", $option_id) );
+}
+
+function dfdb_get_type_by_group_and_post($group_name, $post_id) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_TYPES . " t INNER JOIN " . DFDEVIS_TABLE_STEPS . " s ON t.step_id = s.id WHERE t.group_name = %s AND s.post_id = %d", $group_name, $post_id) );
 }
 
 function dfdb_get_history_type_id($history_id) {
@@ -1033,6 +1043,11 @@ function dfdb_error() {
 
 
 /* UNINSTALL FUNCTIONS */
+function dfdb_delete_type($type_id) {
+    global $wpdb;
+    return $wpdb->delete(DFDEVIS_TABLE_TYPES, ['id' => $type_id]);
+}
+
 function dfdb_delete_types_by_group($type_id, $group_name) {
     global $wpdb;
     return $wpdb->delete(DFDEVIS_TABLE_TYPES, ['id' => $type_id, 'group_name' => $group_name]);
@@ -1104,8 +1119,7 @@ function handle_dfdb_delete_step() {
         $step_index = intval($_POST['step_index']);
 
         if ($post_id <= 0 || $step_id <= 0 || $step_index < 0) {
-            throw new DfDevisException
-            ("Invalid post ID, step ID or step index");
+            throw new DfDevisException("Invalid post ID, step ID or step index");
         }
 
         // Delete all steps that come after the step to delete
@@ -1114,8 +1128,7 @@ function handle_dfdb_delete_step() {
             if ($step->step_index > $step_index) {
                 $result = dfdb_delete_step($step->id);
                 if ($result === false) {
-                    throw new DfDevisException
-                    ("Failed to delete step: " . dfdb_error());
+                    throw new DfDevisException("Failed to delete step: " . dfdb_error());
                 }
             }
         }
@@ -1123,8 +1136,7 @@ function handle_dfdb_delete_step() {
         // Delete the step itself
         $result = dfdb_delete_step($step_id);
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to delete step: " . dfdb_error());
+            throw new DfDevisException("Failed to delete step: " . dfdb_error());
         }
 
         wp_send_json_success(['message' => 'Step deleted successfully']);
@@ -1189,16 +1201,26 @@ function dfdb_generate_types_not_in_use($post_id) {
     foreach ($steps as $step) {
         $types = dfdb_get_types($step->id);
         $step_index = intval($step->step_index);
+        // if types is empty, we can just delete the step
+        if (empty($types)) {
+            $result = dfdb_delete_step($step->id);
+            if ($result === false) {
+                throw new DfDevisException("Failed to delete step: " . dfdb_error());
+            }
+            continue;
+        }
+
         foreach ($types as $type) {
             $type_id = intval($type->id);
             $type_name = sanitize_text_field($type->type_name);
+            
             if ($type_name !== 'options') {
                 dfdb_generate_missing_options($type_id);
             }
             if ($type_name !== 'historique' && $step_index > 0) {
                 dfdb_generate_missing_history($type_id);
             }
-            if ($type_name !== 'email' && $step_index > 0) {
+            if ($type_name !== 'formulaire' && $step_index > 0) {
                 dfdb_generate_missing_email($type_id);
             }
         }
@@ -1210,8 +1232,7 @@ function dfdb_generate_missing_options($type_id) {
     if (empty($options)) {
         $result = dfdb_create_option($type_id, 'Option');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default option: " . dfdb_error());
+            throw new DfDevisException("Failed to create default option: " . dfdb_error());
         }
     }
 }
@@ -1221,8 +1242,7 @@ function dfdb_generate_missing_history($type_id) {
     if (empty($history)) {
         $result = dfdb_create_history($type_id, 'Historique');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default history: " . dfdb_error());
+            throw new DfDevisException("Failed to create default history: " . dfdb_error());
         }
     }
 }
@@ -1232,8 +1252,7 @@ function dfdb_generate_missing_email($type_id) {
     if (empty($email)) {
         $result = dfdb_create_email($type_id, 'Email');
         if ($result === false) {
-            throw new DfDevisException
-            ("Failed to create default email: " . dfdb_error());
+            throw new DfDevisException("Failed to create default email: " . dfdb_error());
         }
     }
 }
@@ -1267,82 +1286,33 @@ function handle_dfdb_remove_unused_data() {
                 throw new DfDevisException("Failed to delete unused email: " . dfdb_error());
             }
 
-            // Get every option of the post
-            $options = dfdb_get_options($post_id);
-            $history = dfdb_get_history($post_id);
+            // Get every post types associated with the post
             $types = dfdb_get_post_types($post_id);
+            
+            foreach ($types as $type) {
+                $type_id = intval($type->id);
+                $group_name = sanitize_text_field($type->group_name);
 
-            // check if there are any types associated with the option's activate_group
-            foreach ($options as $option) {
-                foreach ($types as $type) {
-                    if ($option->activate_group === $type->group_name) {
-                        continue 2; // If a type is found with the same activate_group, we can skip this option
-                    }
+                // If the group name is Root, we can skip it
+                if ($group_name === 'Root') {
+                    continue;
                 }
 
-                // If no types are found, we need to create a formulaire type that is a follow-up of the option
-                // Get the step index if the option
-                $step_index = dfdb_get_option_step_index($option->id);
-                if ($step_index === null) {
-                    throw new DfDevisException("Option does not have a step index >:(");
-                }
+                $activate_option = dfdb_get_option_by_activate_group_and_post($group_name, $post_id);
+                $activate_history = dfdb_get_history_by_activate_group_and_post($group_name, $post_id);
 
-                // Check if a step exists with a step index of $step_index + 1
-                $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
-                if ($next_step === null) {
-                    // If no step exists with a step index of $step_index + 1, we need to create a new step
-                    $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
+                // If no activation option or history is found, we can delete the type
+                if (!$activate_option && !$activate_history) {
+                    $result = dfdb_delete_type($type_id);
                     if ($result === false) {
-                        throw new DfDevisException("Failed to create step: " . dfdb_error());
+                        throw new DfDevisException("Failed to delete type: " . dfdb_error());
                     }
-                    $step_id = dfdb_id(); // Get the newly created step ID
-                } else {
-                    $step_id = $next_step->id;
-                }
-
-                $result = dfdb_create_type($step_id, 'formulaire', $option->activate_group);
-                if ($result === false) {
-                    throw new DfDevisException("Failed to create type for option: " . dfdb_error());
-                }
-            }
-
-            // check if there are any types associated with the history's activate_group
-            foreach ($history as $hist) {
-                foreach ($types as $type) {
-                    if ($hist->activate_group === $type->group_name) {
-                        continue 2; // If a type is found with the same activate_group, we can skip this history
-                    }
-                }   
-                
-                // If no types are found, we need to create a historique type that is a follow-up of the history
-                // Get the step index if the history
-                $step_index = dfdb_get_option_step_index($hist->id);
-                if ($step_index === null) {
-                    throw new DfDevisException("History does not have a step index >:(");
-                }
-
-                // Check if a step exists with a step index of $step_index + 1
-                $next_step = dfdb_get_step_by_index($post_id, $step_index + 1);
-                if ($next_step === null) {
-                    // If no step exists with a step index of $step_index + 1, we need to create a new step
-                    $result = dfdb_create_step('Etape ' . ($step_index + 1), $step_index + 1, $post_id);
-                    if ($result === false) {
-                        throw new DfDevisException("Failed to create step:  " . dfdb_error());
-                    }
-                    $step_id = dfdb_id(); // Get the newly created step ID
-                } else {
-                    $step_id = $next_step->id;
-                }
-
-                $result = dfdb_create_type($step_id, 'historique', $hist->activate_group);
-                if ($result === false) {
-                    throw new DfDevisException("Failed to create type for history: " . dfdb_error());
                 }
             }
         }
 
-        // Get all the steps in the db
-        $steps = dfdb_get_all_steps();
+        // Get all the steps in the db by post ID
+        $steps = dfdb_get_steps($post_id);
 
         // check if the post associated with the step exists
         foreach ($steps as $step) {
@@ -1358,7 +1328,6 @@ function handle_dfdb_remove_unused_data() {
                 }
             }
         }
-
 
         wp_send_json_success(['message' => 'Unused data deleted successfully']);
         wp_die();
