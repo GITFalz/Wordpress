@@ -627,8 +627,13 @@ if ( ! class_exists( 'DFDevis' ) )
 					<p style="font-size:25px;color:#fff;background-color:#ea5223;padding:10px 0;margin:0;text-align:center;">
 						Information du client
 					</p>
-					<p style="margin:10px 0;color:#555;">Nom complet: <strong>Schinkel Bjornar</strong></p>
-					<p style="margin:10px 0;color:#555;">Téléphone: <strong>0675916364</strong></p>
+					<?php foreach ($data as $field): ?>
+						<?php if (!empty($field['label']) && isset($field['value'])): ?>
+							<p style="margin:10px 0;color:#555;">
+								<strong><?php echo esc_html($field['label']); ?> : </strong> <?php echo nl2br(esc_html($field['value'])); ?>
+							</p>
+						<?php endif; ?>
+					<?php endforeach; ?>
 					</td>
 				</tr>
 				<tr>
