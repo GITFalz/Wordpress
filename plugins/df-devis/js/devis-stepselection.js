@@ -362,6 +362,7 @@ function formulaire_send_email(element) {
 			if (fileInput && fileInput.files.length > 0) {
 				Array.from(fileInput.files).forEach((file, index) => {
 					formData.append('files[]', file);
+					console.log(`File ${index + 1}:`, file.name);
 				});
 			}
 		}

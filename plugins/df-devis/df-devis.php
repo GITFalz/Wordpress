@@ -589,6 +589,13 @@ if ( ! class_exists( 'DFDevis' ) )
 				}
 			}
 
+			// error log attachments
+			if (!empty($attachments)) {
+				error_log("Attachments: " . implode(', ', $attachments));
+			} else {
+				error_log("No attachments found.");
+			}
+
 			$result1 = wp_mail($email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
 			$result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
 
