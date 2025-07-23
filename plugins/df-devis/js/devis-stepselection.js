@@ -349,22 +349,27 @@ function formulaire_send_email(element) {
 		}
 	});
 
-	console.log("Sending email with data:", data);
-	console.log("Email address:", email);
-	console.log("Formulaire ID:", formulaire.dataset.id);
-	console.log("Post ID:", container.dataset.postid);
+	const formData = new FormData();
+	formData.append('action', 'df_devis_send_email');
+	formData.append('post_id', container.dataset.postid);
+	formData.append('email', email);
+	formData.append('data', JSON.stringify(data));
+
+	formulaireFields.forEach((field) => {
+		const type = field.dataset.type;
+		if (type === 'default_file') {
+			const fileInput = field.querySelector('.formulaire-file');
+			if (fileInput && fileInput.files.length > 0) {
+				Array.from(fileInput.files).forEach((file, index) => {
+					formData.append('files[]', file);
+				});
+			}
+		}
+	});
 
 	fetch(stepData.ajaxUrl, {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded'
-		},
-		body: new URLSearchParams({
-			action: 'df_devis_send_email',
-			post_id: container.dataset.postid,
-			data: JSON.stringify(data),
-			email: email
-		})
+		body: formData
 	})	
 	.then(res => res.json())
 	.then(data => {
