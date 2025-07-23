@@ -564,18 +564,33 @@ if ( ! class_exists( 'DFDevis' ) )
 			}
 
 			$subject = 'Devis de ' . get_the_title($post_id);
-			$body = 'Voici les détails de votre devis :<br><br>';
+			$body = $this->get_email($data);
+			$attachments = [];
 
+			/*
 			foreach ($data as $field) {
 				if (!empty($field['label']) && isset($field['value'])) {
 					$body .= '<strong>' . esc_html($field['label']) . ':</strong> ' . nl2br(esc_html($field['value'])) . '<br>';
 				}
 			}
+				*/
 
-			$body .= '<br>Merci de votre intérêt !';
+			// Handle file uploads
+			if (!empty($_FILES['files'])) {
+				foreach ($_FILES['files']['tmp_name'] as $index => $tmp_name) {
+					if (is_uploaded_file($tmp_name)) {
+						$name = sanitize_file_name($_FILES['files']['name'][$index]);
+						$upload = wp_upload_bits($name, null, file_get_contents($tmp_name));
 
-			$result1 = wp_mail($email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
-			$result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8']);
+						if (!$upload['error']) {
+							$attachments[] = $upload['file']; // add to email
+						}
+					}
+				}
+			}
+
+			$result1 = wp_mail($email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
+			$result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
 
 			if (!$result1 || !$result2) {
 				wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.']);
@@ -587,6 +602,242 @@ if ( ! class_exists( 'DFDevis' ) )
 
 			wp_send_json_success(['message' => 'Email sent successfully']);
 			wp_die();
+		}
+
+		function get_email($data) {
+			ob_start(); ?>
+			<!DOCTYPE html>
+			<html lang="fr">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Votre Devis est Prêt !</title>
+				<style type="text/css">
+				
+					body {
+						width: 100%;
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+					}
+				
+					.devis-container {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						width: 600px;
+					}
+				
+					.devis-header-container {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 100%;
+						padding: 10px 0;
+					}
+					
+					.devis-header-container p {
+						font-size: 30px;
+						font-weight: bold;
+					}
+					
+					.devis-info-container {
+						display: flex;
+						background-color: #eeeeee;
+						width: 100%;
+					}
+					
+					.devis-info-list {
+						display: flex;
+						flex-direction: column;
+						align-items: start;
+						width: 100%;
+						margin-top: 0;
+						padding-bottom: 20px;
+					}
+					
+					.devis-info-list > p {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						background-color: #ea5223;
+						width: 100%;
+						margin-top: 0;
+						margin-bottom: 0;
+						padding: 10px 0;
+						color: #fff;
+						font-size: 25px;
+					}
+					
+					.devis-info-element {
+						display: flex;
+						padding-left: 10px;
+						gap: 10px;
+						height: 20px;
+						width: 100%;
+					}
+				
+					
+					.devis-info-element p {
+						color: #555555;
+					}
+					
+					.devis-product-container {
+						display: flex;
+						flex-direction: column;
+						width: 100%;
+						padding: 10px;
+					}
+					
+					.devis-product-container > p {
+						width: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						font-size: 21px;
+						font-weight: bold;
+					}
+					
+					.devis-product {
+						width: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						flex-direction: column;
+					}
+					
+					.devis-product-visual {
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+					}
+					
+					.devis-product-visual p {
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+						color: #555555;
+					}
+					
+					.devis-product-visual p:first-child {
+						font-weight: bold;
+					}
+					
+					.devis-product-info-list {
+						width: 100%;
+						padding: 0 10px;
+					}
+					
+					.devis-product-info {
+						display: flex;
+						gap: 10px;
+						height: 30px;
+						padding: 0 10px;
+					}
+					
+					.devis-product-info p:first-child {
+						font-weight: bold;
+					}
+					
+					.devis-product-info p {
+						color: #555555;
+					}
+					
+					.devis-description-container {
+						display: flex;
+						justify-content: start;
+						width: 100%;
+					}
+					
+					.devis-price-container {
+						background-color: #ea5223;
+						width: 100%;
+						display: flex;
+						justify-content: center;
+						color: #ffffff;
+						font-size: 30px;
+					}
+					
+					footer {
+						width: 100%;
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+					}
+					
+					.devis-footer {
+						display: flex;
+						justify-content: start;
+						align-items: center;
+						padding: 10px;
+						width: 600px;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="devis-container">
+					<div class="devis-header-container">
+						<div class="devis-header">
+							<p>Nom du devis</p>
+						</div>
+					</div>
+					<div class="devis-info-container">
+						<div class="devis-info-list">
+							<p>Information du client</p>
+							<div class="devis-info-element">
+								<p>Nom complet</p>
+								<p>Schinkel Bjornar</p>
+							</div>
+							<div class="devis-info-element">
+								<p>Numero de téléphone</p>
+								<p>0675916364</p>
+							</div>
+						</div>
+					</div>
+					<div class="devis-product-container">
+						<p>Choix du produit</p>
+						<div class="devis-product">
+							<div class="devis-product-visual">
+								<img src="https://picsum.photos/200/300"/>
+								<div class="devis-product-name">
+									<p>Nom du produit</p>
+									<p>Autre chose</p>    
+								</div>
+							</div>
+							<div class="devis-product-info-list">
+								<div class="devis-product-info">
+									<p>Poids</p>
+									<p>200kg</p>
+								</div>
+								<div class="devis-product-info">
+									<p>Hauteur</p>
+									<p>1m</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="devis-description-container">
+						<p>
+							Ce produit est incroyable!
+						</p>
+					</div>
+					<div class="devis-price-container">
+						<p class="devis-ttc-price">TTC: 50000000 euro</p>
+					</div>
+				</div>
+			</body>
+			<footer>
+				<div class="devis-footer">
+					<p>mini info au cas ou ;)</p>   
+				</div>
+			</footer>
+			</html>; <?php
+			return ob_get_clean();
 		}
 
 		function render_info_perso_meta_box($post) {
