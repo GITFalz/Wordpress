@@ -260,7 +260,7 @@ async function get_step_by_group(postid, step_index, group_name) {
 
 function formulaire_send_email(element) {
 	let data = [];
-	let formulaire = element.parentElement.parentElement;
+	let formulaire = element.closest('.formulaire');	
 	let formulaireFields = formulaire.querySelectorAll('.formulaire-field');
 	let email = "";
 
@@ -324,7 +324,7 @@ function formulaire_send_email(element) {
 			}
 		}
 
-		else if (type === 'default_select') {
+		else if (type === 'region_select') {
 			const select = field.querySelector('.formulaire-select');
 			if (select) {
 				const selected = Array.from(select.selectedOptions).map(opt => opt.value);
@@ -337,7 +337,7 @@ function formulaire_send_email(element) {
 			}
 		}
 
-		else if (type === 'default_radio') {
+		else if (type === 'region_radio') {
 			const radios = field.querySelectorAll('.formulaire-radio');
 			const checked = Array.from(radios).find(radio => radio.checked);
 			if (checked) {
@@ -349,9 +349,12 @@ function formulaire_send_email(element) {
 		}
 	});
 
+	console.log("Collected data:", data);
+
 	const formData = new FormData();
 	formData.append('action', 'df_devis_send_email');
 	formData.append('post_id', container.dataset.postid);
+	formData.append('email_id', formulaire.dataset.id);
 	formData.append('email', email);
 	formData.append('data', JSON.stringify(data));
 

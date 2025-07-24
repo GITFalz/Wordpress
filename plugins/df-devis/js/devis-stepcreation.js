@@ -178,6 +178,21 @@ let fileFrame = null;
 			let save_info = e.target.parentElement.querySelector('.devis-save-info');
 			change_post_data_value('_devis_owner_email', email, save_info);
 		}
+		if (e.target.classList.contains('formulaire-product-input')) {
+			// change the name attribute with the text of the input
+			let name = e.target.value;	
+			let product_list = e.target.closest('.formulaire-product-selection').querySelector('.formulaire-product-list');
+			get_woocommerce_products(name, product_list);
+		}
+		if (e.target.classList.contains('formulaire-product-extra-name') || e.target.classList.contains('formulaire-product-extra-value')) {
+			let extra_item = e.target.closest('.formulaire-product-extra-item');
+			let id = parseInt(extra_item.closest('.formulaire').dataset.id);
+			clearTimeout(debounceMap.get(id + "_" + extra_item.dataset.key));
+			let timeout = setTimeout(() => {
+				update_formulaire_product(extra_item);
+			}, 2000);
+			debounceMap.set(id + "_" + extra_item.dataset.key, timeout);
+		}
 	});
 
 	/* This part is to ensure that when leaving the editing page, you remove the excess data from the database that isn't going to be used anyways */
@@ -192,7 +207,6 @@ let fileFrame = null;
 	check_option_add_step_button_name(0);
 	set_max_step_visibility(0);
 	check_step_validation("Root");
-	get_woocommerce_products();
 })();
 
 function change_post_data_value(line, value, save_info) {
@@ -856,7 +870,11 @@ function dfdb_remove_step(element) {
 	});
 }
 
-function get_woocommerce_products() {
+function get_woocommerce_products(name, product_list, page_number = 1) {
+	if (name === '' || name === undefined) {
+		return;
+	}
+
 	fetch(stepData.ajaxUrl, {
 		method: "POST",
 		headers: {
@@ -864,20 +882,40 @@ function get_woocommerce_products() {
 		},
 		body: new URLSearchParams({ 
 			action: "df_get_woocommerce_products",
-			name: '',
+			name: name,
 			p_per_page: 10,
-			page_number: 1
+			page_number: page_number
 		})
 	})
 	.then(res => res.json())
 	.then(data => {
-		if (!data.success) {
+		if (!data.success && data.data.message !== "WooCommerce is not active.") {
 			console.error(data.data.message);
 			return false;
 		}
 
 		let products = data.data.products;
-		console.log("WooCommerce Products:", products);
+		// if is undefined, create some makeshift products for testing
+		if (!products || products.length === 0) {
+			products = [
+				{ ID: 1, Image: 'https://picsum.photos/id/237/200/300', Name: 'Test Product 1', Description: 'This is a test product 1' },
+				{ ID: 2, Image: 'https://picsum.photos/id/238/200/300', Name: 'Test Product 2', Description: 'This is a test product 2' },
+				{ ID: 3, Image: 'https://picsum.photos/id/239/200/300', Name: 'Test Product 3', Description: 'This is a test product 3' },
+				{ ID: 4, Image: 'https://picsum.photos/id/240/200/300', Name: 'Test Product 4', Description: 'This is a test product 4' },
+				{ ID: 5, Image: 'https://picsum.photos/id/241/200/300', Name: 'Test Product 5', Description: 'This is a test product 5' },
+				{ ID: 6, Image: 'https://picsum.photos/id/242/200/300', Name: 'Test Product 6', Description: 'This is a test product 6' },
+				{ ID: 7, Image: 'https://picsum.photos/id/243/200/300', Name: 'Test Product 7', Description: 'This is a test product 7' },
+				{ ID: 8, Image: 'https://picsum.photos/id/244/200/300', Name: 'Test Product 8', Description: 'This is a test product 8' },
+				{ ID: 9, Image: 'https://picsum.photos/id/236/200/300', Name: 'Test Product 9', Description: 'This is a test product 9' },
+				{ ID: 10, Image: 'https://picsum.photos/id/235/200/300', Name: 'Test Product 10', Description: 'This is a test product 10' }
+			];
+		}
+		product_list.innerHTML = ''; // Clear previous products
+		for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+            let div = get_woocommerce_product_html(product);
+            product_list.appendChild(div);
+        }
 	})
 	.catch(err => {
 		console.error("Error fetching WooCommerce products:", err);
@@ -1227,4 +1265,264 @@ function create_step_info(step_index) {
 	step_info.classList.add('hidden');
 	step_info.dataset.stepindex = step_index;
 	return step_info;
+}
+
+function add_field_formulaire(button) {
+	let formulaire_element = button.closest('.formulaire');
+	if (!formulaire_element) {
+		console.error("Formulaire element does not exist.");
+		return;
+	}
+
+	let formulaire_product_extra_list = formulaire_element.querySelector('.formulaire-product-extra-list');
+	if (!formulaire_product_extra_list) {
+		console.error("Formulaire product extra list does not exist.");
+		return;
+	}
+
+	let id = parseInt(formulaire_element.dataset.id);
+	if (!id) {
+		console.error("Formulaire element does not have a valid ID.");
+		return;
+	}
+
+	let extraItems = formulaire_product_extra_list.querySelectorAll('.formulaire-product-extra-item');
+	let count = extraItems.length;
+	let key = 'extra_' + count;
+
+	let div = document.createElement('div');
+	div.className = 'formulaire-product-extra-item';
+	div.dataset.key = key;
+	
+	let nameInput = document.createElement('input');
+	nameInput.type = 'text';
+	nameInput.placeholder = 'Nom du champ';
+	nameInput.className = 'formulaire-product-extra-name';
+	
+	let valueInput = document.createElement('input');
+	valueInput.type = 'text';
+	valueInput.placeholder = 'Valeur du champ';
+	valueInput.className = 'formulaire-product-extra-value';
+	
+	let removeButton = document.createElement('button');
+	removeButton.type = 'button';
+	removeButton.className = 'formulaire-product-extra-remove';
+	removeButton.textContent = 'X';
+
+	div.appendChild(nameInput);
+	div.appendChild(valueInput);
+	div.appendChild(removeButton);
+	
+	update_formulaire_product_extra(id, key, nameInput.value, valueInput.value, function(data) {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+
+		let removeButton = div.querySelector('.formulaire-product-extra-remove');
+		if (!removeButton) {
+			console.error("Remove button does not exist in the extra item.");
+			return;
+		}
+		removeButton.addEventListener('click', function() {
+			remove_product_formulaire_extra(this);
+		});
+
+		formulaire_product_extra_list.appendChild(div);
+	});
+}
+
+function remove_product_formulaire(button) {
+	let div = button.closest('.formulaire-product-item');
+	remove_woocommerce_product(div);
+}
+
+function remove_product_formulaire_extra(button) {
+	let div = button.closest('.formulaire-product-extra-item');
+	let key = div.dataset.key;
+	let formulaire_element = div.closest('.formulaire');
+	let id = parseInt(formulaire_element.dataset.id);
+	remove_formulaire_product_extra(id, key, function(data) {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+		div.remove();
+	});
+}
+
+function update_formulaire_product(extra_item) {
+	let nameInput = extra_item.querySelector('.formulaire-product-extra-name');
+	let valueInput = extra_item.querySelector('.formulaire-product-extra-value');
+	let key = extra_item.dataset.key;
+	let id = parseInt(extra_item.closest('.formulaire').dataset.id);
+	update_formulaire_product_extra(id, key, nameInput.value, valueInput.value, function(data) {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+	});
+}
+
+function update_formulaire_product_extra(id, key, name, value, callback) {
+	fetch(stepData.ajaxUrl, {
+		method: "POST",	
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_add_email_product_data",
+			email_id: id,
+			key: key,
+			name: name,
+			value: value
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		callback(data); // Call the callback function with the response data
+	})
+	.catch(err => {
+		console.error("Error updating formulaire product extra:", err);
+	});
+}
+
+function remove_formulaire_product_extra(id, key, callback) {
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_remove_email_product_data",
+			email_id: id,
+			key: key
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		callback(data); // Call the callback function with the response data
+	})
+	.catch(err => {
+		console.error("Error removing formulaire product extra:", err);
+	});
+}
+
+function select_woocommerce_product(product_div) {
+	let formulaire_element = product_div.closest('.formulaire');
+	let id = parseInt(formulaire_element.dataset.id);
+	if (!id) {
+		console.error("Formulaire element does not have a valid ID.");
+		return;
+	}
+
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_set_email_product_data",
+			email_id: id,
+			product_id: product_div.dataset.productId,
+			product_name: product_div.querySelector('.formulaire-product-name').textContent,
+			product_description: product_div.querySelector('.formulaire-product-description').textContent,
+			product_image: product_div.querySelector('.formulaire-product-image').src
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+
+		let selected_product_div = formulaire_element.querySelector('.formulaire-selected-product');
+		selected_product_div.innerHTML = ''; // Clear previous selection
+		selected_product_div.appendChild(product_div.cloneNode(true)); // Clone the selected product div
+
+		let new_product_div = selected_product_div.querySelector('.formulaire-product-item');
+
+		let deleteButton = document.createElement('button');
+		deleteButton.type = 'button';
+		deleteButton.className = 'formulaire-product-remove';
+		deleteButton.textContent = 'X';
+		deleteButton.addEventListener('click', function() {
+			remove_woocommerce_product(new_product_div);
+		});
+
+		new_product_div.appendChild(deleteButton);
+		new_product_div.removeEventListener('click', select_woocommerce_product);
+	});
+}
+
+function remove_woocommerce_product(product_div) {
+	let formulaire_element = product_div.closest('.formulaire');
+	let id = parseInt(formulaire_element.dataset.id);
+	if (!id) {
+		console.error("Formulaire element does not have a valid ID.");
+		return;
+	}
+
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({
+			action: "dfdb_set_email_product_data",
+			email_id: id,
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return;
+		}
+
+		product_div.remove(); // Remove the product div from the DOM
+	});
+}
+
+function get_woocommerce_product_html(product, can_be_selected = true) {
+    let div = document.createElement('div');
+    div.dataset.productId = product.ID;
+    if (can_be_selected) {
+        div.addEventListener('click', function() {
+            select_woocommerce_product(this);
+        });
+    }
+    div.className = 'formulaire-product-item';
+
+    let image_element = document.createElement('img');
+    image_element.src = product.Image === false ? "https://ui-avatars.com/api/?name=i+g&size=250" : product.Image;
+    image_element.alt = product.Name;
+    image_element.className = 'formulaire-product-image';
+
+	let text_div = document.createElement('div');
+	text_div.className = 'formulaire-product-text';
+
+    let name_element = document.createElement('p');
+    name_element.textContent = product.Name;
+    name_element.className = 'formulaire-product-name';
+
+    let description_element = document.createElement('p');
+    description_element.innerHTML = product.Description;
+    description_element.className = 'formulaire-product-description';
+
+    text_div.appendChild(name_element);
+    text_div.appendChild(description_element);
+    div.appendChild(image_element);
+    div.appendChild(text_div);
+
+	/*
+    if (can_be_selected && selected_product_ids[product.ID]) {
+        div.classList.add('product-selected');
+    } else {
+        div.classList.remove('product-selected');
+    }
+		*/
+
+    return div;
 }

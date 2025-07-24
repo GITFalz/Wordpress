@@ -369,6 +369,7 @@ if ( ! class_exists( 'DFDevis' ) )
 					'info' => $email->info,
 					'group_name' => $email->group_name,
 					'type_id' => $email->type_id,
+					'product_data' => json_decode($email->product_data, true) ?: [],
 				];
 			}
 
@@ -718,12 +719,13 @@ if ( ! class_exists( 'DFDevis' ) )
 		}
 
 		function handle_df_devis_send_email() {
-			if ( ! isset($_POST['post_id']) || ! isset($_POST['email']) || ! isset($_POST['data']) || empty($_POST['email']) ) {
+			if ( ! isset($_POST['post_id']) || ! isset($_POST['email_id']) || ! isset($_POST['email']) || ! isset($_POST['data']) || empty($_POST['email']) ) {
 				wp_send_json_error(['message' => 'Missing or invalid data']);
 				wp_die();
 			}
 
 			$post_id = intval($_POST['post_id']);
+			$email_id = intval($_POST['email_id']);
 			$email = sanitize_email($_POST['email']);
 			$data = isset($_POST['data']) ? json_decode(stripslashes($_POST['data']), true) : [];
 
@@ -732,6 +734,8 @@ if ( ! class_exists( 'DFDevis' ) )
 				wp_send_json_error(['message' => 'Post not found']);
 				wp_die();
 			}
+
+			$product_data = dfdb_get_email_product_data($email_id);
 
 			$owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 
@@ -743,7 +747,7 @@ if ( ! class_exists( 'DFDevis' ) )
 			}
 
 			$subject = 'Devis de ' . get_the_title($post_id);
-			$body = $this->get_email($data);
+			$body = $this->get_email($data, $product_data);
 			$attachments = [];
 
 			/*
@@ -790,7 +794,7 @@ if ( ! class_exists( 'DFDevis' ) )
 			wp_die();
 		}
 
-		function get_email($data) {
+		function get_email($data, $product_data) {
 			ob_start(); ?>
 			<!DOCTYPE html>
 			<html>
@@ -823,8 +827,13 @@ if ( ! class_exists( 'DFDevis' ) )
 					</div>
 					<p style="font-weight:bold;text-align:center;margin:10px 0 0;">Nom du produit</p>
 					<p style="text-align:center;margin:0;color:#555;">Autre chose</p>
-					<p style="margin:10px 0;color:#555;">Poids: <strong>200kg</strong></p>
-					<p style="margin:10px 0;color:#555;">Hauteur: <strong>1m</strong></p>
+					<?php if ($product_data && isset($product_data['extras'])): ?>
+						<?php foreach ($product_data['extras'] as $extra): ?>
+							<p style="margin:10px 0;color:#555;">
+								<strong><?php echo esc_html($extra['name']); ?> : </strong> <?php echo nl2br(esc_html($extra['value'])); ?>
+							</p>
+						<?php endforeach; ?>
+					<?php endif; ?>
 					</td>
 				</tr>
 				<tr>

@@ -45,7 +45,7 @@ function handle_df_get_woocommerce_products() {
         $page_number = intval($_POST['page_number']);
 
         if (empty($name)) {
-            throw new DfNutricodeException('Product name cannot be empty.', ['action' => 'get_products']);
+            throw new DfDevisException('Product name cannot be empty.', ['action' => 'get_products']);
         }
 
         if (!class_exists('WooCommerce')) {
@@ -55,7 +55,7 @@ function handle_df_get_woocommerce_products() {
         $data = df_get_woocommerce_products($name, $p_per_page, $page_number);
         wp_send_json_success(['type' => 'real', 'data' => $data]);
         wp_die();
-    } catch (DfNutricodeException $e) {
+    } catch (DfDevisException $e) {
         wp_send_json_error([
             'message' => $e->getMessage(),
             'context' => $e->getContext()

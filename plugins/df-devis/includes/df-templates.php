@@ -338,7 +338,7 @@ function handle_df_get_history_html_by_step_and_group() {
 add_action('wp_ajax_df_get_history_html_by_step_and_group', 'handle_df_get_history_html_by_step_and_group');
 
 /* EMAIL HTML GENERATION */
-function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden, $is_customizable = true) {
+function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden, $product_data, $is_customizable = true) {
     
     $post = get_post($post_id);
     $custom_fields = get_post_meta($post->ID, '_devis_custom_fields', true);
@@ -346,15 +346,52 @@ function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hid
     
     ob_start(); ?>
     <?php if ($is_customizable): ?>
-        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
+        <div data-id="<?=$email_id?>" class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
             <h2 class="formulaire-title">Formulaire</h2>		
-            <div class="formulaire-produit">
-                <p class="formulaire-produit-label">Produit:</p>
-                
+            <div class="formulaire-product-info">
+                <div class="formulaire-produit">
+                    <div class="formulaire-product-details">
+                        <p class="formulaire-produit-label">Produit:</p>
+                        <div class="formulaire-selected-product">
+                            <?php if (!empty($product_data['name'])): ?>
+                                <div class="formulaire-product-item">
+                                    <img class="formulaire-product-image" src="<?=esc_url($product_data['image'])?>" alt="Product Image">
+                                    <div class="formulaire-product-text">
+                                        <p class="formulaire-product-name"><?=esc_html($product_data['name'])?></p>
+                                        <p class="formulaire-product-description"><?=esc_html($product_data['description'])?></p>
+                                    </div>
+                                    <button type="button" class="formulaire-product-remove" onclick="remove_product_formulaire(this)">X</button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="formulaire-product-extras">
+                        <div class="formulaire-product-extra-actions">
+                            <button type="button" class="formulaire-product-add-extra" onclick="add_field_formulaire(this)">Ajouter un champ</button>
+                        </div>
+                        <div class="formulaire-product-extra-list">
+                            <?php if (!empty($product_data['extras'])): ?>
+                                <?php foreach ($product_data['extras'] as $key => $extra): ?>
+                                    <div class="formulaire-product-extra-item" data-key="<?=$key?>">
+                                        <input type="text" class="formulaire-product-extra-name" placeholder="Nom de l'extra" value="<?=esc_attr($extra['name'])?>">
+                                        <input type="text" class="formulaire-product-extra-value" placeholder="Valeur de l'extra" value="<?=esc_attr($extra['value'])?>">
+                                        <button type="button" class="formulaire-product-extra-remove" onclick="remove_product_formulaire_extra(this)">X</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="formulaire-product-selection">
+                    <input type="text" class="formulaire-product-input" placeholder="Rechercher un produit" id="product-search-input">
+                    <div class="formulaire-product-list" id="product-list">
+                        <!-- Products will be dynamically added here -->
+                    </div>
+                </div>
             </div>
         </div>
     <?php else: ?>
-        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
+        <div data-id="<?=$email_id?>" class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
             <div class="formulaire-field" data-type="default_type">
                 <label class="formulaire-label" for="client-name">Nom Complet</label>
                 <input class="formulaire-input" type="text" id="client-name" name="client_name" value="" required>
@@ -424,19 +461,21 @@ function df_get_email_html_array($post_id, $email, $hidden = true) {
     $email_id = $email['id'] ?? throw new DfDevisException("Missing email ID in email data");
     $type_id = $email['type_id'] ?? throw new DfDevisException("Missing type id in email data");
     $group_name = $email['group_name'] ?? throw new DfDevisException("Missing group name in email data");
-    return df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden);
+    $product_data = $email['product_data'] ?? [];
+    return df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden, $product_data);
 }
 
 function handle_df_get_email_html() {
     try {
-        df_check_post('post_id', 'email_id', 'type_id', 'group_name', 'hidden');
+        df_check_post('post_id', 'email_id', 'type_id', 'group_name', 'hidden', 'product_data');
         $post_id = intval($_POST['post_id']);
         $email_id = intval($_POST['email_id']);
         $type_id = intval($_POST['type_id']);
         $group_name = sanitize_text_field($_POST['group_name']);
         $hidden = $_POST['hidden'] === 'true';
-        
-        $content = df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden);
+        $product_data = json_decode(sanitize_text_field($_POST['product_data']), true);
+
+        $content = df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hidden, $product_data);
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
         wp_die();
     } catch (DfDevisException $e) {
@@ -458,8 +497,8 @@ function handle_df_get_email_html_by_step_and_group() {
 
         $content = '';
         if (!empty($email)) { // There are not multiple emails with the same step and group, so we don't need to loop
-            $content = df_get_email_html_base($email[0]->id, $type_id, $group_name, false);
-        }   
+            $content = df_get_email_html_base($email[0]->id, $type_id, $group_name, false, $email[0]->product_data);
+        }
 
         wp_send_json_success(['message' => 'Email HTML generated successfully', 'content' => $content]);
         wp_die();
@@ -492,7 +531,7 @@ function df_get_default_type_html($post_id, $type_id, $step_index, $group_name, 
         </div>
         <div class="formulaire-container formulaire-step-<?=$step_index?> hidden">
             <?php if ($email_id): ?>
-                <?=df_get_email_html_base($post_id, $email_id, $type_id, $group_name, false)?>
+                <?=df_get_email_html_base($post_id, $email_id, $type_id, $group_name, false, [])?>
             <?php endif; ?>
         </div>
     </div> <?php
@@ -585,7 +624,7 @@ function handle_df_get_step_html_by_index() {
                 $data['type_content'] .= '<div class="formulaire-container formulaire-step-'.$step_index.'">';
                 $email = dfdb_get_email_by_step_and_group($step->id, $group_name);
                 if (!empty($email)) {
-                    $data['type_content'] .= df_get_email_html_base($post_id, $email[0]->id, $type->id, $group_name, false, false);
+                    $data['type_content'] .= df_get_email_html_base($post_id, $email[0]->id, $type->id, $group_name, false, $email[0]->product_data, false);
                 }
                 $data['type_content'] .= '</div>';
             } else {

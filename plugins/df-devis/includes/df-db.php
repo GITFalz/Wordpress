@@ -69,6 +69,7 @@ function dfdb_create_database() {
 	    id mediumint(9) NOT NULL AUTO_INCREMENT,
 	    type_id mediumint(9) NOT NULL,
 	    info TEXT NOT NULL,
+        product_data JSON DEFAULT NULL,
 	    PRIMARY KEY (id),
 	    KEY type_id (type_id),
 	    FOREIGN KEY (type_id) REFERENCES " . DFDEVIS_TABLE_TYPES . " (id) ON DELETE CASCADE
@@ -116,7 +117,12 @@ function dfdb_create_history($type_id, $info) {
 
 function dfdb_create_email($type_id, $info) {
     global $wpdb;
-    return $wpdb->insert(DFDEVIS_TABLE_EMAIL, ["type_id" => $type_id, "info" => $info]);
+    return $wpdb->insert(DFDEVIS_TABLE_EMAIL, ["type_id" => $type_id, "info" => $info, "product_data" => json_encode([
+        "id" => null,
+        "name" => null,
+        "image" => null,
+        "description" => null
+    ])]);
 }
 
 /* BASE UPDATE FUNCTIONS */
@@ -151,6 +157,114 @@ function dfdb_set_type_name_by_step_and_group($step_id, $group_name, $type_name)
     return $wpdb->update(DFDEVIS_TABLE_TYPES, ['type_name' => $type_name], ['step_id' => $step_id, 'group_name' => $group_name]);
 }
 
+function dfdb_set_email_product_data($email_id, $product_data) {
+    global $wpdb;
+    return $wpdb->update(DFDEVIS_TABLE_EMAIL, ["product_data" => json_encode($product_data)], ["id" => $email_id]);
+}
+
+function handle_dfdb_set_email_product_data() {
+    try {
+        df_check_post('email_id');
+        $email_id = intval($_POST['email_id']);
+        $id = isset($_POST['product_id']) ? intval($_POST['product_id']) : null;
+        $name = isset($_POST['product_name']) ? sanitize_text_field($_POST['product_name']) : null;
+        $image = isset($_POST['product_image']) ? sanitize_text_field($_POST['product_image']) : null;
+        $description = isset($_POST['product_description']) ? sanitize_text_field($_POST['product_description']) : null;
+
+        if ($email_id <= 0) {
+            throw new DfDevisException("Invalid email ID");
+        }
+
+        $current_data = dfdb_get_email_product_data($email_id);
+        if ($current_data === null) {
+            throw new DfDevisException("Email product data not found");
+        }
+
+        $current_data['id'] = $id;
+        $current_data['name'] = $name;
+        $current_data['image'] = $image;
+        $current_data['description'] = $description;
+
+        $result = dfdb_set_email_product_data($email_id, $current_data);
+        if ($result === false) {
+            throw new DfDevisException("Failed to update email product data: " . dfdb_error());
+        }
+        wp_send_json_success(['message' => 'Email product data updated successfully']);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_set_email_product_data', 'handle_dfdb_set_email_product_data');
+
+
+function handle_dfdb_add_email_product_data() {
+    try {
+        df_check_post('email_id', 'key', 'name', 'value');
+        $email_id = intval($_POST['email_id']);
+        $key = sanitize_text_field($_POST['key']);
+        $name = sanitize_text_field($_POST['name']);
+        $value = sanitize_text_field($_POST['value']);
+
+        if ($email_id <= 0 || empty($key)) {
+            throw new DfDevisException("Invalid parameters for adding email product data");
+        }
+
+        $current_data = dfdb_get_email_product_data($email_id);
+        if ($current_data === null) {
+            throw new DfDevisException("Email product data not found");
+        }
+
+        // the structure is key => ['name' => value]
+        $current_data['extras'][$key] = [
+            'name' => $name,
+            'value' => $value
+        ];
+        $result = dfdb_set_email_product_data($email_id, $current_data);
+        if ($result === false) {
+            throw new DfDevisException("Failed to add email product data: " . dfdb_error());
+        }
+        wp_send_json_success(['message' => 'Email product data added successfully']);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_add_email_product_data', 'handle_dfdb_add_email_product_data');
+
+function handle_dfdb_remove_email_product_data() {
+    try {
+        df_check_post('email_id', 'key');
+        $email_id = intval($_POST['email_id']);
+        $key = sanitize_text_field($_POST['key']);
+
+        if ($email_id <= 0 || empty($key)) {
+            throw new DfDevisException("Invalid parameters for removing email product data");
+        }
+
+        $current_data = dfdb_get_email_product_data($email_id);
+        if ($current_data === null) {
+            throw new DfDevisException("Email product data not found");
+        }
+
+        if (isset($current_data['extras'][$key])) {
+            unset($current_data['extras'][$key]);
+        }
+
+        $result = dfdb_set_email_product_data($email_id, $current_data);
+        if ($result === false) {
+            throw new DfDevisException("Failed to remove email product data: " . dfdb_error());
+        }
+        wp_send_json_success(['message' => 'Email product data removed successfully']);
+        wp_die();
+    } catch (DfDevisException $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dfdb_remove_email_product_data', 'handle_dfdb_remove_email_product_data');
 
 /* AJAX UPDATE FUNCTIONS */
 function handle_dfdb_set_step_name() {
@@ -236,167 +350,6 @@ function handle_dfdb_set_option_name() {
     }
 }
 add_action('wp_ajax_dfdb_set_option_name', 'handle_dfdb_set_option_name');
-
-/*
-// Add json value to an option's data
-function dfdb_option_add_data_value($option_id, $type, $value) {
-    global $wpdb;
-    $option = dfdb_get_option($option_id);
-    if (!$option) {
-        throw new DfDevisException("Option not found");
-    }
-
-    $added = ['type' => $type, 'value' => $value];
-
-    $data = json_decode($option->data, true);
-    if (!is_array($data)) {
-        $data = [];
-    }
-    $data[] = $added;
-    $data_json = json_encode($data);
-
-    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
-    if ($result === false) {
-        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
-    }
-    return $result;
-}
-
-function handle_dfdb_option_add_data_value() {
-    try {
-        df_check_post('option_id', 'type', 'value');
-        $option_id = intval($_POST['option_id']);
-        $type = sanitize_text_field($_POST['type']);
-        $value = sanitize_text_field($_POST['value']);
-
-        if ($option_id <= 0 || empty($type) || empty($value)) {
-            throw new DfDevisException
-            ("Invalid option ID, type or value");
-        }
-
-        $result = dfdb_option_add_data_value($option_id, $type, $value);
-        if ($result === false) {
-            throw new DfDevisException
-            ("Failed to add data value: " . dfdb_error());
-        }
-
-        wp_send_json_success(['message' => 'Data value added successfully']);
-        wp_die();
-    } catch (DfDevisException
-     $e) {
-        wp_send_json_error(['message' => $e->getMessage()]);
-        wp_die();
-    }
-}
-add_action('wp_ajax_dfdb_option_add_data_value', 'handle_dfdb_option_add_data_value');
-
-
-// Update a specific data value in an option's data
-function dfdb_option_update_data_value($option_id, $index, $type, $value) {
-    global $wpdb;
-    $option = dfdb_get_option($option_id);
-    if (!$option) {
-        throw new DfDevisException("Option not found");
-    }
-
-    $data = json_decode($option->data, true);
-    if (!is_array($data) || !isset($data[$index])) {
-        throw new DfDevisException("Invalid data index");
-    }
-
-    $data[$index] = ['type' => $type, 'value' => $value];
-    $data_json = json_encode($data);
-
-    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
-    if ($result === false) {
-        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
-    }
-    return $result;
-}
-
-function handle_dfdb_option_update_data_value() {
-    try {
-        df_check_post('option_id', 'index', 'type', 'value');
-        $option_id = intval($_POST['option_id']);
-        $index = intval($_POST['index']);
-        $type = sanitize_text_field($_POST['type']);
-        $value = sanitize_text_field($_POST['value']);
-
-        if ($option_id <= 0 || $index < 0 || empty($type) || empty($value)) {
-            throw new DfDevisException
-            ("Invalid option ID, index, type or value");
-        }
-
-        error_log("Updating data value for option ID: $option_id, index: $index, type: $type, value: $value");
-
-        $result = dfdb_option_update_data_value($option_id, $index, $type, $value);
-        if ($result === false) {
-            throw new DfDevisException
-            ("Failed to update data value: " . dfdb_error());
-        }
-
-        wp_send_json_success(['message' => 'Data value updated successfully']);
-        wp_die();
-    } catch (DfDevisException
-     $e) {
-        wp_send_json_error(['message' => $e->getMessage()]);
-        wp_die();
-    }
-}
-add_action('wp_ajax_dfdb_option_update_data_value', 'handle_dfdb_option_update_data_value');
-
-
-// Remove a data value from an option's data
-function dfdb_option_remove_data_value($option_id, $index) {
-    global $wpdb;
-    $option = dfdb_get_option($option_id);
-    if (!$option) {
-        throw new DfDevisException("Option not found");
-    }
-
-    $data = json_decode($option->data, true);
-    if (!is_array($data) || !isset($data[$index])) {
-        throw new DfDevisException("Invalid data index");
-    }
-
-    unset($data[$index]);
-    $data = array_values($data); // Re-index the array
-    $data_json = json_encode($data);
-
-    $result = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['data' => $data_json], ['id' => $option_id]);
-    if ($result === false) {
-        throw new DfDevisException("Failed to update option data: " . $wpdb->last_error);
-    }
-    return $result;
-}
-
-function handle_dfdb_option_remove_data_value() {
-    try {
-        df_check_post('option_id', 'index');
-        $option_id = intval($_POST['option_id']);
-        $index = intval($_POST['index']);
-
-        if ($option_id <= 0 || $index < 0) {
-            throw new DfDevisException
-            ("Invalid option ID or index");
-        }
-
-        $result = dfdb_option_remove_data_value($option_id, $index);
-        if ($result === false) {
-            throw new DfDevisException
-            ("Failed to remove data value: " . dfdb_error());
-        }
-
-        wp_send_json_success(['message' => 'Data value removed successfully']);
-        wp_die();
-    } catch (DfDevisException
-     $e) {
-        wp_send_json_error(['message' => $e->getMessage()]);
-        wp_die();
-    }
-}
-add_action('wp_ajax_dfdb_option_remove_data_value', 'handle_dfdb_option_remove_data_value');
-*/
 
 
 function dfdb_option_set_image($option_id, $image_url) {
@@ -834,6 +787,15 @@ function dfdb_get_type_by_step_and_group($step_id, $group_name) {
 function dfdb_get_options_by_step_and_group($step_id, $group_name) {
     global $wpdb;
     return $wpdb->get_results( $wpdb->prepare("SELECT o.* FROM " . DFDEVIS_TABLE_OPTIONS . " o INNER JOIN " . DFDEVIS_TABLE_TYPES . " t ON o.type_id = t.id WHERE t.step_id = %d AND t.group_name = %s ORDER BY o.id ASC", $step_id, $group_name) );
+}
+
+function dfdb_get_email_product_data($email_id) {
+    global $wpdb;
+    $email = $wpdb->get_row( $wpdb->prepare("SELECT product_data FROM " . DFDEVIS_TABLE_EMAIL . " WHERE id = %d", $email_id) );
+    if ($email) {
+        return json_decode($email->product_data, true);
+    }
+    return null;
 }
 
 function handle_dfdb_get_options_by_step_and_group() {
