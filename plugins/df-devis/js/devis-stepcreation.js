@@ -889,12 +889,27 @@ function get_woocommerce_products(name, product_list, page_number = 1) {
 	})
 	.then(res => res.json())
 	.then(data => {
-		if (!data.success) {
+		if (!data.success && data.data.message !== "WooCommerce is not active.") {
 			console.error(data.data.message);
 			return false;
 		}
 
-		let products = data.data.data.products;
+		let products = data.data.products;
+		// if is undefined, create some makeshift products for testing
+		if (!products || products.length === 0) {
+			products = [
+				{ ID: 1, Image: 'https://picsum.photos/id/237/200/300', Name: 'Test Product 1', Description: 'This is a test product 1' },
+				{ ID: 2, Image: 'https://picsum.photos/id/238/200/300', Name: 'Test Product 2', Description: 'This is a test product 2' },
+				{ ID: 3, Image: 'https://picsum.photos/id/239/200/300', Name: 'Test Product 3', Description: 'This is a test product 3' },
+				{ ID: 4, Image: 'https://picsum.photos/id/240/200/300', Name: 'Test Product 4', Description: 'This is a test product 4' },
+				{ ID: 5, Image: 'https://picsum.photos/id/241/200/300', Name: 'Test Product 5', Description: 'This is a test product 5' },
+				{ ID: 6, Image: 'https://picsum.photos/id/242/200/300', Name: 'Test Product 6', Description: 'This is a test product 6' },
+				{ ID: 7, Image: 'https://picsum.photos/id/243/200/300', Name: 'Test Product 7', Description: 'This is a test product 7' },
+				{ ID: 8, Image: 'https://picsum.photos/id/244/200/300', Name: 'Test Product 8', Description: 'This is a test product 8' },
+				{ ID: 9, Image: 'https://picsum.photos/id/236/200/300', Name: 'Test Product 9', Description: 'This is a test product 9' },
+				{ ID: 10, Image: 'https://picsum.photos/id/235/200/300', Name: 'Test Product 10', Description: 'This is a test product 10' }
+			];
+		}
 		product_list.innerHTML = ''; // Clear previous products
 		for (let i = 0; i < products.length; i++) {
             let product = products[i];
@@ -1492,7 +1507,7 @@ function remove_woocommerce_product(product_div) {
 			console.error("Label for the product does not exist.");
 			return;
 		}
-		set_element_warning(label); // Set normal state for the label
+		set_element_warning(label); // Set warning state for the label
 		product_div.remove(); // Remove the product div from the DOM
 		check_step_validation("Root"); // Check validation after selection
 	});
