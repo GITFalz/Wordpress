@@ -549,6 +549,7 @@
   cursor: pointer;
   font-size: 14px;
   margin-top: 15px;
+  position: relative;
   transition: background-color 0.2s ease;
 }
 
@@ -632,6 +633,27 @@
   color: #555555;
 }
 
+.devis-warning::before {
+  content: "⚠️";
+  position: absolute;
+  top: -8px;    /* move icon slightly outside the element */
+  right: -8px;
+  font-size: 16px;
+  color: orange;
+  padding: 2px;
+  pointer-events: none;
+}
+
+.devis-error::before {
+  content: "⛔";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 16px;
+  color: red;
+  padding: 2px;
+  pointer-events: none;
+}
 
 
 @keyframes spin {

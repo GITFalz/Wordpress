@@ -8,8 +8,6 @@ let currentGroup = "Root";
 // media
 let fileFrame = null;
 
-let structure = [];
-
 (function(){
 	container = document.querySelector('.devis-container');
 	devis_steps_container = document.querySelector('.devis-steps-container');
@@ -88,6 +86,7 @@ let structure = [];
 				}
 				
 				type_element.dataset.typename = select;
+				check_step_validation("Root");
 				set_type_element_visibility(type_element, select);
 			});
 		}
@@ -192,23 +191,8 @@ let structure = [];
 	set_selected_step(0);
 	check_option_add_step_button_name(0);
 	set_max_step_visibility(0);
-
-	structure = {
-		steps: [],
-		types: []
-	};
-	
-	let stepDivs = document.querySelectorAll('.devis-step');
-	stepDivs.forEach((stepDiv, index) => {
-		structure.steps.push({
-			id: stepDiv.dataset.id,
-			index: index+1, // Step index starts at 1
-			name: stepDiv.querySelector('.set-step-name').value
-		});
-	});
+	check_step_validation("Root");
 })();
-
-
 
 function change_post_data_value(line, value, save_info) {
 	let id = "line";
@@ -626,6 +610,8 @@ async function dfdb_create_step(group_name, next_step_index) {
 		return false;
 	}
 
+	currentGroup = group_name;
+	check_step_validation("Root");
 	set_step_group(next_step_index, group_name);
 	display_step_content(next_step_index);
 }
@@ -787,6 +773,16 @@ function dfdb_create_option(element, stepindex, group_name) {
 			document.createRange().createContextualFragment(content),
 			lastChild
 		);
+
+		let allOptions = optionsContainer.querySelectorAll('.option');
+		let newOption = allOptions[allOptions.length - 1];
+		let addStepButton = newOption.querySelector('.add-step');
+		if (!addStepButton) {
+			console.error("Add step button for new option does not exist.");
+			return;
+		}
+
+		set_button_warning(addStepButton);
 	});
 }
 
@@ -965,6 +961,80 @@ function check_option_add_step_button_name(stepindex, type = null) {
 			button.textContent = "Add Step";
 		}
 	});
+}
+
+function check_step_validation(groupName) {
+	let stepType = document.querySelector('.step-type.group_' + groupName);
+	if (!stepType) {
+		// normal, this means there is just nothing following this group
+		return { status: 'ok', success: false };
+	}
+
+	let type = stepType.dataset.typename;
+	if (!is_valid_type(type)) {
+		console.error("Fix your shit dumbass >:(   typename is invalid: " + type);
+		return { status: 'error', success: false };
+	}
+
+	if (type === "formulaire") {
+		return { status: 'ok', success: true };
+	} else if (type === "options") {
+		let options = stepType.querySelectorAll('.option');
+		let result = { status: 'ok', success: true };
+		options.forEach(option => {
+			let addStepButton = option.querySelector('.add-step');	
+			if (!addStepButton) {
+				console.error("Add step button not found for option in step type " + type);
+				set_button_error(addStepButton);
+				return { status: 'error', success: false };
+			}
+
+			let activate = addStepButton.dataset.activate;
+			let check = check_step_validation(activate);
+			if (check.status === 'error') {
+				set_button_error(addStepButton);
+				return check;
+			} else if (!check.success) {
+				set_button_warning(addStepButton);
+				result = { status: 'ok', success: false }; // If any are not successful, the global result is unsuccessful
+			} else {
+				set_button_nothing(addStepButton);
+			}
+		});
+		return result;
+	} else if (type === "historique") {
+		let addStepButton = stepType.querySelector(".add-history-step");
+		if (!addStepButton) {
+			console.error("Add step button not found for historique in step type " + type);
+			return { status: 'error', success: false };
+		}
+
+		let activate = addStepButton.dataset.activate;
+		let check = check_step_validation(activate);
+		if (check.status === 'error') {
+			set_button_error(addStepButton);
+		} else if (!check.success) {
+			set_button_warning(addStepButton);
+		} else {
+			set_button_nothing(addStepButton);
+		}
+		return check;
+	}
+}
+
+function set_button_nothing(button) {
+	button.classList.remove('devis-error');
+	button.classList.remove('devis-warning');
+}
+
+function set_button_error(button) {
+	button.classList.add('devis-error');
+	button.classList.remove('devis-warning');
+}
+
+function set_button_warning(button) {
+	button.classList.add('devis-warning');
+	button.classList.remove('devis-error');
 }
 
 function set_max_step_visibility(stepindex) {
