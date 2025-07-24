@@ -86,8 +86,8 @@ let fileFrame = null;
 				}
 				
 				type_element.dataset.typename = select;
-				check_step_validation("Root");
 				set_type_element_visibility(type_element, select);
+				check_step_validation("Root");
 			});
 		}
 	});
@@ -889,27 +889,12 @@ function get_woocommerce_products(name, product_list, page_number = 1) {
 	})
 	.then(res => res.json())
 	.then(data => {
-		if (!data.success && data.data.message !== "WooCommerce is not active.") {
+		if (!data.success) {
 			console.error(data.data.message);
 			return false;
 		}
 
-		let products = data.data.products;
-		// if is undefined, create some makeshift products for testing
-		if (!products || products.length === 0) {
-			products = [
-				{ ID: 1, Image: 'https://picsum.photos/id/237/200/300', Name: 'Test Product 1', Description: 'This is a test product 1' },
-				{ ID: 2, Image: 'https://picsum.photos/id/238/200/300', Name: 'Test Product 2', Description: 'This is a test product 2' },
-				{ ID: 3, Image: 'https://picsum.photos/id/239/200/300', Name: 'Test Product 3', Description: 'This is a test product 3' },
-				{ ID: 4, Image: 'https://picsum.photos/id/240/200/300', Name: 'Test Product 4', Description: 'This is a test product 4' },
-				{ ID: 5, Image: 'https://picsum.photos/id/241/200/300', Name: 'Test Product 5', Description: 'This is a test product 5' },
-				{ ID: 6, Image: 'https://picsum.photos/id/242/200/300', Name: 'Test Product 6', Description: 'This is a test product 6' },
-				{ ID: 7, Image: 'https://picsum.photos/id/243/200/300', Name: 'Test Product 7', Description: 'This is a test product 7' },
-				{ ID: 8, Image: 'https://picsum.photos/id/244/200/300', Name: 'Test Product 8', Description: 'This is a test product 8' },
-				{ ID: 9, Image: 'https://picsum.photos/id/236/200/300', Name: 'Test Product 9', Description: 'This is a test product 9' },
-				{ ID: 10, Image: 'https://picsum.photos/id/235/200/300', Name: 'Test Product 10', Description: 'This is a test product 10' }
-			];
-		}
+		let products = data.data.data.products;
 		product_list.innerHTML = ''; // Clear previous products
 		for (let i = 0; i < products.length; i++) {
             let product = products[i];
@@ -1051,7 +1036,7 @@ function check_step_validation(groupName) {
 			return { status: 'error', success: false };
 		}
 
-		let label = selected_product.querySelector(".formulaire-produit-label");
+		let label = selected_product.parentElement.querySelector(".formulaire-produit-label");
 		let product_item = selected_product.querySelector('.formulaire-product-item');
 		if (!product_item) {
 			set_element_warning(label);
@@ -1465,8 +1450,15 @@ function select_woocommerce_product(product_div) {
 			remove_woocommerce_product(new_product_div);
 		});
 
+		let label = formulaire_element.querySelector('.formulaire-produit-label');
+		if (!label) {
+			console.error("Label for the product does not exist.");
+			return;
+		}
+		set_element_nothing(label); // Set normal state for the label
 		new_product_div.appendChild(deleteButton);
 		new_product_div.removeEventListener('click', select_woocommerce_product);
+		check_step_validation("Root"); // Check validation after selection
 	});
 }
 
@@ -1495,7 +1487,14 @@ function remove_woocommerce_product(product_div) {
 			return;
 		}
 
+		let label = formulaire_element.querySelector('.formulaire-produit-label');
+		if (!label) {
+			console.error("Label for the product does not exist.");
+			return;
+		}
+		set_element_warning(label); // Set normal state for the label
 		product_div.remove(); // Remove the product div from the DOM
+		check_step_validation("Root"); // Check validation after selection
 	});
 }
 

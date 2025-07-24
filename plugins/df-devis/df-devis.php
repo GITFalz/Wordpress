@@ -823,10 +823,16 @@ if ( ! class_exists( 'DFDevis' ) )
 					<td style="padding:20px 0;">
 					<p style="font-size:21px;font-weight:bold;text-align:center;margin-bottom:10px;">Choix du produit</p>
 					<div style="text-align:center;">
-						<img src="https://picsum.photos/200/300" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
+						<?php if ($product_data && isset($product_data['image'])): ?>
+							<img src="<?php echo esc_url($product_data['image']); ?>" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
+						<?php endif; ?>
 					</div>
-					<p style="font-weight:bold;text-align:center;margin:10px 0 0;">Nom du produit</p>
-					<p style="text-align:center;margin:0;color:#555;">Autre chose</p>
+					<?php if ($product_data && isset($product_data['name'])): ?>	
+						<p style="font-weight:bold;text-align:center;margin:10px 0 0;"><?php echo esc_html($product_data['name']); ?></p>
+					<?php endif; ?>
+					<?php if ($product_data && isset($product_data['description'])): ?>
+						<p style="text-align:center;margin:0;color:#555;"><?php echo nl2br(esc_html($product_data['description'])); ?></p>
+					<?php endif; ?>
 					<?php if ($product_data && isset($product_data['extras'])): ?>
 						<?php foreach ($product_data['extras'] as $extra): ?>
 							<p style="margin:10px 0;color:#555;">
