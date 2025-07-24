@@ -23,6 +23,7 @@ if ( ! class_exists( 'DFDevis' ) )
 	require_once DF_DEVIS_PATH . 'includes/DfDevisException.php';
 	require_once DF_DEVIS_PATH . 'includes/df-db.php';
 	require_once DF_DEVIS_PATH . 'includes/df-templates.php';
+	require_once DF_DEVIS_PATH . 'includes/df-functions.php';
 
 	class DFDevis 
 	{

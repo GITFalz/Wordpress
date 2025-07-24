@@ -192,6 +192,7 @@ let fileFrame = null;
 	check_option_add_step_button_name(0);
 	set_max_step_visibility(0);
 	check_step_validation("Root");
+	get_woocommerce_products();
 })();
 
 function change_post_data_value(line, value, save_info) {
@@ -823,6 +824,7 @@ function dfdb_remove_step(element) {
 			}
 		});
 
+		check_step_validation("Root");
 		if (currentStepIndex === stepindex) {
 			currentStepIndex = 0;
 			display_step_content(currentStepIndex);
@@ -851,6 +853,34 @@ function dfdb_remove_step(element) {
 	})
 	.catch(err => {
 		console.error("Error deleting step:", err);
+	});
+}
+
+function get_woocommerce_products() {
+	fetch(stepData.ajaxUrl, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		body: new URLSearchParams({ 
+			action: "df_get_woocommerce_products",
+			name: '',
+			p_per_page: 10,
+			page_number: 1
+		})
+	})
+	.then(res => res.json())
+	.then(data => {
+		if (!data.success) {
+			console.error(data.data.message);
+			return false;
+		}
+
+		let products = data.data.products;
+		console.log("WooCommerce Products:", products);
+	})
+	.catch(err => {
+		console.error("Error fetching WooCommerce products:", err);
 	});
 }
 

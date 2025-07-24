@@ -346,10 +346,11 @@ function df_get_email_html_base($post_id, $email_id, $type_id, $group_name, $hid
     
     ob_start(); ?>
     <?php if ($is_customizable): ?>
-        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>" onclick="view_email(event, this)">
+        <div class="formulaire group_<?=$group_name?> <?=$hidden?'hidden':''?>" data-typeid="<?=$type_id?>" data-group="<?=$group_name?>">
             <h2 class="formulaire-title">Formulaire</h2>		
             <div class="formulaire-produit">
                 <p class="formulaire-produit-label">Produit:</p>
+                
             </div>
         </div>
     <?php else: ?>
