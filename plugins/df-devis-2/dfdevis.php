@@ -17,10 +17,14 @@ if ( ! class_exists( 'DFDevis' ) )
 {
 	define('DF_DEVIS_PATH', plugin_dir_path(__FILE__));
 	define('DF_DEVIS_URL', plugin_dir_url(__FILE__)); 
+	define('DF_DEVIS_VERSION', '3.0.0');
 
 	require_once DF_DEVIS_PATH . 'includes/admin/metabox-manager.php';
 	require_once DF_DEVIS_PATH . 'includes/admin/devis-page-manager.php';
 	require_once DF_DEVIS_PATH . 'templates/editor/post-steps.php';
+	require_once DF_DEVIS_PATH . 'includes/core/database.php';
+	require_once DF_DEVIS_PATH . 'includes/core/install.php';
+	require_once DF_DEVIS_PATH . 'uninstall.php';
 
 	class DFDevis 
 	{
@@ -49,8 +53,8 @@ if ( ! class_exists( 'DFDevis' ) )
 			add_action('init', 'dv_register_post_type');
 			add_action('add_meta_boxes', 'dv_create_metaboxes');
 
-			//register_activation_hook(__FILE__, 'dvdb_create_database'); /* NEW DATABASE */
-			//register_deactivation_hook(__FILE__, 'dvdb_delete_database'); /* NEW DATABASE */
+			register_activation_hook(__FILE__, 'dvdb_create_database');
+			register_deactivation_hook(__FILE__, 'dvdb_delete_database');
 
 			add_action('load-post-new.php', function() {
 				$post_type = $_GET['post_type'] ?? 'post';

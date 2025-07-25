@@ -56,7 +56,48 @@ function dv_create_metaboxes() {
 }
 
 function dv_render_devis_customization_meta_box($post) {
-    echo dv_get_steps_html();
+    $post_id = $post->ID;
+    $steps = dvdb_get_steps($post_id);
+    $options = dvdb_get_options($post_id, 1);
+    $product = dvdb_get_products($post_id, 1);
+
+    if (empty($steps)) {
+        // Generate default steps if none exist
+        dvdb_create_step($post_id, 1, 'Étape 1');
+        $steps = dvdb_get_steps($post_id);
+    }
+
+    if (empty($options)) {
+        // Generate default options if none exist
+        dvdb_create_option($post_id, 1, 'Option 1', null);
+        $options = dvdb_get_options($post_id, 1);
+    }
+
+    // convert to arrays
+    $steps = json_decode(json_encode($steps), true);
+    $options = json_decode(json_encode($options), true);
+    $product = json_decode(json_encode($product), true);
+
+    // Enqueue the script for handling the steps and options
+    wp_enqueue_script(
+        'devis-steps-options',
+        DF_DEVIS_URL . 'assets/js/post-steps.js',
+        ['jquery'],
+        DF_DEVIS_VERSION,
+        true
+    );
+
+    // Localize the script with the post ID and nonce for security
+    wp_localize_script('devis-steps-options', 'devisStepsOptions', [
+        'postId' => $post_id,
+        'nonce' => wp_create_nonce('devis_steps_options_nonce'),
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'steps' => $steps,
+        'options' => $options,
+        'product' => $product,
+    ]);
+
+    echo dv_get_steps_html($post_id, $steps, $options);
 }
 
 function dv_render_form_customization_meta_box($post) {
