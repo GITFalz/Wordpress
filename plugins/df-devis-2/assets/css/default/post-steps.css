@@ -224,12 +224,10 @@ button:active {
     transform: translateY(0);
 }
 
-.step-actions button:last-child,
 .option-actions button:first-child {
     background-color: var(--color-delete-bg);
 }
 
-.step-actions button:last-child:hover,
 .option-actions button:first-child:hover {
     background-color: var(--color-delete-bg-hover);
 }
@@ -377,6 +375,50 @@ button:active {
     color: var(--color-accent-blue-medium);
     line-height: 1;
     font-weight: 300;
+}
+
+.remove-step-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: var(--color-delete-bg);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-step-button:hover {
+    background-color: var(--color-delete-bg-hover);
+    transform: scale(1.1);
+}
+
+.view-step-button {
+    position: absolute;
+    top: 2px;
+    right: 30px;
+    background-color: var(--color-accent-blue-medium);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-step-button:hover {
+    background-color: var(--color-accent-blue-light);
+    transform: scale(1.1);
 }
 
 /* Mobile Responsiveness for metabox */
