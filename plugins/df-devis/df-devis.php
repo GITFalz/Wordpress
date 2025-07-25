@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Defacto - Devis
  * Description: Mise en place d'un system de devis pour les sites créés par DEFACTO.
- * Version: 2.3.1
+ * Version: 3.0.0
  * Author: DEFACTO
  * Author URI: https://www.studiodefacto.com
  */
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! class_exists( 'DFDevis' ) ) 
+if ( ! class_exists( 'DFDevis2' ) ) 
 {
 	define('DF_DEVIS_PATH', plugin_dir_path(__FILE__));
 	define('DF_DEVIS_URL', plugin_dir_url(__FILE__)); 
@@ -25,7 +25,7 @@ if ( ! class_exists( 'DFDevis' ) )
 	require_once DF_DEVIS_PATH . 'includes/df-templates.php';
 	require_once DF_DEVIS_PATH . 'includes/df-functions.php';
 
-	class DFDevis 
+	class DFDevis2 
 	{
 		public static $instance = null; 
 
@@ -39,7 +39,7 @@ if ( ! class_exists( 'DFDevis' ) )
 
 		public static function getInstance() {
 	        if (self::$instance === null) {
-	            self::$instance = new DFDevis();
+	            self::$instance = new DFDevis2();
 	            self::$instance->initialize();
 	        }
 	        return self::$instance;
@@ -372,6 +372,8 @@ if ( ! class_exists( 'DFDevis' ) )
 					'product_data' => json_decode($email->product_data, true) ?: [],
 				];
 			}
+
+			//print_result($container_data);
 
 			?>
 			<link href="<?=DF_DEVIS_URL."styles/default/devis-creation.css"?>" rel="stylesheet" />
@@ -1090,7 +1092,7 @@ if ( ! class_exists( 'DFDevis' ) )
 		global $dfdv;
 
 		if ( ! isset($dfdv)) {
-			$dfdv = new DFDevis();
+			$dfdv = new DFDevis2();
 			$dfdv->initialize();
 		}
 		return $dfdv;
