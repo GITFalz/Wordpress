@@ -76,39 +76,25 @@ function dv_render_devis_customization_meta_box($post) {
     $options = json_decode(json_encode($options), true);
     $product = json_decode(json_encode($product), true);
 
-    $data = [];
+    $firstStep = dvdb_get_steps_by_index($post_id, 1)[0];
+    $firstOptions = json_decode(json_encode(dvdb_get_options_by_step($firstStep->id)), true);
 
+    $stepData = [];
     foreach ($steps as $step) {
-        $data[$step['step_index']] = [
-            'id' => $step['id'],
-            'step_name' => $step['step_name'],
-            'step_index' => $step['step_index'],
-            'options' => [],
-            'product' => null
-        ];
+        if (!isset($stepData[$step['step_index']])) {
+            $stepData[$step['step_index']] = [
+                'step_index' => $step['step_index'],
+                'step_name' => $step['step_name'],
+            ];
+
+            if (intval($step['step_index']) === 1) {
+                $stepData[$step['step_index']]['id'] = $step['id'];
+            }
+        }
     }
 
-    foreach ($options as $option) {
-        $data[$option['step_index']]['options'][] = [
-            'id' => $option['id'],
-            'option_name' => $option['option_name'],
-            'activate_id' => $option['activate_id'],
-            'image_url' => $option['image_url'],
-            'data' => json_decode($option['data'] ?? '', true),
-            'step_id' => $option['step_id']
-        ];
-    }
-
-    foreach ($product as $prod) {
-        $data[$prod['step_index']]['product'] = [
-            'id' => $prod['id'],
-            'name' => $prod['product_name'],
-            'price' => $prod['product_price'],
-            'image_url' => $prod['image_url'],
-            'data' => json_decode($prod['data'], true),
-            'step_id' => $prod['step_id'],
-        ];
-    }
+    // Import media library images
+    wp_enqueue_media();
 
     // Enqueue the script for handling the steps and options
     wp_enqueue_script(
@@ -124,10 +110,10 @@ function dv_render_devis_customization_meta_box($post) {
         'postId' => $post_id,
         'nonce' => wp_create_nonce('devis_steps_options_nonce'),
         'ajaxUrl' => admin_url('admin-ajax.php'),
-        'data' => $data,
+        'currentStepId' => $firstStep->id,
     ]);
 
-    echo dv_get_steps_html($post_id, $data);
+    echo dv_get_steps_html($post_id, $stepData, $firstOptions);
 }
 
 function dv_render_form_customization_meta_box($post) {
@@ -155,7 +141,8 @@ function dv_render_devis_settings_meta_box($post) {
  *
  * @param array $results The results to print
  */
-function print_result($results) {
+function print_result($results, $title = 'Results') {
+    echo "<h2>$title</h2>";
     echo "<pre>";
     print_recursive($results);
     echo "</pre>";

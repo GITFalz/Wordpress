@@ -21,6 +21,7 @@ if ( ! class_exists( 'DFDevis' ) )
 
 	require_once DF_DEVIS_PATH . 'includes/admin/metabox-manager.php';
 	require_once DF_DEVIS_PATH . 'includes/admin/devis-page-manager.php';
+	require_once DF_DEVIS_PATH . 'includes/admin/functions.php';
 	require_once DF_DEVIS_PATH . 'templates/editor/post-steps.php';
 	require_once DF_DEVIS_PATH . 'includes/core/database.php';
 	require_once DF_DEVIS_PATH . 'includes/core/install.php';
