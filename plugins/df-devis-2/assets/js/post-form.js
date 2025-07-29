@@ -233,7 +233,7 @@ function remove_custom_field(element) {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
-            action: 'df_remove_formulaire_custom_field',
+            action: 'dv_remove_formulaire_custom_field',
             post_id: devisFormOptions.postId,
             index: index
         })

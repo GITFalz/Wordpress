@@ -1,5 +1,31 @@
 let currentStepIndex = 1;
 
+function dv_afficher_post(postId) {
+    fetch(dfDevisData.ajaxUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            action: "dv_display_post",
+            post_id: postId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            console.error(data.data.message);
+            return;
+        }   
+
+        dfDevisData.postId = postId;
+        dfDevisData.history = data.data.history || [];
+        dfDevisData.generateHistory = data.data.generateHistory || false;
+
+        document.querySelector('.df-devis-main-container').innerHTML = data.data.html;
+    })
+}
+
 function selectStep(element) {
     let stepIndex = parseInt(element.dataset.index);
     if (isNaN(stepIndex)) {
