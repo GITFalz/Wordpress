@@ -184,7 +184,7 @@ function get_devis_form_html($step_id, $post_id) {
     <?php return ob_get_clean();
 }
 
-function get_devis_email_html($data, $product_data, $post_id) {
+function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
     $custom_email_title = get_post_meta($post_id, '_custom_email_title', true);
     $custom_email_banner_text = get_post_meta($post_id, '_custom_email_banner_text', true);
     $custom_email_info_color = get_post_meta($post_id, '_custom_email_info_color', true);
@@ -246,7 +246,7 @@ function get_devis_email_html($data, $product_data, $post_id) {
         </tr>
         <tr>
             <td style="background-color:<?php echo esc_attr($custom_email_price_color); ?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
-            TTC: 50000000 euro
+            TTC: <?php echo esc_html($final_cost); ?> euro
             </td>
         </tr>
         <tr>

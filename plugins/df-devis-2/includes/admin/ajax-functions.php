@@ -235,6 +235,14 @@ function handle_df_devis_send_email() {
     }
 
     $product_data = json_decode($product->data, true);
+    $history = dvdb_get_history_by_step($step_id);
+
+    $final_cost = intval($product_data['price'] ?? 0);
+    foreach ($history as $step_index => $item) {
+        if (isset($item['data']['cost']['additional']) && is_numeric($item['data']['cost']['additional'])) {
+            $final_cost += intval($item['data']['cost']['additional']);
+        }
+    }
 
     $owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 
@@ -246,7 +254,7 @@ function handle_df_devis_send_email() {
     }
 
     $subject = 'Devis de ' . get_the_title($post_id);
-    $body = get_devis_email_html($data, $product_data, $post_id);
+    $body = get_devis_email_html($data, $product_data, $post_id, $final_cost);
     $attachments = [];
 
     /*
