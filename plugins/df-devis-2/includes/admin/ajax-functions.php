@@ -245,7 +245,7 @@ function handle_df_devis_send_email() {
     }
 
     $subject = 'Devis de ' . get_the_title($post_id);
-    $body = $this->get_email($data, $product_data);
+    $body = get_devis_email_html($data, $product_data);
     $attachments = [];
 
     /*
