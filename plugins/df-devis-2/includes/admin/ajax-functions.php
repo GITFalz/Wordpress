@@ -45,10 +45,11 @@ function handle_dv_save_post_data() {
         update_post_meta($post_id, $post_line, $post_value);
 
         wp_send_json_success(['message' => 'Post data saved successfully.']);
+        wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
     }
-    wp_die();
 }
 add_action('wp_ajax_dv_save_post_data', 'handle_dv_save_post_data');
 
