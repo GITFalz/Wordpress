@@ -30,16 +30,27 @@
     gap: 15px;
     width: 100%;
     max-width: none;
-    height: 500px; /* Fixed height for metabox */
+    height: 800px; /* Fixed height for metabox */
     background-color: var(--color-background-dark);
     border-radius: 8px;
     box-sizing: border-box;
 }
 
+.data-containers {
+    width: calc(100% - 267px); /* Adjust width to fit steps */
+}
+
+.data-containers,
+.devis-data-containers {
+    padding-right: 0px;
+    margin-right: 0px;
+}
+
 
 .steps-container,
 .options-container,
-.product-container {
+.product-container,
+.info-supplementaire-container{
     background-color: var(--color-background-card);
     border-radius: 8px;
     padding: 15px;
@@ -48,6 +59,7 @@
     flex-direction: column;
     border: 1px solid var(--color-border-subtle);
     min-height: 0; /* Allow shrinking */
+    
 }
 
 .steps-container {
@@ -55,15 +67,141 @@
     flex-shrink: 0;
 }
 
+.info-supplementaire-container {
+    padding-top: 10px;
+    margin-top: 10px;
+    height: 287px;
+    max-height: 287px;
+}
+
+/* Extra Step Container */
+.extra-step {
+    position: relative;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-family: sans-serif;
+    width: 200px;
+}
+
+/* Header Section */
+.extra-step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.extra-step-header h2 {
+    padding: 0 !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    margin: 0;
+    color: #333;
+}
+
+.extra-step-name {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+/* second child */
+.extra-step-name .post-steps-save-info {
+    margin-top: 10px !important;
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 1px dotted #aaa;
+}
+
+/* Tooltip box */
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%; /* Show above the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    font-size: 12px;
+    line-height: 1.4;
+    min-width: 200px;
+    max-width: 300px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    visibility: hidden;
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    visibility: hidden;
+}
+
+/* Show on hover */
+.tooltip:hover::after,
+.tooltip:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Input Section */
+.extra-step-input {
+    display: flex;
+    flex-direction: column;
+}
+
+.extra-step-input p {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+}
+
+.extra-step-input input[type="text"] {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .options-container,
 .product-container {
     flex-grow: 1;
     min-width: 0; /* Prevent overflow */
+    max-height: 500px;
 }
 
 .steps-container-header,
 .options-container-header,
-.product-container-header {
+.product-container-header,
+.info-supplementaire-header {
     padding-bottom: 10px;
     margin-bottom: 15px;
     border-bottom: 2px solid var(--color-border-subtle);
@@ -362,6 +500,7 @@ button:active {
 
 /* Warning and Error Icons */
 .warning-icon,
+.info-icon,
 .error-icon {
     position: absolute;
     top: -8px;
@@ -393,6 +532,12 @@ button:active {
 .warning-icon::before {
     content: '⚠️';
     color: var(--color-warning);
+}
+
+.info-icon::before {
+    content: 'ⓘ';
+    color: var(--color-info, #3498db); /* fallback blue */
+    font-size: 1.9em;
 }
 
 .error-icon::before {
@@ -929,4 +1074,10 @@ button:active {
     opacity: 0;
     transform: scale(0.8);
   }
+}
+
+
+.step_current {
+    background-color: #97acd2 !important;
+    color: white !important;
 }

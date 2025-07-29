@@ -42,6 +42,7 @@ function dvdb_create_database() {
         option_name tinytext NOT NULL,
         step_id mediumint(9) NOT NULL,
         activate_id mediumint(9) DEFAULT NULL,
+        warning text DEFAULT NULL,
         image_url text DEFAULT NULL,
         data json DEFAULT NULL,
         PRIMARY KEY  (id),

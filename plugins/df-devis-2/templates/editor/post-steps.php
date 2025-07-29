@@ -152,6 +152,30 @@ function dv_get_product_html($product) {
     <?php return ob_get_clean();
 }
 
+function dv_get_extra_step_html($post_id) {
+    ob_start(); ?>
+    <div class="extra-step">
+        <span class="info-icon"></span>
+        <div class="extra-step-header">
+            <h2>Étape additionnelle</h2>
+            <span class="tooltip" data-tooltip='Suite à l’activation de l’option "Afficher un historique", une étape additionnelle sera automatiquement générée à la fin du devis. Veuillez saisir le nom de cette étape.'>❓</span>
+        </div>
+        
+        <div class="extra-step-input">
+            <p for="devis_history_step_name">Nom de l'étape additionnelle</p>
+            <div class="extra-step-name">
+                <input type="text" class="devis_history_step_name" id="devis_history_step_name"
+                    value="<?= esc_attr(get_post_meta($post_id, '_devis_history_step_name', true)) ?>" />
+                <div class="post-steps-save-info hidden">
+                    <span class="post-steps-spinner hidden"></span>
+                    <span class="post-steps-success hidden">✔</span>
+                    <span class="post-steps-error hidden">✖</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php return ob_get_clean();
+}
 /**
  * This function generates the base HTML page for the steps and options in the Devis editor.
  */
@@ -170,22 +194,36 @@ function dv_get_steps_html($post_id, $stepData, $firstOptions) {
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="options-container">
-            <div class="options-container-header">
-                <h3>Options</h3>
-            </div>
-            <div class="options-content">
-                <div class="option-add" onclick="dv_add_option_to_step()">
-                    <p>+</p>
+        <div class="data-containers">
+            <div class="devis-data-containers">
+                <div class="options-container">
+                    <div class="options-container-header">
+                        <h3>Options</h3>
+                    </div>
+                    <div class="options-content">
+                        <div class="option-add" onclick="dv_add_option_to_step()">
+                            <p>+</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-container hidden">
+                    <div class="product-container-header">
+                        <h3>Produits</h3>
+                    </div>
+                    <div class="product-content">
+                        
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="product-container hidden">
-            <div class="product-container-header">
-                <h3>Produits</h3>
-            </div>
-            <div class="product-content">
-                
+            <div class="info-supplementaire-container">
+                <div class="info-supplementaire-header">
+                    <h3>Informations Supplémentaires</h3>
+                </div>
+                <div class="info-supplementaire-content">
+                    <?php if (get_post_meta($post_id, '_devis_generate_history', true) == 'true'): ?>
+                        <?= dv_get_extra_step_html($post_id); ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

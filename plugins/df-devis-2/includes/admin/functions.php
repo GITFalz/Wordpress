@@ -35,30 +35,32 @@ function df_get_woocommerce_products($name, $p_per_page = 10, $page_number = 1) 
     return $data;
 }
 
-function handle_df_get_woocommerce_products() {
-    try {
-        if (!isset($_POST['name']) || !isset($_POST['p_per_page']) || !isset($_POST['page_number'])) {
-            throw new Exception('Missing required parameters');
-        }
+function dv_should_generate_history($post_id) {
+    $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
+    return !empty($generate_history) && $generate_history === 'true';
+    
+}
 
-        $name = sanitize_text_field($_POST['name']);
-        $p_per_page = intval($_POST['p_per_page']);
-        $page_number = intval($_POST['page_number']);
+function is_valid_custom_field_type($type) {
+    $valid_types = ['default_input', 'default_textarea', 'default_file', 'region_checkbox', 'region_select', 'region_radio'];
+    return in_array($type, $valid_types, true);
+}	
 
-        if (empty($name)) {
-            throw new Exception('Product name cannot be empty.');
-        }
-
-        if (!class_exists('WooCommerce')) {
-            throw new Exception('WooCommerce is not active.');
-        }
-
-        $data = df_get_woocommerce_products($name, $p_per_page, $page_number);
-        wp_send_json_success(['type' => 'real', 'data' => $data]);
-        wp_die();
-    } catch (Exception $e) {
-        wp_send_json_error(['message' => $e->getMessage()]);
-        wp_die();
+function get_type_name($type) {
+    switch ($type) {
+        case 'default_input':
+            return 'Nom du champ texte';
+        case 'default_textarea':
+            return 'Nom de la zone de texte';
+        case 'default_file':
+            return 'Nom du champ de fichier jointé';
+        case 'region_checkbox':
+            return 'Nom de la case à cocher';
+        case 'region_select':
+            return 'Nom du champ de sélection';
+        case 'region_radio':
+            return 'Nom du champ radio';
+        default:
+            return 'Nom du champ personnalisé';
     }
 }
-add_action('wp_ajax_df_get_woocommerce_products', 'handle_df_get_woocommerce_products');

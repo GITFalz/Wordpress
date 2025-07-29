@@ -737,7 +737,7 @@ if ( ! class_exists( 'DFDevis2' ) )
 				wp_die();
 			}
 
-			$product_data = dfdb_get_email_product_data($email_id);
+			$product_data = 	($email_id);
 
 			$owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 

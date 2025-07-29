@@ -41,6 +41,7 @@ function dvdb_create_step($post_id, $step_index, $step_name) {
  * - option_name: name of the option
  * - step_id: the step this option belongs to
  * - activate_id : the id of the step that is activated by this option
+ * - warning: warning message if the step is missing (null if no warning)
  * - image_url: URL of the image associated with the option
  * - data: JSON data for additional option details
  */
@@ -49,7 +50,8 @@ function dvdb_create_option($step_id, $option_name, $activate_id) {
     $wpdb->insert(DFDEVIS_TABLE_OPTIONS, [
         'option_name' => $option_name, 
         'activate_id' => $activate_id, 
-        'step_id' => $step_id
+        'step_id' => $step_id,
+        'warning' => 'étape manquante'
     ]);
     return $wpdb->insert_id;
 }
@@ -154,11 +156,13 @@ function dvdb_get_option_data($option_id) {
 function dvdb_does_option_have_future_product($option_id) {
     $option = dvdb_get_option($option_id);
     if (!$option) {
-        return ['status' => 'option manquantes', 'state' => false];
+        dvdb_set_option_warning($option_id, 'option manquante');
+        return ['status' => 'option manquante', 'state' => false];
     }
     
     $activated_step = dvdb_get_step($option->activate_id);
     if (!$activated_step) {
+        dvdb_set_option_warning($option_id, 'étape manquante');
         return ['status' => 'étape manquante', 'state' => false];
     }
 
@@ -166,23 +170,83 @@ function dvdb_does_option_have_future_product($option_id) {
     if ($product) {
         $product_data = json_decode($product->data, true);
         if (!isset($product_data['name']) || empty($product_data['name'])) {
+            dvdb_set_option_warning($option_id, 'produit manquant');
             return ['status' => 'produit manquant', 'state' => false];
         }
     } else {
         $options = dvdb_get_options_by_step($activated_step->id);
         if (empty($options)) {
+            dvdb_set_option_warning($option_id, 'aucune option');
             return ['status' => 'aucune option', 'state' => false];
         }
 
+        $final = ['status' => 'success', 'state' => true];
         foreach ($options as $opt) {
             $result = dvdb_does_option_have_future_product($opt->id);
-            if ($result['state'] === false) {
-                return $result;
+            if ($result['state'] === false && $final['state'] === true) {
+                $final = $result;
             }
+        }
+        if ($final['state'] === false) {
+            dvdb_set_option_warning($option_id, $final['status']);
+            return $final;
         }
     }
     
+    dvdb_set_option_warning($option_id, null);
     return ['status' => 'success', 'state' => true];
+}
+
+function dvdb_get_history_by_step($step_id) {
+    $step = dvdb_get_step($step_id);
+    $step_index = $step->step_index;
+
+    if ($step_index < 1) {
+        return [];
+    }
+
+    $history = [];
+    if ($step_index > 1) {
+        $option = dvdb_get_option_by_activate_id($step_id);
+        if ($option) {
+            $history = dvdb_get_history_by_step($option->step_id);
+        }
+    }
+
+    $option = dvdb_get_option_by_activate_id($step_id);
+    if ($option) {
+        $history[$step_index] = [
+            'step_id' => $step_id,
+            'step_name' => $step->step_name,
+            'activate_id' => $option->activate_id,
+            'option_name' => $option->option_name,
+            'warning' => $option->warning,
+            'image_url' => $option->image_url,
+            'data' => dvdb_get_option_data($option->id)
+        ];
+    }
+
+    return $history;
+}
+
+function dvdb_does_post_have_future_products($post_id)
+{
+    $firstStep = dvdb_get_steps_by_index($post_id, 1)[0] ?? null;
+    if (!$firstStep) {
+        return ['status' => 'aucune étape', 'state' => false];
+    }
+    $options = dvdb_get_options_by_step($firstStep->id);
+    if (empty($options)) {
+        return ['status' => 'aucune option', 'state' => false];
+    }
+    $final = ['status' => 'success', 'state' => true];
+    foreach ($options as $option) {
+        $result = dvdb_does_option_have_future_product($option->id);
+        if ($result['state'] === false && $final['state'] === true) {
+            $final = $result;
+        }
+    }
+    return $final;
 }
 
 /**
@@ -203,6 +267,12 @@ function dvdb_set_option_name($option_id, $option_name) {
 function dvdb_set_option_activate_id($option_id, $activate_id) {
     global $wpdb;
     $updated = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['activate_id' => $activate_id], ['id' => $option_id]);
+    return $updated !== false;
+}
+
+function dvdb_set_option_warning($option_id, $warning) {
+    global $wpdb;
+    $updated = $wpdb->update(DFDEVIS_TABLE_OPTIONS, ['warning' => $warning], ['id' => $option_id]);
     return $updated !== false;
 }
 

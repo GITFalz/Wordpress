@@ -135,6 +135,33 @@ let fileFrame;
                 debounceMap.delete(specialKey);
             }, 500));
         }
+
+
+        if (event.target.classList.contains('devis_history_step_name')) {
+            let saveInfo = event.target.closest('.extra-step-input').querySelector('.post-steps-save-info');
+            let spinner = event.target.closest('.extra-step-name').querySelector('.post-steps-spinner');
+            let success = event.target.closest('.extra-step-name').querySelector('.post-steps-success');
+            saveInfo.classList.remove('hidden');
+            spinner.classList.remove('hidden');
+            success.classList.add('hidden');
+            success.classList.remove('show-and-fade');
+            change_post_data_value('_devis_history_step_name', event.target.value, "history_step_name", (data) => {
+                if (!data.success) {
+                    console.error(data.data.message);
+                    saveInfo.classList.add('hidden');
+                    spinner.classList.add('hidden');
+                    success.classList.add('hidden');
+                    return;
+                }
+                spinner.classList.add('hidden');
+                success.classList.remove('hidden');
+                success.classList.add('show-and-fade');
+                setTimeout(() => {
+                    saveInfo.classList.add('hidden');
+                    success.classList.remove('show-and-fade');
+                }, 2000);
+            });
+        }
     });
 
     dv_steps_container.addEventListener('change', function(event) {
@@ -1248,4 +1275,33 @@ function set_element_warning(button) {
     }
     span.classList.add('warning-icon');
     span.classList.remove('error-icon');
+}
+
+
+function change_post_data_value(line, value, specialKey, callback = null) {
+	clearTimeout(debounceMap.get(specialKey));
+	let timeout = setTimeout(() => {
+		fetch(devisStepsOptions.ajaxUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				action: "dv_save_post_data",
+				post_id: devisStepsOptions.postId,
+				post_line: line,
+				post_value: value
+			})
+		})
+		.then(res => res.json())
+		.then(data => {
+			if (!data.success) {
+				console.error(data.data.message);
+			}
+			debounceMap.delete(specialKey);
+            if (callback)
+                callback(data);
+		});
+	}, 2000);
+	debounceMap.set(specialKey, timeout);
 }
