@@ -237,10 +237,10 @@ function handle_df_devis_send_email() {
     $product_data = json_decode($product->data, true);
     $history = dvdb_get_history_by_step($step_id);
 
-    $final_cost = intval($product_data['price'] ?? 0);
+    $final_cost = floatval($product_data['price'] ?? 0);
     foreach ($history as $step_index => $item) {
         if (isset($item['data']['cost']['additional']) && is_numeric($item['data']['cost']['additional'])) {
-            $final_cost += intval($item['data']['cost']['additional']);
+            $final_cost += floatval($item['data']['cost']['additional']);
         }
     }
 
