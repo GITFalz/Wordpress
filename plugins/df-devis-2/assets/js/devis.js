@@ -286,6 +286,8 @@ function formulaire_send_email(element) {
 			console.error('Error sending email:', data.data.message);
 			alert('Failed to send email: ' + data.data.message);
 		}
+
+        console.log('Email response:', data);
 	})
 	.catch(error => {
 		console.error('Fetch error:', error);

@@ -233,7 +233,7 @@ function handle_df_devis_send_email() {
         wp_die();
     }
 
-    $product_data = $product->data;
+    $product_data = json_decode($product->data);
 
     $owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 
@@ -281,14 +281,14 @@ function handle_df_devis_send_email() {
     $result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
 
     if (!$result1 || !$result2) {
-        wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.']);
+        wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.', 'body' => $body]);
         wp_die();
     } else {
-        wp_send_json_success(['message' => 'Email sent successfully']);
+        wp_send_json_success(['message' => 'Email sent successfully', 'body' => $body]);
         wp_die();
     }
 
-    wp_send_json_success(['message' => 'Email sent successfully']);
+    wp_send_json_success(['message' => 'Email sent successfully', 'body' => $body]);
     wp_die();
 }
 add_action('wp_ajax_df_devis_send_email', 'handle_df_devis_send_email');

@@ -107,7 +107,7 @@ function handle_dv_display_post() {
             ];
         }
 
-        $html =  get_devis_page_html($stepData, $firstOptions);
+        $html = get_devis_page_html($stepData, $firstOptions);
 
         wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history]);
         wp_die();
