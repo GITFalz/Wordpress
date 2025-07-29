@@ -233,7 +233,7 @@ function handle_df_devis_send_email() {
         wp_die();
     }
 
-    $product_data = json_decode($product->data);
+    $product_data = json_decode($product->data, true);
 
     $owner_email = get_post_meta($post_id, '_devis_owner_email', true);
 
