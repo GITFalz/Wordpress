@@ -91,9 +91,9 @@ if ( ! class_exists( 'DFDevis' ) )
 				// Paramètres de l'email
 				'email_du_propriétaire' => 'bjornarvalkea@gmail.com',
 				'utiliser_email_personnalisé' => false, // Si true, l'email rentré dans le champ "Email du propriétaire" durant la création du devis sera utilisé, sinon l'email ci-dessus sera utilisé
-				'titre_email_erreur' => 'Oops',
-				'titre_email_envoye' => null,
-				'message_email_envoye' => null,
+				'titre_email_erreur' => 'Oops', // Si null, une valeur par défaut sera utilisée ("Une erreur est survenue")
+				'titre_email_envoye' => null, // Si null, une valeur par défaut sera utilisée ("Email envoyé")
+				'message_email_envoye' => null, // Si null, une valeur par défaut sera utilisée ("Votre email a été envoyé avec succès.")
 			));			
 		}
     }
