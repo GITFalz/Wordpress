@@ -133,6 +133,25 @@ function dv_render_devis_page_shortcode($atts) {
     $atts = shortcode_atts(['post_id' => 0], $atts, 'df_devis_page');
     $post_id = intval($atts['post_id']);
 
+    $settings = dfdv()->settings;
+
+    wp_enqueue_script(
+        'df-devis-script', 
+        DF_DEVIS_URL . 'assets/js/devis.js', 
+        ['jquery'], 
+        DF_DEVIS_VERSION, 
+        true
+    );
+
+    wp_localize_script('df-devis-script', 'dfDevisData', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nomEtapeHistorique' => $settings['nom_étape_historique'] ?? 'Historique',
+        'nomEtapeFormulaire' => $settings['nom_étape_formulaire'] ?? 'Formulaire',
+        'titreEmailErreur' => $settings['titre_email_erreur'] ?? null,
+        'titreEmailEnvoye' => $settings['titre_email_envoye'] ?? null,
+        'messageEmailEnvoye' => $settings['message_email_envoye'] ?? null,
+    ]);
+
     if ($post_id <= 0) {
         return '<p>' . esc_html__('Invalid post ID.', 'df-devis') . '</p>';
     }
