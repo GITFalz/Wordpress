@@ -348,8 +348,9 @@ function devis_loading_start() {
 
     let optionsContent = document.querySelector('.df-devis-options');
     if (optionsContent) {
-        optionsContent.querySelectorAll('.df-devis-step, .df-devis-option, .formulaire').forEach(el => {
-            el.classList.add('hidden');
+        let allDirectDivs = optionsContent.querySelectorAll('div');
+        allDirectDivs.forEach(div => {
+            div.classList.add('hidden');
         });
     }
 }
