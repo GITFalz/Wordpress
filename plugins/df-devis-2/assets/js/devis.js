@@ -350,7 +350,7 @@ function devis_loading_start() {
     if (optionsContent) {
         let allDirectDivs = optionsContent.querySelectorAll('div');
         allDirectDivs.forEach(div => {
-            div.classList.add('hidden');
+            div.classList.add('disappear');
         });
     }
 }

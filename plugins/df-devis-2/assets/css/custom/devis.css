@@ -135,7 +135,7 @@
     opacity: 1;
 }
 
-.df-devis-options div.hidden {
+.df-devis-options div.disappear {
     transform: scale(0.8);
     opacity: 0;
     pointer-events: none;
