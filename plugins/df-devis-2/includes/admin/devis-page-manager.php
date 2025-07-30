@@ -135,6 +135,14 @@ function dv_render_devis_page_shortcode($atts) {
 
     $settings = dfdv()->settings;
 
+    $firstStep = dvdb_get_steps_by_index($post_id, 1)[0] ?? null;
+    if (!$firstStep) {
+        return '<p>' . esc_html__('No steps found for this devis.', 'df-devis') . '</p>';
+    }
+
+    $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
+    $generate_history = !empty($generate_history) && $generate_history === 'true';
+
     wp_enqueue_script(
         'df-devis-script', 
         DF_DEVIS_URL . 'assets/js/devis.js', 
@@ -150,6 +158,9 @@ function dv_render_devis_page_shortcode($atts) {
         'titreEmailErreur' => $settings['titre_email_erreur'] ?? null,
         'titreEmailEnvoye' => $settings['titre_email_envoye'] ?? null,
         'messageEmailEnvoye' => $settings['message_email_envoye'] ?? null,
+        'postId' => $post_id,
+        'history' => [['stepId' => $firstStep->id]],
+        'generateHistory' => $generate_history,
     ]);
 
     if ($post_id <= 0) {
