@@ -190,8 +190,10 @@ let fileFrame;
                     return;
                 }
 
+                let newStepIndexCount = data.data.new_step_index_count;
+                internal_disable_step_name_input(newStepIndexCount, data.data.hasEndProduct);
                 display_step(stepId, parseInt(stepDiv.dataset.index));
-                internal_check_step_divs(data.data.new_step_index_count);
+                internal_check_step_divs(newStepIndexCount);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -297,6 +299,7 @@ function dv_remove_option_from_step(element) {
         }
 
         let newStepIndexCount = data.data.new_step_index_count;
+        internal_disable_step_name_input(newStepIndexCount, data.data.hasEndProduct);
         internal_check_step_divs(newStepIndexCount);
 
         option.remove();
@@ -339,12 +342,12 @@ function dv_option_add_step(element) {
         temp.innerHTML = html;
         const newStep = temp.firstElementChild;
         stepsContent.appendChild(newStep);
+        internal_disable_step_name_input(step_index - 1, false);
     });
 }
 
 function dv_remove_step(element) {
     let step = element.closest('.step');
-    let stepId = step.dataset.id;
     let stepIndex = parseInt(step.dataset.index);
     fetch(devisStepsOptions.ajaxUrl, {
         method: 'POST',
@@ -353,7 +356,7 @@ function dv_remove_step(element) {
         },
         body: new URLSearchParams({
             action: 'dv_remove_step',
-            step_id: stepId,
+            step_index: stepIndex,
             post_id: postId
         })
     })
@@ -364,12 +367,14 @@ function dv_remove_step(element) {
             return;
         }
 
-        let previousStepIndex = stepIndex - 1;
-        let stepDiv = stepsContent.querySelector(`.step_${previousStepIndex}`);
-        let previousStepId = stepDiv ? stepDiv.dataset.id : null;
-        display_step(previousStepId, previousStepIndex);
+        let wantedStepIndex = Math.min(current_step, stepIndex - 1);
+        let stepDiv = stepsContent.querySelector(`.step_${wantedStepIndex}`);
+        let previousStepId = stepDiv ? stepDiv.dataset.id : -1;
+        display_step(previousStepId, wantedStepIndex);
 
-        internal_check_step_divs(data.data.new_step_index_count);
+        let newStepIndexCount = data.data.new_step_index_count;
+        internal_disable_step_name_input(newStepIndexCount, data.data.hasEndProduct);
+        internal_check_step_divs(newStepIndexCount);
     });
 }
 
@@ -439,14 +444,13 @@ function display_step(step_id, step_index, actual_type = null) {
             productContent.innerHTML = data.data.html;
         }
 
-        console.log(data.data.warnings);
-
-        devisStepsOptions.currentStepId = step_id;
+        let stepId = data.data.step_id;
+        devisStepsOptions.currentStepId = stepId;
         current_step = step_index;
         
         let stepElement = stepsContent.querySelector(`.step_${step_index}`);
         if (stepElement) {
-            stepElement.dataset.id = step_id;
+            stepElement.dataset.id = stepId;
         }
 
         internal_set_step_type(step_index, type);
@@ -604,14 +608,10 @@ function internal_set_step_visibility() {
     stepDivs.forEach(step => {
         let stepIndex = parseInt(step.dataset.index);
         let stepSelect = step.querySelector('select');
-        let removeButton = step.querySelector('.remove-step-button');
 
         if (stepIndex < current_step) {
             if (stepSelect) {
                 stepSelect.disabled = false;
-            }
-            if (removeButton) {
-                removeButton.disabled = false;
             }
             step.classList.add('step_previous');
             step.classList.remove('step_current', 'step_next');
@@ -619,22 +619,26 @@ function internal_set_step_visibility() {
             if (stepSelect) {
                 stepSelect.disabled = false;
             }
-            if (removeButton) {
-                removeButton.disabled = false;
-            }
             step.classList.add('step_current');
             step.classList.remove('step_previous', 'step_next');
         } else {
             if (stepSelect) {
                 stepSelect.disabled = true;
             }
-            if (removeButton) {
-                removeButton.disabled = true;
-            }
             step.classList.add('step_next');
             step.classList.remove('step_previous', 'step_current');
         }
     });
+}
+
+function internal_disable_step_name_input(index, disable) {
+    let stepDiv = stepsContent.querySelector(`.step_${index}`);
+    if (stepDiv) {
+        let input = stepDiv.querySelector('.step-index-name');
+        if (input) {
+            input.disabled = disable;
+        }
+    }
 }
 
 function dv_set_step_status(stepIndex, status) {

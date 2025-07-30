@@ -15,6 +15,7 @@ function dv_get_customizable_step_html($step, $current_step_index = 1) {
     if ($stepIndex > 1) {
         $type = $step['type'] ?? "options"; // Use the type from the step if available
     }
+    $disableName = isset($step['disable_name']) ? $step['disable_name'] : false;
 
     $third_class = '';
     if ($stepIndex === $current_step_index) {
@@ -28,7 +29,7 @@ function dv_get_customizable_step_html($step, $current_step_index = 1) {
     ob_start(); ?>
     <div <?= isset($step['id']) ? 'data-id="' . esc_attr($step['id']) . '"' : '' ?> data-index="<?= esc_attr($stepIndex) ?>" class="step step_<?= esc_attr($stepIndex) ?> <?= esc_attr($third_class) ?>">
         <div class="step-header">
-            <input class="step-index-name" type="text" placeholder="Nom de l'étape" value="<?= esc_attr($stepName) ?>">
+            <input class="step-index-name" type="text" placeholder="Nom de l'étape" value="<?= esc_attr($stepName) ?>" <?= $disableName ? 'disabled' : '' ?>>
             <div class="post-steps-save-info hidden">
                 <span class="post-steps-spinner hidden"></span>
                 <span class="post-steps-success hidden">✔</span>
@@ -194,36 +195,22 @@ function dv_get_steps_html($post_id, $stepData, $firstOptions) {
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="data-containers">
-            <div class="devis-data-containers">
-                <div class="options-container">
-                    <div class="options-container-header">
-                        <h3>Options</h3>
-                    </div>
-                    <div class="options-content">
-                        <div class="option-add" onclick="dv_add_option_to_step()">
-                            <p>+</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="product-container hidden">
-                    <div class="product-container-header">
-                        <h3>Produits</h3>
-                    </div>
-                    <div class="product-content">
-                        
-                    </div>
+        <div class="options-container">
+            <div class="options-container-header">
+                <h3>Options</h3>
+            </div>
+            <div class="options-content">
+                <div class="option-add" onclick="dv_add_option_to_step()">
+                    <p>+</p>
                 </div>
             </div>
-            <div class="info-supplementaire-container">
-                <div class="info-supplementaire-header">
-                    <h3>Informations Supplémentaires</h3>
-                </div>
-                <div class="info-supplementaire-content">
-                    <?php if (get_post_meta($post_id, '_devis_generate_history', true) == 'true'): ?>
-                        <?= dv_get_extra_step_html($post_id); ?>
-                    <?php endif; ?>
-                </div>
+        </div>
+        <div class="product-container hidden">
+            <div class="product-container-header">
+                <h3>Produits</h3>
+            </div>
+            <div class="product-content">
+                
             </div>
         </div>
     </div>
@@ -323,6 +310,10 @@ function handle_dv_get_step_data_html() {
             throw new Exception('Invalid step type');
         }
 
+        if ($step_id === -1) {
+            $step_id = dvdb_get_first_step_id($post_id);
+        }
+
         $html = '';
         $warnings = [];
 
@@ -349,7 +340,7 @@ function handle_dv_get_step_data_html() {
             throw new Exception('Unknown step type');
         }
 
-        wp_send_json_success(['html' => $html, 'warnings' => $warnings]);
+        wp_send_json_success(['html' => $html, 'warnings' => $warnings, 'step_id' => $step_id]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);

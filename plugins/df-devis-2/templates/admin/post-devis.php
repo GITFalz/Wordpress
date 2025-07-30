@@ -1,9 +1,10 @@
 <?php
 function get_devis_page_html($stepData, $firstOptions) {
+    $settings = dfdv()->settings;
     ob_start();
     ?>
     <link rel="stylesheet" href="<?php echo esc_url(DF_DEVIS_URL . 'assets/css/custom/devis.css'); ?>">
-    <div class="df-devis-container">
+    <div class="df-devis-container" data-show-step-index="<?php echo esc_attr($settings['afficher_index_étape'] ? 'true' : 'false'); ?>" data-nb-etape-fixe="<?php echo esc_attr($settings['nombre_etapes_fixes'] ? 'true' : 'false'); ?>">
         <div class="df-devis-steps">
             <?php foreach ($stepData as $step): ?>
                 <div class="df-devis-step <?= intval($step['step_index']) == 1 ? "step-current" : "step-next" ?>" data-index="<?php echo esc_attr($step['step_index']); ?>" onclick="selectStep(this)">
@@ -16,6 +17,15 @@ function get_devis_page_html($stepData, $firstOptions) {
                 <?php if (!empty($firstOptions)): ?>
                     <?= get_devis_options_html($firstOptions); ?>
                 <?php endif; ?>
+            </div>
+        </div>
+        <div class="df-pop-up hidden">
+            <div class="df-pop-up-content">
+                <button class="df-pop-up-close" onclick="dv_close_popup()">×</button>
+                <div class="df-pop-up-body">
+                    <h2 class="df-pop-up-title">Attention!</h2>
+                    <div class="df-pop-up-options">Alert</div>
+                </div>
             </div>
         </div>
     </div>
@@ -327,6 +337,7 @@ function handle_dv_get_option_step_content_html() {
 
         $html = '';
         $type = $step->type;
+        $name = $step->step_name;
 
         if ($type === 'options') {
             $options = json_decode(json_encode(dvdb_get_options_by_step($activate_id)), true);
@@ -342,7 +353,7 @@ function handle_dv_get_option_step_content_html() {
             throw new Exception('Invalid step type');
         }
 
-        wp_send_json_success(['html' => $html, 'type' => $type]);
+        wp_send_json_success(['html' => $html, 'type' => $type, 'name' => $name]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);

@@ -23,6 +23,7 @@ function dv_render_devis_page() {
         'post_status'    => 'publish',
     ];
     $devis_posts = get_posts($args);
+    $settings = dfdv()->settings;
 
     wp_enqueue_script(
         'df-devis-script', 
@@ -34,6 +35,11 @@ function dv_render_devis_page() {
 
     wp_localize_script('df-devis-script', 'dfDevisData', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nomEtapeHistorique' => $settings['nom_étape_historique'] ?? 'Historique',
+        'nomEtapeFormulaire' => $settings['nom_étape_formulaire'] ?? 'Formulaire',
+        'titreEmailErreur' => $settings['titre_email_erreur'] ?? null,
+        'titreEmailEnvoye' => $settings['titre_email_envoye'] ?? null,
+        'messageEmailEnvoye' => $settings['message_email_envoye'] ?? null,
     ]);
 
     // make basic HTML structure

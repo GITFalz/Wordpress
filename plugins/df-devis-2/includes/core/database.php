@@ -110,6 +110,16 @@ function dvdb_get_steps_by_index($post_id, $step_index) {
     return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d AND step_index = %d", $post_id, $step_index));
 }
 
+function dvdb_get_first_step_id($post_id) {
+    global $wpdb;
+    return $wpdb->get_var($wpdb->prepare("SELECT id FROM " . DFDEVIS_TABLE_STEPS . " WHERE post_id = %d ORDER BY step_index ASC LIMIT 1", $post_id));
+}
+
+function dvdb_get_options_by_index($step_index) {
+    global $wpdb;
+    return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE step_id = (SELECT id FROM " . DFDEVIS_TABLE_STEPS . " WHERE step_index = %d)", $step_index));
+}
+
 function dvdb_get_options_by_step($step_id) {
     global $wpdb;
     return $wpdb->get_results($wpdb->prepare("SELECT * FROM " . DFDEVIS_TABLE_OPTIONS . " WHERE step_id = %d", $step_id));
@@ -151,6 +161,11 @@ function dvdb_get_option_data($option_id) {
         return json_decode($option->data, true);
     }
     return null;
+}
+
+function dvdb_get_products_by_index($post_id, $step_index) {
+    global $wpdb;
+    return $wpdb->get_results($wpdb->prepare("SELECT p.* FROM " . DFDEVIS_TABLE_PRODUCT . " p JOIN " . DFDEVIS_TABLE_STEPS . " s ON p.step_id = s.id WHERE s.post_id = %d AND s.step_index = %d", $post_id, $step_index));
 }
 
 function dvdb_does_option_have_future_product($option_id) {
@@ -363,8 +378,9 @@ function handle_dv_remove_option() {
         $option_id = intval($_POST['option_id']);
         dvdb_remove_option_recursive($option_id);
         $new_step_index_count = dvdb_get_step_index_count($_POST['post_id']);
+        $products = dvdb_get_products_by_index($_POST['post_id'], $new_step_index_count);
 
-        wp_send_json_success(['message' => 'Option removed successfully', 'new_step_index_count' => $new_step_index_count]);
+        wp_send_json_success(['message' => 'Option removed successfully', 'new_step_index_count' => $new_step_index_count, 'hasEndProduct' => !empty($products)]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
@@ -375,36 +391,43 @@ add_action('wp_ajax_dv_remove_option', 'handle_dv_remove_option');
 
 function handle_dv_remove_step() {
     try {
-        if (!isset($_POST['step_id']) || !isset($_POST['post_id'])) {
+        if (!isset($_POST['step_index']) || !isset($_POST['post_id'])) {
             throw new Exception('Missing required parameters');
         }
 
-        $step_id = intval($_POST['step_id']);
+        $step_index = intval($_POST['step_index']);
         $post_id = intval($_POST['post_id']);
 
-        // Delete all options associated with this step
-        foreach (dvdb_get_options_by_step($step_id) as $option) {
-            dvdb_remove_option_recursive($option->id);
-        }
+        $steps = dvdb_get_steps_by_index($post_id, $step_index);
 
-        $product = dvdb_get_product_by_step($step_id);
-        if ($product) {
-            dvdb_delete_product($product->id);
-        }
+        foreach ($steps as $step) {
+            $options = dvdb_get_options_by_step($step->id);
+            $product = dvdb_get_product_by_step($step->id);
 
-        $current_step_index = intval(dvdb_get_step($step_id)->step_index);
-        $option = dvdb_get_option_by_activate_id($step_id);
-        if ($option) {
-            dvdb_set_option_activate_id($option->id, null);
+            foreach ($options as $option) {
+                dvdb_remove_option_recursive($option->id);
+            }
+
+            if ($product) {
+                dvdb_delete_product($product->id);
+            }
+
+            $activate_option = dvdb_get_option_by_activate_id($step->id);
+            if ($activate_option) {
+                dvdb_set_option_activate_id($activate_option->id, null);
+            }
+
+            dvdb_delete_step($step->id);
+            
         }
-        dvdb_delete_step($step_id);
 
         // Remove the step from the post
-        dvdb_delete_steps_from_post($post_id, $current_step_index + 1);
+        dvdb_delete_steps_from_post($post_id, $step_index + 1);
 
         $new_step_index_count = dvdb_get_step_index_count($post_id);
+        $products = dvdb_get_products_by_index($post_id, $new_step_index_count);
 
-        wp_send_json_success(['message' => 'Step removed successfully', 'new_step_index_count' => $new_step_index_count]);
+        wp_send_json_success(['message' => 'Step removed successfully', 'new_step_index_count' => $new_step_index_count, 'hasEndProduct' => !empty($products)]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
@@ -486,9 +509,10 @@ function handle_dvdb_set_step_type() {
         }
 
         $new_step_index_count = dvdb_get_step_index_count($post_id);
+        $products = dvdb_get_products_by_index($post_id, $new_step_index_count);
 
         if (dvdb_set_step_type($step_id, $type)) {
-            wp_send_json_success(['message' => 'Step type updated successfully', 'new_step_index_count' => $new_step_index_count]);
+            wp_send_json_success(['message' => 'Step type updated successfully', 'new_step_index_count' => $new_step_index_count, 'hasEndProduct' => !empty($products)]);
         } else {
             throw new Exception('Failed to update step type');
         }

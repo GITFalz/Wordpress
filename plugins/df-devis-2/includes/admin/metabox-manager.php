@@ -93,6 +93,12 @@ function dv_render_devis_customization_meta_box($post) {
         }
     }
 
+    $stepIndex = count($stepData);
+    $products = dvdb_get_products_by_index($post_id, $stepIndex);
+    if (!empty($products)) {
+        $stepData[$stepIndex]['disable_name'] = true;
+    }
+
     // Import media library images
     wp_enqueue_media();
 

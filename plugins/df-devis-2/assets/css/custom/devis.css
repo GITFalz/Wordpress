@@ -1,3 +1,7 @@
+.hidden {
+    display: none !important;
+}
+
 /* Main container fills the whole screen */
 .df-devis-container {
     display: flex;
@@ -14,22 +18,32 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-bottom: 2rem;
     flex-wrap: wrap;
     width: 100%;
 }
 
 .df-devis-step {
-    padding: 0.8rem 1.2rem;
+    position: relative;
     border-radius: 8px;
-    text-align: center;
-    min-width: 120px;
+    text-align: start;
+    width: 150px;
     transition: all 0.3s ease;
     font-weight: 500;
     cursor: default;
+    display: flex;
+    align-items: end;
+    height: 80px;
 }
 
 /* Step styles */
+
+/**
+ * Les étapes ont 3 états :
+ * - step-previous : l'étape précédente
+ * - step-current : l'étape en cours
+ * - step-next : l'étape suivante
+ */
+
 .df-devis-step.step-previous {
     background-color: #d1e7dd;
     border: 2px solid #0f5132;
@@ -40,14 +54,56 @@
     border: 2px solid #084298;
     color: #084298;
 }
-.df-devis-step.step-next {
-    background-color: #e2e3e5;
-    border: 2px solid #6c757d;
-    color: #6c757d;
+
+/**
+ * Avec un devis a taille variable, il est preferable de ne pas afficher
+ * l'étape suivante, car le nombre d'étapes peut varier.
+ */
+
+[data-nb-etape-fixe="false"] .df-devis-step.step-next {
+    display: none;
+}
+
+/** 
+ * Avec un devis a taille fixe, il est possible de l'afficher
+ * car le nombre d'étapes est constant.
+ */
+
+[data-nb-etape-fixe="true"] .df-devis-step.step-next {
+    background-color: #fff3cd;
+    border: 2px solid #664d03;
+    color: #664d03;
+}
+
+
+
+/* Cache le nom des prochaines étapes */
+.df-devis-step.step-next h2 {
+    display: none;
+}
+
+/**
+ * Il est possible de montrer l'index des étapes
+ * en ajoutant l'attribut data-show-step-index="true" avant la div df-devis-steps
+ */
+[data-show-step-index="true"] .df-devis-step::after {
+    /* make it really big and to the left */
+    content: attr(data-index);
+    position: absolute;
+    font-size: 50px;
+    bottom: 15px;
+    left: 15px;
+    transform: translateY(-50%);
 }
 
 .df-devis-step h2 {
+    justify-content: start;
+    word-break: break-word;
     font-size: 1rem;
+    padding-bottom: 0;
+    margin-bottom: 15px;
+    padding-left: 50px;
+    max-width: 90px
 }
 
 /* Options area */
@@ -290,6 +346,73 @@
   font-size: 0.9rem;
   color: #28a745;
 }
+
+
+/* Popup */
+.df-pop-up {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.35); /* dimmed background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeInUp 0.3s ease;
+}
+
+.df-pop-up-content {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    font-family: 'Segoe UI', sans-serif;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.df-pop-up-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.df-pop-up-close:hover {
+    color: #000;
+}
+
+.df-pop-up-title {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #222;
+    font-weight: 600;
+    text-align: center;
+}
+
+.df-pop-up-body {
+    text-align: center;
+}
+
+.df-pop-up-options {
+    background-color: #f0f0f0;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
 
 /* Responsive for mobile */
 @media (max-width: 768px) {

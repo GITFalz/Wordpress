@@ -107,6 +107,19 @@ function selectOption(element) {
 
         currentStepIndex++;
         updateStepClasses();
+        let type = data.data.type;
+        let name = data.data.name;
+        if (type === 'product') {
+            if (dfDevisData.generateHistory) {
+                name = dfDevisData.nomEtapeHistorique || 'Historique';
+            } else {
+                name = dfDevisData.nomEtapeFormulaire || 'Formulaire';
+            }
+        }
+
+        let currentStep = document.querySelector('.df-devis-step.step-current');
+        let title = currentStep.querySelector('h2');
+        title.textContent = name;
     });
 }
 function next_history(element) {
@@ -139,6 +152,9 @@ function next_history(element) {
 
         currentStepIndex++;
         updateStepClasses();
+        let currentStep = document.querySelector('.df-devis-step.step-current');
+        let title = currentStep.querySelector('h2');
+        title.textContent = dfDevisData.nomEtapeFormulaire || 'Formulaire';
     })
     .catch(error => {
         console.error('Error fetching history step content:', error);
@@ -281,16 +297,38 @@ function formulaire_send_email(element) {
 	.then(res => res.json())
 	.then(data => {
 		if (data.success) {
-			alert('Email sent successfully!');
-		} else {
-			console.error('Error sending email:', data.data.message);
-			alert('Failed to send email: ' + data.data.message);
+			dv_show_popup(dfDevisData.titreEmailEnvoye ?? 'Email envoyé', dfDevisData.messageEmailEnvoye ?? 'Votre email a été envoyé avec succès.');
+		} else if (data.data.alert) {
+            dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', data.data.alert);
 		}
-
-        console.log('Email response:', data);
 	})
 	.catch(error => {
-		console.error('Fetch error:', error);
-		alert('An error occurred while sending the email.');
+		dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', 'Une erreur s\'est produite lors de l\'envoi de l\'email.' + error.message);
 	});
+}
+
+function dv_close_popup() {
+    let popup = document.querySelector('.df-pop-up');
+    if (popup) {
+        popup.classList.remove('show');
+        popup.classList.add('hidden');
+    }
+}
+
+function dv_show_popup(title, message) {
+    let popup = document.querySelector('.df-pop-up');
+    if (popup) {
+        let titleElement = popup.querySelector('.df-pop-up-title');
+        let messageElement = popup.querySelector('.df-pop-up-options');
+
+        if (titleElement) {
+            titleElement.textContent = title || 'Attention!';
+        }
+        if (messageElement) {
+            messageElement.textContent = message || 'Alert';
+        }
+
+        popup.classList.remove('hidden');
+        popup.classList.add('show');
+    }
 }

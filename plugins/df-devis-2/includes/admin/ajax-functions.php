@@ -213,9 +213,11 @@ add_action('wp_ajax_dv_update_formulaire_custom_field', 'handle_dv_update_formul
 
 function handle_df_devis_send_email() {
     if ( ! isset($_POST['post_id']) || ! isset($_POST['step_id']) || ! isset($_POST['email']) || ! isset($_POST['data']) || empty($_POST['email']) ) {
-        wp_send_json_error(['message' => 'Missing or invalid data']);
+        wp_send_json_error(['message' => 'Missing or invalid data', 'alert' => 'Il manque des données pour envoyer l\'email.']);
         wp_die();
     }
+
+    $settings = dfdv()->settings;
 
     $post_id = intval($_POST['post_id']);
     $step_id = intval($_POST['step_id']);
@@ -244,26 +246,29 @@ function handle_df_devis_send_email() {
         }
     }
 
-    $owner_email = get_post_meta($post_id, '_devis_owner_email', true);
+    $owner_email = '';
 
-    error_log("Sending email to: $email, Owner email: $owner_email");
+    if (isset($settings['utiliser_email_personnalisé']) && $settings['utiliser_email_personnalisé']) {
+        $owner_email = get_post_meta($post_id, '_devis_owner_email', true);
+    } else if (isset($settings['email_du_propriétaire']) && !empty($settings['email_du_propriétaire'])) {
+        $owner_email = $settings['email_du_propriétaire'];
+    } else {    
+        /**
+         * If no email is set, you will suffer the consequences >:)
+         * traduction (pour ceux qui ne comprennent pas l'anglais -_-): Si aucun e-mail n'est défini, vous devrez en subir les conséquences >:)
+         */
+        wp_send_json_error(['message' => 'Owner email not set', 'alert' => 'L\'email du propriétaire n\'est pas défini. Veuillez contacter l\'administrateur du site.']);
+        wp_die();
+    }
 
     if ( ! is_email($email) ) {
-        wp_send_json_error(['message' => 'Invalid email address']);
+        wp_send_json_error(['message' => 'Invalid email address', 'alert' => 'L\'adresse e-mail fournie est invalide.']);
         wp_die();
     }
 
     $subject = 'Devis de ' . get_the_title($post_id);
     $body = get_devis_email_html($data, $product_data, $post_id, $final_cost);
     $attachments = [];
-
-    /*
-    foreach ($data as $field) {
-        if (!empty($field['label']) && isset($field['value'])) {
-            $body .= '<strong>' . esc_html($field['label']) . ':</strong> ' . nl2br(esc_html($field['value'])) . '<br>';
-        }
-    }
-        */
 
     // Handle file uploads
     if (!empty($_FILES['files'])) {
@@ -279,25 +284,19 @@ function handle_df_devis_send_email() {
         }
     }
 
-    // error log attachments
-    if (!empty($attachments)) {
-        error_log("Attachments: " . implode(', ', $attachments));
-    } else {
-        error_log("No attachments found.");
-    }
-
     $result1 = wp_mail($email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
     $result2 = wp_mail($owner_email, $subject, $body, ['Content-Type: text/html; charset=UTF-8'], $attachments);
 
-    if (!$result1 || !$result2) {
-        wp_send_json_error(['message' => 'Email sending failed. Please check your email configuration.', 'body' => $body]);
+
+    if (!$result2) { // Not sending email to owner is more critical
+        wp_send_json_error(['message' => 'Owner email sending failed', 'alert' => 'Échec de l\'envoi de l\'email au propriétaire. Veuillez contacter l\'administrateur du site.']);
+        wp_die();
+    } elseif (!$result1) {
+        wp_send_json_error(['message' => 'Personal email sending failed', 'alert' => 'Échec de l\'envoi de l\'email personnel. Veuillez vérifier l\'adresse e-mail.']);
         wp_die();
     } else {
         wp_send_json_success(['message' => 'Email sent successfully', 'body' => $body]);
         wp_die();
     }
-
-    wp_send_json_success(['message' => 'Email sent successfully', 'body' => $body]);
-    wp_die();
 }
 add_action('wp_ajax_df_devis_send_email', 'handle_df_devis_send_email');

@@ -79,6 +79,22 @@ if ( ! class_exists( 'DFDevis' ) )
 					}
 				}
 			});
+
+			$this->settings = get_option('df_devis_settings', array(
+
+				// Paramètres d'affichage
+				'nom_étape_historique' => 'Infos produit',
+				'nom_étape_formulaire' => 'Mon estimation',
+				'afficher_index_étape' => true,
+				'nombre_etapes_fixes' => false, // Si true, le nombre d'étapes est fixe et l'étape suivante est affichée
+
+				// Paramètres de l'email
+				'email_du_propriétaire' => 'bjornarvalkea@gmail.com',
+				'utiliser_email_personnalisé' => false, // Si true, l'email rentré dans le champ "Email du propriétaire" durant la création du devis sera utilisé, sinon l'email ci-dessus sera utilisé
+				'titre_email_erreur' => 'Oops',
+				'titre_email_envoye' => null,
+				'message_email_envoye' => null,
+			));			
 		}
     }
 
