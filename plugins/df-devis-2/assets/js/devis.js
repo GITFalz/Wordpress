@@ -345,6 +345,13 @@ function devis_loading_start() {
     if (loading) {
         loading.classList.remove('hidden');
     }
+
+    let optionsContent = document.querySelector('.df-devis-options');
+    if (optionsContent) {
+        optionsContent.querySelectorAll('.df-devis-step, .df-devis-option, .formulaire').forEach(el => {
+            el.classList.add('hidden');
+        });
+    }
 }
 
 function devis_loading_stop() {
