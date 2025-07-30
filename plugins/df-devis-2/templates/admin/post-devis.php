@@ -201,6 +201,7 @@ function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
     $custom_email_footer_color = get_post_meta($post_id, '_custom_email_footer_color', true);
     $custom_email_price_color = get_post_meta($post_id, '_custom_email_price_color', true);
     $custom_email_footer = get_post_meta($post_id, '_custom_email_footer', true);
+    $price = get_post_meta($post->ID, 'formulaire_price', true);
 
     ob_start(); ?>
     <!DOCTYPE html>
@@ -254,11 +255,13 @@ function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
             <p style="color:#555;">Ce produit est incroyable!</p>
             </td>
         </tr>
-        <tr>
-            <td style="background-color:<?php echo esc_attr($custom_email_price_color); ?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
-            TTC: <?php echo esc_html($final_cost); ?> euro
-            </td>
-        </tr>
+        <?php if ($price): ?>
+            <tr>
+                <td style="background-color:<?php echo esc_attr($custom_email_price_color); ?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
+                TTC: <?php echo esc_html($final_cost); ?> euro
+                </td>
+            </tr>
+        <?php endif; ?>
         <tr>
             <td style="padding-top:20px;text-align:center;color:#999;">
             <p><?php echo esc_html($custom_email_footer); ?></p>

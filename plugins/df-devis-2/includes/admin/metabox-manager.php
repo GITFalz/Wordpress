@@ -147,7 +147,7 @@ function dv_render_form_customization_meta_box($post) {
 
     $price = get_post_meta($post->ID, 'formulaire_price', true);
     if (empty($price)) {
-        $price = false;
+        $price = true;
         update_post_meta($post->ID, 'formulaire_price', $price);
     }
 
