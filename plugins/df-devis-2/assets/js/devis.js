@@ -27,6 +27,7 @@ function dv_afficher_post(postId) {
 }
 
 function selectStep(element) {
+    console.log(dfDevisData);
     let stepIndex = parseInt(element.dataset.index);
     if (isNaN(stepIndex)) {
         console.error('Invalid step index:', element.dataset.index);
@@ -40,6 +41,7 @@ function selectStep(element) {
     dfDevisData.history = dfDevisData.history.slice(0, stepIndex);
     let latest = dfDevisData.history[dfDevisData.history.length - 1];
     if (latest && latest.stepId) {
+        devis_loading_start();
         fetch(dfDevisData.ajaxUrl, {
             method: "POST",
             headers: {
@@ -52,6 +54,7 @@ function selectStep(element) {
         })
         .then(res => res.json())
         .then(data => {
+            devis_loading_stop();
             if (!data.success) {
                 console.error(data.data.message);
                 return;
@@ -79,6 +82,7 @@ function selectStep(element) {
 
 function selectOption(element) {
     let id = element.dataset.id;
+    devis_loading_start();
     fetch(dfDevisData.ajaxUrl, {
         method: "POST",
         headers: {
@@ -92,6 +96,7 @@ function selectOption(element) {
     })
     .then(res => res.json())
     .then(data => {
+        devis_loading_stop();
         if (!data.success) {
             console.error(data.data.message);
             return;
@@ -124,6 +129,7 @@ function selectOption(element) {
 }
 function next_history(element) {
     let stepId = element.dataset.id;
+    devis_loading_start();
     fetch(dfDevisData.ajaxUrl, {
         method: "POST",
         headers: {
@@ -137,6 +143,7 @@ function next_history(element) {
     })
     .then(res => res.json())
     .then(data => {
+        devis_loading_stop();
         if (!data.success) {
             console.error(data.data.message);
             return;
@@ -330,5 +337,19 @@ function dv_show_popup(title, message) {
 
         popup.classList.remove('hidden');
         popup.classList.add('show');
+    }
+}
+
+function devis_loading_start() {
+    let loading = document.querySelector('.df-devis-loading');
+    if (loading) {
+        loading.classList.remove('hidden');
+    }
+}
+
+function devis_loading_stop() {
+    let loading = document.querySelector('.df-devis-loading');
+    if (loading) {
+        loading.classList.add('hidden');
     }
 }

@@ -12,11 +12,18 @@ function get_devis_page_html($stepData, $firstOptions) {
                 </div>
             <?php endforeach; ?>
         </div>
-        <dic class="df-devis-step-content">
+        <div class="df-devis-step-content">
             <div class="df-devis-options">
                 <?php if (!empty($firstOptions)): ?>
                     <?= get_devis_options_html($firstOptions); ?>
                 <?php endif; ?>
+                
+            </div>
+            <div class="df-devis-loading hidden">
+                <div class="df-balls">
+                    <div class="df-ball df-ball-1"></div>
+                    <div class="df-ball df-ball-2"></div>
+                </div>
             </div>
         </div>
         <div class="df-pop-up hidden">

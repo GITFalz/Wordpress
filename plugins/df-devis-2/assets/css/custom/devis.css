@@ -29,7 +29,6 @@
     width: 150px;
     transition: all 0.3s ease;
     font-weight: 500;
-    cursor: default;
     display: flex;
     align-items: end;
     height: 80px;
@@ -108,11 +107,11 @@
 
 /* Options area */
 .df-devis-step-content {
-    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
+    height: 800px;
     overflow-y: auto;
 }
 
@@ -120,12 +119,51 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 2rem;
-    width: 100%;
-    max-width: 1200px;
-    padding: 1rem;
+    align-items: center;
+    gap: 3rem;
+    padding-top: 1rem;
+    box-sizing: border-box;
     animation: fadeInUp 0.4s ease-out;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
+
+.df-devis-loading {
+    width: 100%;
+    height: 100%;
+    background: rgba(200, 200, 200, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    position: absolute;
+    border-radius: 12px;
+}
+
+.df-balls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.df-ball {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: orange;
+}
+
+.df-ball-1 {
+    animation: rotate1 1s infinite linear
+}
+
+.df-ball-2 {
+    animation: rotate2 1s infinite linear;
+}
+
+
+
 
 /* Option box */
 .df-devis-option {
@@ -440,5 +478,91 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes rotate1 {
+    0%   
+    { 
+        transform: translateX(0) scale(1); 
+        background-color: rgb(255, 165, 0);
+    }
+    10%  
+    { 
+        transform: translateX(1px) scale(0.94); 
+        background-color: rgb(255, 165, 0);
+    }
+    25%  
+    { 
+        transform: translateX(4px) scale(0.88); 
+        background-color: rgb(227, 147, 0);
+    }
+    40%  
+    { 
+        transform: translateX(9px) scale(0.84); 
+        background-color: rgb(202, 132, 0);
+    }
+    60%  
+    { 
+        transform: translateX(19px) scale(0.84);
+        background-color: rgb(202, 132, 0); 
+    }
+    75%  
+    { 
+        transform: translateX(24px) scale(0.88); 
+        background-color: rgb(227, 147, 0); 
+    }
+    90%  
+    { 
+        transform: translateX(27px) scale(0.94); 
+        background-color: rgb(255, 165, 0);
+    }
+    100% 
+    { 
+        transform: translateX(28px) scale(1); 
+        background-color: rgb(255, 165, 0);
+    }
+}
+
+@keyframes rotate2 {
+    0%   
+    { 
+        transform: translateX(0) scale(1); 
+        background-color: rgb(255, 165, 0);
+    }
+    10%  
+    { 
+        transform: translateX(-1px) scale(1.06); 
+        background-color: rgb(255, 165, 0);
+    }
+    25%  
+    { 
+        transform: translateX(-4px) scale(1.12); 
+        background-color: rgb(255, 172, 18);
+    }
+    40%  
+    { 
+        transform: translateX(-9px) scale(1.16); 
+        background-color: rgb(253, 178, 37);
+    }
+    60%  
+    { 
+        transform: translateX(-19px) scale(1.16); 
+        background-color: rgb(253, 178, 37);
+    }
+    75%  
+    { 
+        transform: translateX(-24px) scale(1.12); 
+        background-color: rgb(255, 172, 18);
+    }
+    90%  
+    { 
+        transform: translateX(-27px) scale(1.06); 
+        background-color: rgb(255, 165, 0);
+    }
+    100% 
+    { 
+        transform: translateX(-28px) scale(1); 
+        background-color: rgb(255, 165, 0);
     }
 }

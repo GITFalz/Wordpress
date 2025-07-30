@@ -117,6 +117,14 @@ function handle_dv_display_post() {
 
     $post_id = intval($_POST['post_id']);
     try {
+        $firstStep = dvdb_get_steps_by_index($post_id, 1)[0] ?? null;
+        if (!$firstStep) {
+            throw new Exception("No steps found for post ID: $post_id");
+        }
+
+        $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
+        $generate_history = !empty($generate_history) && $generate_history === 'true';
+
         $html = dv_get_devis_page($post_id);
 
         wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history]);
