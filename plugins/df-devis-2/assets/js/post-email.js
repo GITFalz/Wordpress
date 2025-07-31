@@ -279,6 +279,10 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
       img.alt = 'Logo';
       img.width = 50;
       img.height = 50;
+        img.classList.add('_use_custom_email_logo');
+        if (!devisEmailOptions.useCustomEmailLogo) {
+            img.classList.add('hidden');
+        }
       img.style.cssText = `
         display: block;
         border: none;
@@ -286,9 +290,7 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
         max-width: 100%;
         height: auto;
       `;
-        if (devisEmailOptions.useCustomEmailLogo) {
-            td.appendChild(img);
-        }
+        td.appendChild(img);
       
     } else {
       const empty = document.createElement('div');
@@ -303,6 +305,8 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
 
   const titleElement = document.createElement('h1');
   titleElement.textContent = title;
+  titleElement.classList.add('_custom_email_title');
+  titleElement.classList.add('_custom_email_title_color');
   titleElement.style.cssText = `
     margin: 0;
     font-size: 28px;
@@ -332,6 +336,10 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
     img.alt = 'Logo';
     img.width = 50;
     img.height = 50;
+    img.classList.add('_use_custom_email_logo');
+    if (!devisEmailOptions.useCustomEmailLogo) {
+        img.classList.add('hidden');
+    }
     img.style.cssText = `
       display: block;
       margin: 0 auto 10px;
@@ -341,9 +349,7 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
       height: auto;
     `;
 
-    if (devisEmailOptions.useCustomEmailLogo) {
-        centerCell.appendChild(img);
-    }
+    centerCell.appendChild(img);
     centerCell.appendChild(titleElement);
     tr.appendChild(centerCell);
   }
