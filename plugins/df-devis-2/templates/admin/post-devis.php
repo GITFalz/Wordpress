@@ -202,21 +202,21 @@ function get_devis_form_html($step_id, $post_id) {
 }
 
 function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
-    $custom_email_logo = get_post_meta($post->ID, '_custom_email_logo', true);
-    $custom_email_title = get_post_meta($post->ID, '_custom_email_title', true);
-    $custom_email_title_position = get_post_meta($post->ID, '_custom_email_title_position', true);
-    $custom_email_logo_position = get_post_meta($post->ID, '_custom_email_logo_position', true);
-    $custom_email_title_color = get_post_meta($post->ID, '_custom_email_title_color', true);
-    $custom_email_banner_color = get_post_meta($post->ID, '_custom_email_banner_color', true);
-    $custom_email_additional_message = get_post_meta($post->ID, '_custom_email_additional_message', true);
-    $custom_email_footer_color = get_post_meta($post->ID, '_custom_email_footer_color', true);
-    $custom_email_price_color = get_post_meta($post->ID, '_custom_email_price_color', true);    
-    $custom_email_footer = get_post_meta($post->ID, '_custom_email_footer', true);
+    $custom_email_logo = get_post_meta($post_id, '_custom_email_logo', true);
+    $custom_email_title = get_post_meta($post_id, '_custom_email_title', true);
+    $custom_email_title_position = get_post_meta($post_id, '_custom_email_title_position', true);
+    $custom_email_logo_position = get_post_meta($post_id, '_custom_email_logo_position', true);
+    $custom_email_title_color = get_post_meta($post_id, '_custom_email_title_color', true);
+    $custom_email_banner_color = get_post_meta($post_id, '_custom_email_banner_color', true);
+    $custom_email_additional_message = get_post_meta($post_id, '_custom_email_additional_message', true);
+    $custom_email_footer_color = get_post_meta($post_id, '_custom_email_footer_color', true);
+    $custom_email_price_color = get_post_meta($post_id, '_custom_email_price_color', true);
+    $custom_email_footer = get_post_meta($post_id, '_custom_email_footer', true);
 
-    $use_custom_email_logo = get_post_meta($post->ID, '_use_custom_email_logo', true);
-    $use_custom_email_additional_message = get_post_meta($post->ID, '_use_custom_email_additional_message', true);
-    $use_custom_email_price = get_post_meta($post->ID, '_use_custom_email_price', true);
-    $use_custom_email_footer = get_post_meta($post->ID, '_use_custom_email_footer', true);
+    $use_custom_email_logo = get_post_meta($post_id, '_use_custom_email_logo', true);
+    $use_custom_email_additional_message = get_post_meta($post_id, '_use_custom_email_additional_message', true);
+    $use_custom_email_price = get_post_meta($post_id, '_use_custom_email_price', true);
+    $use_custom_email_footer = get_post_meta($post_id, '_use_custom_email_footer', true);
 
     ob_start(); ?>
     <!DOCTYPE html>
