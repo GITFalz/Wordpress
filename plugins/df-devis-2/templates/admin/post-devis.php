@@ -202,82 +202,164 @@ function get_devis_form_html($step_id, $post_id) {
 }
 
 function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
-    $custom_email_title = get_post_meta($post_id, '_custom_email_title', true);
-    $custom_email_banner_text = get_post_meta($post_id, '_custom_email_banner_text', true);
-    $custom_email_info_color = get_post_meta($post_id, '_custom_email_info_color', true);
-    $custom_email_footer_color = get_post_meta($post_id, '_custom_email_footer_color', true);
-    $custom_email_price_color = get_post_meta($post_id, '_custom_email_price_color', true);
-    $custom_email_footer = get_post_meta($post_id, '_custom_email_footer', true);
-    $price = get_post_meta($post->ID, 'formulaire_price', true);
+    $custom_email_logo = get_post_meta($post->ID, '_custom_email_logo', true);
+    $custom_email_title = get_post_meta($post->ID, '_custom_email_title', true);
+    $custom_email_title_position = get_post_meta($post->ID, '_custom_email_title_position', true);
+    $custom_email_logo_position = get_post_meta($post->ID, '_custom_email_logo_position', true);
+    $custom_email_title_color = get_post_meta($post->ID, '_custom_email_title_color', true);
+    $custom_email_banner_color = get_post_meta($post->ID, '_custom_email_banner_color', true);
+    $custom_email_additional_message = get_post_meta($post->ID, '_custom_email_additional_message', true);
+    $custom_email_footer_color = get_post_meta($post->ID, '_custom_email_footer_color', true);
+    $custom_email_price_color = get_post_meta($post->ID, '_custom_email_price_color', true);    
+    $custom_email_footer = get_post_meta($post->ID, '_custom_email_footer', true);
+
+    $use_custom_email_logo = get_post_meta($post->ID, '_use_custom_email_logo', true);
+    $use_custom_email_additional_message = get_post_meta($post->ID, '_use_custom_email_additional_message', true);
+    $use_custom_email_price = get_post_meta($post->ID, '_use_custom_email_price', true);
+    $use_custom_email_footer = get_post_meta($post->ID, '_use_custom_email_footer', true);
 
     ob_start(); ?>
     <!DOCTYPE html>
     <html>
     <body style="margin:0;padding:0;font-family:sans-serif;background-color:#f4f4f4;">
-        <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;padding:20px;">
-        <tr>
-            <td align="center" style="font-size:30px;font-weight:bold;padding-bottom:20px;">
-            <?php echo esc_html($custom_email_title); ?>
-            </td>
-        </tr>
-        <tr>
-            <td style="background-color:<?php echo esc_attr($custom_email_footer_color); ?>;padding:10px;">
-            <p style="font-size:25px;color:#fff;background-color:<?php echo esc_attr($custom_email_info_color); ?>;padding:10px 0;margin:0;text-align:center;">
-            <?php echo esc_html($custom_email_banner_text); ?>
-            </p>
-            <?php foreach ($data as $field): ?>
-                <?php if (!empty($field['label']) && isset($field['value'])): ?>
-                    <p style="margin:10px 0;color:#555;">
-                        <strong><?php echo esc_html($field['label']); ?> : </strong> <?php echo nl2br(esc_html($field['value'])); ?>
-                    </p>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:20px 0;">
-            <p style="font-size:21px;font-weight:bold;text-align:center;margin-bottom:10px;">Choix du produit</p>
-            <div style="text-align:center;">
-                <?php if ($product_data && isset($product_data['image'])): ?>
-                    <img src="<?php echo esc_url($product_data['image']); ?>" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
-                <?php endif; ?>
-            </div>
-            <?php if ($product_data && isset($product_data['name'])): ?>	
-                <p style="font-weight:bold;text-align:center;margin:10px 0 0;"><?php echo esc_html($product_data['name']); ?></p>
-            <?php endif; ?>
-            <?php if ($product_data && isset($product_data['description'])): ?>
-                <p style="text-align:center;margin:0;color:#555;"><?php echo nl2br(esc_html($product_data['description'])); ?></p>
-            <?php endif; ?>
-            <?php if ($product_data && isset($product_data['extras'])): ?>
-                <?php foreach ($product_data['extras'] as $extra): ?>
-                    <p style="margin:10px 0;color:#555;">
-                        <strong><?php echo esc_html($extra['name']); ?> : </strong> <?php echo nl2br(esc_html($extra['value'])); ?>
-                    </p>
-                <?php endforeach; ?>
-            <?php endif; ?>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:10px 0;">
-            <p style="color:#555;">Ce produit est incroyable!</p>
-            </td>
-        </tr>
-        <?php if ($price): ?>
+        <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f4f4" style="padding: 20px 0;">
             <tr>
-                <td style="background-color:<?php echo esc_attr($custom_email_price_color); ?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
-                TTC: <?php echo esc_html($final_cost); ?> euro
+                <td align="center">
+
+                    <!-- Main container -->
+                    <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    
+                        <!-- Header: Logo + Title -->
+                        <?php echo getEmailBanner($post->ID); ?>
+
+                        <!-- Customer Info section -->
+                        <tr>
+                            <td style="padding: 20px;">
+                            <h2 style="font-size: 20px; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0; margin-bottom: 15px;">Informations client</h2>
+                            <!-- Loop through $data fields -->
+                            <?php foreach ($data as $field): ?>
+                                <?php if (!empty($field['label']) && isset($field['value'])): ?>
+                                    <p style="margin:8px 0;color:#333;">
+                                        <strong><?php echo esc_html($field['label']); ?> : </strong> <?php echo nl2br(esc_html($field['value'])); ?>
+                                    </p>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            </td>
+                        </tr>
+
+                        <!-- Product Details -->
+                        <tr>
+                            <td style="padding: 20px; background-color: #f9f9f9;">
+                            <h2 style="font-size: 20px; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0; margin-bottom: 15px;">Détails du produit</h2>
+                            
+                            <div style="text-align: center; margin-bottom: 15px;">
+                                <?php if ($product_data && isset($product_data['image'])): ?>
+                                    <img src="<?php echo esc_url($product_data['image']); ?>" alt="Produit" width="200" height="300" style="border-radius: 6px; display: inline-block;">
+                                <?php endif; ?>
+                            </div>
+                                    
+                            <?php if ($product_data && isset($product_data['name'])): ?>	
+                                <p style="font-weight: bold; font-size: 16px; margin: 5px 0 10px;"><?php echo esc_html($product_data['name']); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php if ($product_data && isset($product_data['description'])): ?>
+                                <p style="color: #555; margin: 0 0 10px; white-space: pre-wrap;"><?php echo nl2br(esc_html($product_data['description'])); ?></p>
+                            <?php endif; ?>
+
+                            <?php if ($product_data && isset($product_data['extras'])): ?>
+                                <?php foreach ($product_data['extras'] as $extra): ?>
+                                    <p style="margin:5px 0;color:#555;">
+                                        <strong><?php echo esc_html($extra['name']); ?> : </strong> <?php echo nl2br(esc_html($extra['value'])); ?>
+                                    </p>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            <?php if ($use_custom_email_additional_message === 'yes' && !empty($custom_email_additional_message)): ?>
+                                <p style="color: #555; font-style: italic; margin-top: 20px;"><?php echo esc_html($custom_email_additional_message); ?></p>
+                            <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <!-- Price section -->
+                        <?php if ($use_custom_email_price === 'yes'): ?>
+                            <tr class="_use_custom_email_price">
+                                <td class="_custom_email_footer_color" style="background-color: <?= esc_attr($custom_email_footer_color) ?>; color: #fff; font-size: 24px; font-weight: bold; text-align: center; padding: 20px;">
+                                <span class="_custom_email_price_color" style="color: <?= esc_attr($custom_email_price_color) ?>;">TTC: <?= esc_html($final_cost) ?>€</span>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+
+                        <!-- Footer -->
+                        <?php if ($use_custom_email_footer === 'yes'): ?>
+                            <tr class="_use_custom_email_footer">
+                                <td class="_custom_email_footer" style="padding: 15px; text-align: center; font-size: 14px; color: #999; background-color: #f1f1f1;">
+                                <?= esc_html($custom_email_footer) ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+
+                    </table>
                 </td>
             </tr>
-        <?php endif; ?>
-        <tr>
-            <td style="padding-top:20px;text-align:center;color:#999;">
-            <p><?php echo esc_html($custom_email_footer); ?></p>
-            </td>
-        </tr>
         </table>
     </body>
     </html> <?php
     return ob_get_clean();
+}
+
+
+function getEmailBanner($post_id) {
+    $logoUrl = get_post_meta($post_id, '_custom_email_logo', true);
+    $title = get_post_meta($post_id, '_custom_email_title', true);
+    $titleAlign = get_post_meta($post_id, '_custom_email_title_position', true);
+    $logoPosition = get_post_meta($post_id, '_custom_email_logo_position', true);
+    $titleColor = get_post_meta($post_id, '_custom_email_title_color', true);
+    $bannerColor = get_post_meta($post_id, '_custom_email_banner_color', true);
+    $useLogo = get_post_meta($post_id, '_use_custom_email_logo', true) === 'yes';
+
+    // Helper to create image cell with correct padding
+    $createImgCell = function($url, $isLeft, $isRight, $useLogo) {
+        $paddingLeft = $isLeft ? '10px' : '0';
+        $paddingRight = $isRight ? '10px' : '0';
+
+        $img = ($url && $useLogo)
+            ? '<img class="_use_custom_email_logo ' . ($useLogo ? '' : 'hidden') . '" src="' . htmlspecialchars($url) . '" alt="Logo" width="50" height="50" style="display:block; border:none; outline:none; max-width:100%; height:auto;" />'
+            : '<div style="width:50px; height:50px;"></div>';
+
+        return '<td width="50" valign="middle" style="width:50px; max-width:50px; padding-left:' . $paddingLeft . '; padding-right:' . $paddingRight . '; overflow:hidden;">' . $img . '</td>';
+    };
+
+    $titleCell = '<td style="vertical-align:middle; padding:10px; text-align:' . htmlspecialchars($titleAlign) . ';">
+        <h1 class="_custom_email_title _custom_email_title_color" style="margin:0; font-size:28px; color:' . htmlspecialchars($titleColor) . '; font-weight: bold; line-height:1.1;">' . htmlspecialchars($title) . '</h1>
+    </td>';
+
+    $tableStart = '<table class="custom-email-banner _custom_email_banner_color" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:' . htmlspecialchars($bannerColor) . '; border-collapse:collapse;">';
+    $tableEnd = '</table>';
+
+    $output = $tableStart . '<tr>';
+
+    if ($logoPosition === 'left') {
+        $output .= $createImgCell($logoUrl, true, false, $useLogo);
+        $output .= $titleCell;
+        if ($titleAlign === 'center') {
+            $output .= $createImgCell('', false, true, $useLogo);
+        }
+    } elseif ($logoPosition === 'right') {
+        if ($titleAlign === 'center') {
+            $output .= $createImgCell('', true, false, $useLogo);
+        }
+        $output .= $titleCell;
+        $output .= $createImgCell($logoUrl, false, true, $useLogo);
+    } elseif ($logoPosition === 'center') {
+        $img = '<img class="_use_custom_email_logo ' . ($useLogo ? '' : 'hidden') . '" src="' . htmlspecialchars($logoUrl) . '" alt="Logo" width="50" height="50" style="display:block; margin:0 auto 10px; border:none; outline:none; max-width:100%; height:auto;" />';
+        $output .= '<td colspan="3" style="text-align:' . htmlspecialchars($titleAlign) . '; padding:10px;">' . $img . '
+            <h1 class="_custom_email_title _custom_email_title_color" style="margin:0; color:' . htmlspecialchars($titleColor) . '; font-size:28px; font-weight: bold; line-height:1.1;">' . htmlspecialchars($title) . '</h1>
+        </td>';
+    }
+
+    $output .= '</tr>' . $tableEnd;
+
+    return $output;
 }
 
 function handle_dv_get_first_step_content_html() {

@@ -5,31 +5,37 @@ let formulaire_debounce_map = new Map();
     formulaire_container = document.querySelector('.formulaire-creation-container');
 })();
 
-function toggle_default_fields() {
+function toggle_default_fields(element) {
     let default_fields = formulaire_container.querySelector('.formulaire-creation-default-fields-content');
     if (default_fields.classList.contains('hidden')) {
         default_fields.classList.remove('hidden');
+        element.textContent = 'Cacher';
     } else {
         default_fields.classList.add('hidden');
+        element.textContent = 'Voir';
     }
 }
 
-function toggle_custom_fields() {
+function toggle_custom_fields(element) {
     let custom_fields = formulaire_container.querySelector('.formulaire-creation-custom-fields-content');
     if (custom_fields.classList.contains('hidden')) {
         custom_fields.classList.remove('hidden');
+        element.textContent = 'Cacher';
     } else {
         custom_fields.classList.add('hidden');
+        element.textContent = 'Voir';
     }
     toggle_create_custom_fields(false);
 }
 
-function toggle_optional_fields() {
+function toggle_optional_fields(element) {
     let optional_fields = formulaire_container.querySelector('.formulaire-creation-optional-fields-content');
     if (optional_fields.classList.contains('hidden')) {
         optional_fields.classList.remove('hidden');
+        element.textContent = 'Cacher';
     } else {
         optional_fields.classList.add('hidden');
+        element.textContent = 'Voir';
     }
 }
 

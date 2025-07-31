@@ -54,7 +54,8 @@ function dv_get_customizable_step_html($step, $current_step_index = 1) {
 
 function dv_get_customizable_option_html($option) {
 
-    $data = json_decode($option['data'], true);
+    $nullData = json_encode([]);
+    $data = json_decode($option['data'] ?? $nullData, true);
     $show_cost_history = isset($data['cost']['history_visible']) ? $data['cost']['history_visible'] : 0;
     $additionalCost = isset($data['cost']['additional']) ? $data['cost']['additional'] : 0;
 
