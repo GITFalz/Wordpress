@@ -484,6 +484,12 @@
   }
 }
 
+.redirection-step {
+    animation: fadeInUp 0.5s ease-out;
+    justify-content: center;
+    height: calc(100vh - 4rem); /* Adaptation écran complet avec padding */
+}
+
 
 
 

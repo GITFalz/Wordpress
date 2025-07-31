@@ -249,7 +249,7 @@ function renderEmailBanner($post_id) {
         <h1 class="_custom_email_title _custom_email_title_color" style="margin:0; font-size:28px; color:' . htmlspecialchars($titleColor) . '; font-weight: bold; line-height:1.1;">' . htmlspecialchars($title) . '</h1>
     </td>';
 
-    $tableStart = '<table class="custom-email-banner _custom_email_banner_color" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:' . htmlspecialchars($bannerColor) . '; border-collapse:collapse;">';
+    $tableStart = '<table class="custom-email-banner _custom_email_banner_color" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:' . htmlspecialchars($bannerColor) . '; border-collapse:collapse; height: 100px">';
     $tableEnd = '</table>';
 
     $output = $tableStart . '<tr>';
@@ -635,6 +635,12 @@ function dv_render_devis_settings_meta_box($post) {
             <input type="checkbox" class="devis_generate_history" 
                 <?= checked(get_post_meta($post->ID, '_devis_generate_history', true), 'true', false) ?> />
             <p>Afficher un historique avant le formulaire de devis</p>
+        </div>
+
+        <div class="devis-add-redirection-page">
+            <input type="checkbox" class="devis_add_redirection_page" 
+                <?= checked(get_post_meta($post->ID, '_devis_add_redirection_page', true), 'true', false) ?> />
+            <p>Ajouter une page de redirection après le formulaire de devis</p>
         </div>
     </div>
     <?php

@@ -250,6 +250,7 @@ function renderEmailBanner(logoPosition = 'left', titleAlign = 'center', logoUrl
     background-color: ${bannerColor};
     color: #ffffff;
     border-collapse: collapse;
+    height: 100px;
   `;
   table.setAttribute('cellpadding', '0');
   table.setAttribute('cellspacing', '0');

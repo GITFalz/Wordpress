@@ -15,6 +15,11 @@ let info_perso_debounce_map = new Map();
             settings_loading();
             settings_change_post_data_value('_devis_generate_history', checked, "history");
         }
+        if (e.target.classList.contains('devis_add_redirection_page')) {
+            let checked = e.target.checked;
+            settings_loading();
+            settings_change_post_data_value('_devis_add_redirection_page', checked, "redirection");
+        }
     });
 }());
 

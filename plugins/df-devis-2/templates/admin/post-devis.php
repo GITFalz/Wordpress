@@ -201,6 +201,27 @@ function get_devis_form_html($step_id, $post_id) {
     <?php return ob_get_clean();
 }
 
+function get_devis_redirection_html($post_id) {
+    $redirect_url = get_post_meta($post_id, '_devis_redirection_url', true);
+    if (empty($redirect_url)) {
+        return '';
+    }
+    ob_start(); ?>
+    <div class="df-devis-container redirection-step">
+        <div class="df-pop-up-content">
+            <h2 class="df-pop-up-title">Merci !</h2>
+            <div class="df-pop-up-body">
+                <p style="font-size: 1rem; color: #333;">Votre message a bien été envoyé.</p>
+                <p style="font-size: 0.95rem; color: #666;">Nous vous répondrons dans les plus brefs délais.</p>
+            </div>
+            <div class="df-devis-next-button-wrapper" style="margin-top: 2rem;">
+                <button class="df-devis-next-button" onclick="window.location.href='/'">Continuer la navigation</button>
+            </div>
+        </div>
+    </div>
+    <?php return ob_get_clean();
+}
+
 function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
     $custom_email_logo = get_post_meta($post_id, '_custom_email_logo', true);
     $custom_email_title = get_post_meta($post_id, '_custom_email_title', true);
@@ -333,7 +354,7 @@ function getEmailBanner($post_id) {
         <h1 class="_custom_email_title _custom_email_title_color" style="margin:0; font-size:28px; color:' . htmlspecialchars($titleColor) . '; font-weight: bold; line-height:1.1;">' . htmlspecialchars($title) . '</h1>
     </td>';
 
-    $tableStart = '<table class="custom-email-banner _custom_email_banner_color" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:' . htmlspecialchars($bannerColor) . '; border-collapse:collapse;">';
+    $tableStart = '<table class="custom-email-banner _custom_email_banner_color" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:' . htmlspecialchars($bannerColor) . '; border-collapse:collapse; height: 100px;">';
     $tableEnd = '</table>';
 
     $output = $tableStart . '<tr>';

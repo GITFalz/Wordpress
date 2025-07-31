@@ -314,6 +314,10 @@ function formulaire_send_email(element) {
 	});
 }
 
+function page_redirection() {
+    
+}
+
 function dv_close_popup() {
     let popup = document.querySelector('.df-pop-up');
     if (popup) {

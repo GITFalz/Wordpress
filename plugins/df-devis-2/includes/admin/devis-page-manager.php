@@ -93,16 +93,21 @@ function dv_get_devis_page($post_id) {
     $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
     $generate_history = !empty($generate_history) && $generate_history === 'true';
 
+    $addRedirectionPage = get_post_meta($post_id, '_devis_add_redirection_page', true);
+    $addRedirectionPage = !empty($addRedirectionPage) && $addRedirectionPage === 'true';
+
     if ($generate_history) {
-        $history_step_name = get_post_meta($post_id, '_devis_history_step_name', true);
-        $next_step_index = count($stepData) + 1;
-        if (empty($history_step_name)) {
-            $history_step_name = 'Étape ' . $next_step_index;
-            update_post_meta($post_id, '_devis_history_step_name', $history_step_name);
-        }
         $stepData[$next_step_index] = [
             'step_index' => $next_step_index,
-            'step_name' => $history_step_name,
+            'step_name' => dfdv()->settings['nom_étape_historique'] ?? 'Historique',
+        ];
+    }
+
+    if ($addRedirectionPage) {
+        $next_step_index = count($stepData) + 1;
+        $stepData[$next_step_index] = [
+            'step_index' => $next_step_index,
+            'step_name' => 'Redirection',
         ];
     }
 
@@ -151,6 +156,9 @@ function dv_render_devis_page_shortcode($atts) {
     $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
     $generate_history = !empty($generate_history) && $generate_history === 'true';
 
+    $addRedirectionPage = get_post_meta($post_id, '_devis_add_redirection_page', true);
+    $addRedirectionPage = !empty($addRedirectionPage) && $addRedirectionPage === 'true';
+
     wp_enqueue_script(
         'df-devis-script', 
         DF_DEVIS_URL . 'assets/js/devis.js', 
@@ -169,6 +177,7 @@ function dv_render_devis_page_shortcode($atts) {
         'postId' => $post_id,
         'history' => [['stepId' => $firstStep->id]],
         'generateHistory' => $generate_history,
+        'addRedirectionPage' => $addRedirectionPage,
     ]);
 
     if ($post_id <= 0) {
