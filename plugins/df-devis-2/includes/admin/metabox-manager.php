@@ -243,6 +243,8 @@ function dv_render_form_customization_meta_box($post) {
 }
 
 function dv_render_email_customization_meta_box($post) {
+    wp_enqueue_media();
+
     wp_enqueue_script(
         'email-customization-handle',
         DF_DEVIS_URL . 'assets/js/post-email.js',
@@ -297,117 +299,215 @@ function dv_render_email_customization_meta_box($post) {
 
     ?>
     <link href="<?=DF_DEVIS_URL."assets/css/default/post-email.css"?>" rel="stylesheet" />
-    <div class="custom-email-container">
-        <div class="custom-email-page">
-            <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;padding:20px;">
+    <div class="custom-email-container"style="margin:0; padding:0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+        <!-- Outer wrapper table to center content -->
+        <table width="50    %" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f4f4" style="padding: 20px 0;">
             <tr>
-                <td class="_custom_email_title" align="center" style="font-size:30px;font-weight:bold;padding-bottom:20px;">
-                <?=esc_html($custom_email_title)?>
-                </td>
+            <td align="center">
+
+                <!-- Main container -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                
+                <!-- Header: Logo + Title -->
+                <tr>
+                    <td style="background-color: #004085; padding: 20px; text-align: center; color: #ffffff;">
+                    <!-- Logo placeholder -->
+                    <!-- Replace with actual logo image src or remove if none -->
+                    <img classsrc="<!-- LOGO_URL_HERE -->" alt="Logo" width="120" style="display: block; margin: 0 auto 10px;" />
+                    <h1 style="margin: 0; font-size: 28px; font-weight: bold;">
+                        <!-- Dynamic title -->
+                        Titre du devis
+                    </h1>
+                    </td>
+                </tr>
+                
+                <!-- Banner/info message -->
+                <tr>
+                    <td style="background-color: #f1f1f1; padding: 15px; text-align: center; color: #ffffff; font-size: 18px; font-weight: 600;">
+                    Texte bannière
+                    </td>
+                </tr>
+
+                <!-- Customer Info section -->
+                <tr>
+                    <td style="padding: 20px;">
+                    <h2 style="font-size: 20px; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0; margin-bottom: 15px;">Informations client</h2>
+
+                    <!-- Loop through $data fields -->
+                    <p style="margin: 8px 0; color: #333;">
+                        <strong>Champs :</strong> personnalisés
+                    </p>
+                    </td>
+                </tr>
+
+                <!-- Product Details -->
+                <tr>
+                    <td style="padding: 20px; background-color: #f9f9f9;">
+                    <h2 style="font-size: 20px; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 0; margin-bottom: 15px;">Détails du produit</h2>
+                    
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <img src="https://picsum.photos/200/300" alt="Produit" width="200" height="300" style="border-radius: 6px; display: inline-block;" />
+                    </div>
+
+                    <p style="font-weight: bold; font-size: 16px; margin: 5px 0 10px;">Nom du produit</p>
+
+                    <p style="color: #555; margin: 0 0 10px; white-space: pre-wrap;">Description du produit</p>
+
+                    <p style="margin: 5px 0; color: #555;">
+                        <strong>Champs :</strong> Additionnels
+                    </p>
+                    <p style="margin: 5px 0; color: #555;">
+                        <strong>Du :</strong> Produit
+                    </p>
+
+                    <p style="color: #555; font-style: italic; margin-top: 20px;">Message additionnel</p>
+                    </td>
+                </tr>
+
+                <!-- Price section -->
+                <tr>
+                    <td style="background-color: #f1f1f1; color: #fff; font-size: 24px; font-weight: bold; text-align: center; padding: 20px;">
+                    Prix
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 15px; text-align: center; font-size: 14px; color: #999; background-color: #f1f1f1;">
+                    Texte bas de page
+                    </td>
+                </tr>
+
+                </table>
+            </td>
             </tr>
-            <tr>
-                <td class="_custom_email_footer_color" style="background-color:<?=esc_attr($custom_email_footer_color)?>;padding:10px;">
-                <p class="_custom_email_banner_text _custom_email_info_color" style="font-size:25px;color:#fff;background-color:<?=esc_attr($custom_email_info_color)?>;padding:10px 0;margin:0;text-align:center;">
-                    <?=esc_html($custom_email_banner_text)?>
-                </p>
-                <p style="margin:10px 0;color:#555;">
-                    <strong>Champ : </strong> Valeur
-                </p>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:20px 0;">
-                <p style="font-size:21px;font-weight:bold;text-align:center;margin-bottom:10px;">Choix du produit</p>
-                <div style="text-align:center;">
-                    <img src="https://picsum.photos/200/300" width="200" height="300" alt="Produit" style="display:block;margin:auto;">
-                </div>
-                <p style="font-weight:bold;text-align:center;margin:10px 0 0;">Nom du produit</p>
-                <p style="text-align:center;margin:0;color:#555;">Autre chose</p>
-                <p style="margin:10px 0;color:#555;">Poids: <strong>200kg</strong></p>
-                <p style="margin:10px 0;color:#555;">Hauteur: <strong>1m</strong></p>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding:10px 0;">
-                <p style="color:#555;">Ce produit est incroyable!</p>
-                </td>
-            </tr>
-            <tr>
-                <td class="_custom_email_price_color" style="background-color:<?=esc_attr($custom_email_price_color)?>;color:#fff;font-size:24px;text-align:center;padding:15px;">
-                TTC: 50000000 euro
-                </td>
-            </tr>
-            <tr>
-                <td style="padding-top:20px;text-align:center;color:#999;">
-                <p class="_custom_email_footer"><?=esc_html($custom_email_footer)?></p>
-                </td>
-            </tr>
-            </table>
-        </div> 
+        </table>
         <div class="custom-email-actions">
             <h2>Modifier le contenu</h2>
 
-            <div class="custom-email-field">
-                <label for="title">Nom du devis</label>
-                <input class="custom-email-input email-input" data-name="_custom_email_title" type="text" id="title" value="<?=esc_attr($custom_email_title)?>">
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
+            <div class="custom-email-section">
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input type="checkbox" id="use_custom_email_logo" class="custom-email-input-checkbox" data-name="_use_custom_email_logo" />
+                        <label for="custom_email_logo">Logo du devis</label>
+                        
+                    </div>
+                    <button class="button button-secondary" id="upload_logo_button">Selectionner</button>
+                    <img id="custom_email_logo" src="To be added" alt="Logo" style="max-width: 100px; margin-top: 10px;" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="custom-email-field">
-                <label for="bannerText">Texte bannière</label>
-                <input class="custom-email-input email-input" data-name="_custom_email_banner_text" type="text" id="bannerText" value="<?=esc_attr($custom_email_banner_text)?>">
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
+            <div class="custom-email-section">
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input type="checkbox" id="use_custom_email_title" class="custom-email-input-checkbox" data-name="_use_custom_email_title" />
+                        <label for="custom_email_title">Titre du devis</label>
+                        
+                    </div>
+                    <input class="custom-email-input" data-name="_custom_email_title" type="text" id="custom_email_title" value="To be added" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
+                </div>
+
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_banner_text" type="checkbox" id="use_custom_email_banner_text" />
+                        <label for="custom_email_banner_text">Texte de la bannière</label>
+                        
+                    </div>
+                    <input class="custom-email-input" data-name="_custom_email_banner_text" type="text" id="custom_email_banner_text" value="To be added" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
+                </div>
+
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_banner_color" type="checkbox" id="use_custom_email_banner_color" />
+                        <label for="custom_email_banner_color">Couleur de la bannière</label>
+                        
+                    </div>
+                    <input class="custom-email-input" data-name="_custom_email_banner_color" type="color" id="custom_email_banner_color" value="To be added" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="custom-email-field">
-                <label for="infoColor">Couleur fond "Information du client"</label>
-                <input class="custom-email-input email-bg-color" data-name="_custom_email_info_color" type="color" id="infoColor" value="<?=esc_attr($custom_email_info_color)?>">
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
+            <div class="custom-email-section">
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_additional_message" type="checkbox" id="use_custom_email_additional_message" />
+                        <label for="custom_email_info_color">Couleur des informations</label>
+                        
+                    </div>
+                    <textarea class="custom-email-input" data-name="_custom_email_additional_message" id="custom_email_additional_message">To be added</textarea>
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
                 </div>
-            </div>
-    
-            <div class="custom-email-field">
-                <label for="footerColor">Couleur Informations</label>
-                <input class="custom-email-input email-bg-color" data-name="_custom_email_footer_color" type="color" id="footerColor" value="<?=esc_attr($custom_email_footer_color)?>">
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
+
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_footer_color" type="checkbox" id="use_custom_email_footer_color" />
+                        <label for="custom_email_info_color">Couleur du bas de page</label>
+                        
+                    </div>
+                    <input class="custom-email-input" data-name="_custom_email_footer_color" type="color" id="custom_email_footer_color" value="To be added" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
+                </div>
+
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_price_color" type="checkbox" id="use_custom_email_price_color" />
+                        <label for="custom_email_price_color">Couleur du prix</label>
+                        
+                    </div>
+                    <input class="custom-email-input" data-name="_custom_email_price_color" type="color" id="custom_email_price_color" value="To be added" />
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
+                </div>
+
+                <div class="custom-email-field">
+                    <div class="custom-email-field-header">
+                        <input class="custom-email-input-checkbox" data-name="_use_custom_email_footer" type="checkbox" id="use_custom_email_footer" />
+                        <label for="custom_email_footer">Texte du pied de page</label>
+                        
+                    </div>  
+                    <textarea class="custom-email-input" data-name="_custom_email_footer" id="custom_email_footer">To be added</textarea>  
+                    <div class="custom-email-save-info">
+                        <div class="custom-email-spinner hidden"></div>
+                        <div class="custom-email-save hidden">&#10003;</div>
+                        <div class="custom-email-fail hidden">&#10005;</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="custom-email-field">
-                <label for="priceColor">Couleur fond TTC</label>
-                <input class="custom-email-input email-bg-color" data-name="_custom_email_price_color" type="color" id="priceColor" value="<?=esc_attr($custom_email_price_color)?>">
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
-                </div>
-            </div>
-
-            <div class="custom-email-field">
-                <label for="footer">Texte bas de page</label>
-                <textarea class="custom-email-input email-textarea" data-name="_custom_email_footer" type="text" id="footer" ><?=esc_attr($custom_email_footer)?></textarea>
-                <div class="formulaire-creation-optional-save-info">
-                    <div class="custom-email-spinner hidden"></div>
-                    <div class="custom-email-save hidden">&#10003;</div>
-                    <div class="custom-email-fail hidden">&#10005;</div>
-                </div>
-            </div>
         </div>
-    </div> <?php
+    </div>
+    <?php
 }
 
 function dv_render_devis_settings_meta_box($post) {

@@ -19,7 +19,8 @@
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    width: 100%;
+    width: max-content; /* so width grows/shrinks with content */
+    transition: width 0.5s ease;
 }
 
 .df-devis-step {
@@ -27,11 +28,16 @@
     border-radius: 8px;
     text-align: start;
     width: 150px;
-    transition: all 0.3s ease;
     font-weight: 500;
     display: flex;
     align-items: end;
     height: 80px;
+    transition: transform 0.5s ease;
+}
+
+.df-devis-step:hover {
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 /* Step styles */

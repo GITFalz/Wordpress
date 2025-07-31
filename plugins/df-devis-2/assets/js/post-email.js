@@ -1,7 +1,7 @@
 let email_container;
 
 (function(){
-    email_container = document.querySelector('.custom-email-container');    
+    email_container = document.querySelector('.custom-email-actions');    
 
     // Test if color input has changed
     email_container.addEventListener('input', function(e) {
@@ -29,6 +29,11 @@ function update_post_data_value(element) {
         custom_element.innerHTML = value;
     }
 
+    email_update_post_data_value(line, value);
+}
+
+function email_update_post_data_value(line, value) {
+    ce_wait();
     fetch(devisEmailOptions.ajaxUrl, {
         method: 'POST',
         headers: {  

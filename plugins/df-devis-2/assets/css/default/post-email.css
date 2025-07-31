@@ -1,47 +1,114 @@
 .custom-email-container {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: start;
-    align-self: start;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  width: 100%;
+  justify-content: start;
+  align-items: flex-start;
 }
 
-.custom-email-page {
-    width: 650px;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.custom-email-container table {
+  margin-left: 0;
 }
 
-.custom-email-customizer {
-    max-width: 800px;
-    margin: auto;
-    display: flex;
-    gap: 40px;
+.custom-email-actions {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  width: 50%;
 }
 
-.custom-email-preview {
-    flex: 1;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+.custom-email-actions h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
 }
+
+.custom-email-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
 .custom-email-field {
-    display: flex;
-    flex-direction: row;
+  margin-bottom: 1.5rem;
+}
+
+.custom-email-field-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.custom-email-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.custom-email-input[type="color"] {
+  padding: 0;
+  width: 60px;
+  height: 36px;
+}
+
+.custom-email-input-checkbox {
+  margin: 0;
+  transform: scale(1.1);
+}
+
+.custom-email-save-info {
+  margin-top: 0.4rem;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.custom-email-save-info {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.custom-email-spinner,
+.custom-email-save,
+.custom-email-fail {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 1500px) {
+  .custom-email-container {
+    flex-direction: column;
     align-items: center;
-    justify-content: start;
-    margin-bottom: 15px;
-}
+  }
+  
+  .custom-email-container > table {
+    width: 100%;
+  }
 
-.custom-email-field label {
-    width: 300px;
-}
-
-label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
+  .custom-email-actions {
+    width: 100%;
+  }
 }
