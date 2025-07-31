@@ -230,7 +230,7 @@ function get_devis_email_html($data, $product_data, $post_id, $final_cost) {
                     <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     
                         <!-- Header: Logo + Title -->
-                        <?php echo getEmailBanner($post->ID); ?>
+                        <?php echo getEmailBanner($post_id); ?>
 
                         <!-- Customer Info section -->
                         <tr>
