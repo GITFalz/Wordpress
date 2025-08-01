@@ -119,9 +119,6 @@ function selectOption(element) {
         updateStepClasses();
         let type = data.data.type;
         let name = data.data.name;
-        console.log("Step type:", type);
-        console.log("Step data:", dfDevisData.generateHistory);
-        console.log("Step name:", dfDevisData.nomEtapeHistorique);
         if (type === 'product') {
             if (dfDevisData.generateHistory) {
                 name = dfDevisData.nomEtapeHistorique || 'Historique';

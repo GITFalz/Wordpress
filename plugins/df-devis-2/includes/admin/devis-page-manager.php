@@ -173,9 +173,9 @@ function dv_render_devis_page_shortcode($atts) {
     $firstStep = dvdb_get_steps_by_index($post_id, 1)[0] ?? null;
 
 
-    $history_step_name = get_post_meta($post->ID, '_devis_history_step_name', true);
-    $form_step_name = get_post_meta($post->ID, '_devis_form_step_name', true);
-    $redirection_step_name = get_post_meta($post->ID, '_devis_redirection_step_name', true);
+    $history_step_name = get_post_meta($post_id, '_devis_history_step_name', true);
+    $form_step_name = get_post_meta($post_id, '_devis_form_step_name', true);
+    $redirection_step_name = get_post_meta($post_id, '_devis_redirection_step_name', true);
 
     $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
     $generate_history = !empty($generate_history) && $generate_history === 'true';
