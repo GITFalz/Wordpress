@@ -308,12 +308,11 @@ function formulaire_send_email(element) {
 	})	
 	.then(res => res.json())
 	.then(data => {
-        /*
 		if (!data.success) {
             console.error(data.data.message);
             dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', data.data.alert);
             return;
-        }*/
+        }
 
 
         console.log("Email sent successfully:", data);
