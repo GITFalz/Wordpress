@@ -21,6 +21,8 @@ function dv_afficher_post(postId) {
         dfDevisData.postId = postId;
         dfDevisData.history = data.data.history || [];
         dfDevisData.generateHistory = data.data.generateHistory || false;
+        dfDevisData.addRedirectionPage = data.data.addRedirectionPage || false;
+        dfDevisData.redirectionType = data.data.redirectionType || 'new step';
 
         document.querySelector('.df-devis-main-container').innerHTML = data.data.html;
     })
@@ -303,11 +305,23 @@ function formulaire_send_email(element) {
 	})	
 	.then(res => res.json())
 	.then(data => {
-		if (data.success) {
-			dv_show_popup(dfDevisData.titreEmailEnvoye ?? 'Email envoyé', dfDevisData.messageEmailEnvoye ?? 'Votre email a été envoyé avec succès.');
-		} else if (data.data.alert) {
+		if (!data.success) {
+            console.error(data.data.message);
             dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', data.data.alert);
-		}
+            return;
+        }
+
+
+        console.log("Email sent successfully:", data);
+        console.log(dfDevisData.addRedirectionPage);
+
+
+        let redirection = dfDevisData.redirectionType;
+        if (redirection === 'new step') {
+            page_redirection();
+        } else if (redirection === 'previous') {
+            window.history.back();
+        }
 	})
 	.catch(error => {
 		dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', 'Une erreur s\'est produite lors de l\'envoi de l\'email.' + error.message);
@@ -315,7 +329,43 @@ function formulaire_send_email(element) {
 }
 
 function page_redirection() {
-    
+    devis_loading_start();
+    fetch(dfDevisData.ajaxUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            action: "dv_get_redirection_html",
+            post_id: dfDevisData.postId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        devis_loading_stop();
+        console.log("Redirection page content:", data);
+        if (!data.success) {
+            console.error(data.data.message);
+            dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', data.data.message);
+            return;
+        }
+
+        console.log("Redirection page HTML:", data.data.html);
+        let html = data.data.html;
+        let optionsContent = document.querySelector('.df-devis-options');
+        optionsContent.innerHTML = html;
+
+        let currentStep = document.querySelector('.df-devis-step.step-current');
+        let title = currentStep.querySelector('h2');
+        title.textContent = dfDevisData.nomEtapeFormulaire || 'Redirection';
+
+        currentStepIndex++; 
+        updateStepClasses();
+    })
+    .catch(error => {
+        console.error('Error fetching redirection page content:', error);
+        dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', 'Une erreur s\'est produite lors de la récupération de la page de redirection.');
+    });
 }
 
 function dv_close_popup() {

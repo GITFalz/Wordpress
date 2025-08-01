@@ -49,21 +49,80 @@
 }
 
 /* History checkbox */
-.devis-generate-history,
-.devis-add-redirection-page {
+.devis-settings-checkbox {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-top: 10px;
 }
 
-.devis-generate-history input[type="checkbox"],
-.devis-add-redirection-page input[type="checkbox"] {
+.devis-settings-checkbox input[type="checkbox"] {
     transform: scale(1.1);
 }
 
-.devis-generate-history p,
-.devis-add-redirection-page p {
+.devis-settings-checkbox p {
+    margin: 0;
+    font-size: 13px;
+    color: #444;
+}
+
+.devis-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.devis-settings-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.devis-settings-radio input[type="radio"] {
+    transform: scale(1.1);
+}
+
+.devis-settings-radio p {
+    margin: 0;
+    font-size: 13px;
+    color: #444;
+}
+
+.devis-settings-text {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.devis-settings-text input {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.devis-settings-text p {
+    margin: 0;
+    font-size: 13px;
+    color: #444;
+}
+
+.devis-settings-select {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}   
+
+.devis-settings-select select {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.devis-settings-select p {
     margin: 0;
     font-size: 13px;
     color: #444;

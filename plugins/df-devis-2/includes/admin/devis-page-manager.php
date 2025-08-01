@@ -93,17 +93,18 @@ function dv_get_devis_page($post_id) {
     $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
     $generate_history = !empty($generate_history) && $generate_history === 'true';
 
-    $addRedirectionPage = get_post_meta($post_id, '_devis_add_redirection_page', true);
-    $addRedirectionPage = !empty($addRedirectionPage) && $addRedirectionPage === 'true';
+    $redirectionType = get_post_meta($post_id, '_devis_redirection_type', true);
+    $redirectionType = !empty($redirectionType) ? $redirectionType : 'new step';
 
     if ($generate_history) {
+        $next_step_index = count($stepData) + 1;
         $stepData[$next_step_index] = [
             'step_index' => $next_step_index,
             'step_name' => dfdv()->settings['nom_étape_historique'] ?? 'Historique',
         ];
     }
 
-    if ($addRedirectionPage) {
+    if ($redirectionType === 'new step') {
         $next_step_index = count($stepData) + 1;
         $stepData[$next_step_index] = [
             'step_index' => $next_step_index,
@@ -111,7 +112,7 @@ function dv_get_devis_page($post_id) {
         ];
     }
 
-    return get_devis_page_html($stepData, $firstOptions);
+    return get_devis_page_html($stepData, $firstOptions, $post_id);
 }
 
 function handle_dv_display_post() {
@@ -130,9 +131,12 @@ function handle_dv_display_post() {
         $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
         $generate_history = !empty($generate_history) && $generate_history === 'true';
 
+        $redirectionType = get_post_meta($post_id, '_devis_redirection_type', true);
+        $redirectionType = !empty($redirectionType) ? $redirectionType : 'new step';
+
         $html = dv_get_devis_page($post_id);
 
-        wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history]);
+        wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history, 'redirectionType' => $redirectionType]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);
@@ -149,15 +153,17 @@ function dv_render_devis_page_shortcode($atts) {
     $settings = dfdv()->settings;
 
     $firstStep = dvdb_get_steps_by_index($post_id, 1)[0] ?? null;
-    if (!$firstStep) {
-        return '<p>' . esc_html__('No steps found for this devis.', 'df-devis') . '</p>';
-    }
+
+
+    $history_step_name = get_post_meta($post->ID, '_devis_history_step_name', true);
+    $form_step_name = get_post_meta($post->ID, '_devis_form_step_name', true);
+    $redirection_step_name = get_post_meta($post->ID, '_devis_redirection_step_name', true);
 
     $generate_history = get_post_meta($post_id, '_devis_generate_history', true);
     $generate_history = !empty($generate_history) && $generate_history === 'true';
 
-    $addRedirectionPage = get_post_meta($post_id, '_devis_add_redirection_page', true);
-    $addRedirectionPage = !empty($addRedirectionPage) && $addRedirectionPage === 'true';
+    $redirectionType = get_post_meta($post_id, '_devis_redirection_type', true);
+    $redirectionType = !empty($redirectionType) ? $redirectionType : 'new step';
 
     wp_enqueue_script(
         'df-devis-script', 
@@ -169,15 +175,16 @@ function dv_render_devis_page_shortcode($atts) {
 
     wp_localize_script('df-devis-script', 'dfDevisData', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nomEtapeHistorique' => $settings['nom_étape_historique'] ?? 'Historique',
-        'nomEtapeFormulaire' => $settings['nom_étape_formulaire'] ?? 'Formulaire',
+        'nomEtapeHistorique' => $history_step_name ?? $settings['nom_étape_historique'] ?? 'Historique',
+        'nomEtapeFormulaire' => $form_step_name ?? $settings['nom_étape_formulaire'] ?? 'Formulaire',
+        'nomEtapeRedirection' => $redirection_step_name ?? $settings['nom_étape_redirection'] ?? 'Redirection',
         'titreEmailErreur' => $settings['titre_email_erreur'] ?? null,
         'titreEmailEnvoye' => $settings['titre_email_envoye'] ?? null,
         'messageEmailEnvoye' => $settings['message_email_envoye'] ?? null,
         'postId' => $post_id,
         'history' => [['stepId' => $firstStep->id]],
         'generateHistory' => $generate_history,
-        'addRedirectionPage' => $addRedirectionPage,
+        'redirectionType' => $redirectionType,
     ]);
 
     if ($post_id <= 0) {

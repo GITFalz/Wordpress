@@ -1,10 +1,10 @@
 <?php
-function get_devis_page_html($stepData, $firstOptions) {
+function get_devis_page_html($stepData, $firstOptions, $post_id = null) {
     $settings = dfdv()->settings;
     ob_start();
     ?>
     <link rel="stylesheet" href="<?php echo esc_url(DF_DEVIS_URL . 'assets/css/custom/devis.css'); ?>">
-    <div class="df-devis-container" data-show-step-index="<?php echo esc_attr($settings['afficher_index_étape'] ? 'true' : 'false'); ?>" data-nb-etape-fixe="<?php echo esc_attr($settings['nombre_etapes_fixes'] ? 'true' : 'false'); ?>">
+    <div class="df-devis-container" data-show-step-index="<?php echo esc_attr(get_post_meta($post_id, '_devis_display_step_index', true)); ?>" data-nb-etape-dynamique="<?php echo esc_attr(get_post_meta($post_id, '_devis_display_dynamic_step_count', true)); ?>">
         <div class="df-devis-steps">
             <?php foreach ($stepData as $step): ?>
                 <div class="df-devis-step <?= intval($step['step_index']) == 1 ? "step-current" : "step-next" ?>" data-index="<?php echo esc_attr($step['step_index']); ?>" onclick="selectStep(this)">
@@ -204,7 +204,7 @@ function get_devis_form_html($step_id, $post_id) {
 function get_devis_redirection_html($post_id) {
     $redirect_url = get_post_meta($post_id, '_devis_redirection_url', true);
     if (empty($redirect_url)) {
-        return '';
+        //return '';
     }
     ob_start(); ?>
     <div class="df-devis-container redirection-step">
@@ -497,3 +497,24 @@ function handle_dv_get_form_html() {
     }
 }
 add_action('wp_ajax_dv_get_form_html', 'handle_dv_get_form_html');
+
+function handle_dv_get_redirection_html() {
+    try {
+        if (!isset($_POST['post_id'])) {
+            throw new Exception('Missing post ID');
+        }
+
+        $post_id = intval($_POST['post_id']);
+        if (empty($post_id)) {
+            throw new Exception('Invalid post ID');
+        }
+
+        $html = get_devis_redirection_html($post_id);
+        wp_send_json_success(['html' => $html]);
+        wp_die();
+    } catch (Exception $e) {
+        wp_send_json_error(['message' => $e->getMessage()]);
+        wp_die();
+    }
+}
+add_action('wp_ajax_dv_get_redirection_html', 'handle_dv_get_redirection_html');

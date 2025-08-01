@@ -1,90 +1,95 @@
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 /* Main container fills the whole screen */
 .df-devis-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 2rem;
-    height: 100%;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in width/height */
 }
 
 /* Step navigation bar */
 .df-devis-steps {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: max-content; /* so width grows/shrinks with content */
-    transition: width 0.5s ease;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: max-content; /* so width grows/shrinks with content */
+  transition: width 0.5s ease;
+  margin-bottom: 2rem; /* Add space below steps */
 }
 
 .df-devis-step {
-    position: relative;
-    border-radius: 8px;
-    text-align: start;
-    width: 150px;
-    font-weight: 500;
-    display: flex;
-    align-items: end;
-    height: 80px;
-    transition: transform 0.5s ease;
+  position: relative;
+  border-radius: 10px; /* Slightly more rounded corners */
+  text-align: start;
+  width: 150px;
+  font-weight: 600; /* Slightly bolder text */
+  display: flex;
+  align-items: end;
+  height: 80px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smoother transitions */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
 }
 
 .df-devis-step:hover {
-    transform: scale(1.05);
-    cursor: pointer;
+  transform: translateY(-3px); /* Lift slightly on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* Enhanced shadow on hover */
+  cursor: pointer;
 }
 
 /* Step styles */
-
 /**
  * Les étapes ont 3 états :
  * - step-previous : l'étape précédente
  * - step-current : l'étape en cours
  * - step-next : l'étape suivante
  */
-
 .df-devis-step.step-previous {
-    background-color: #d1e7dd;
-    border: 2px solid #0f5132;
-    color: #0f5132;
+  background-color: #e9ecef; /* Light grey for previous */
+  border: 1px solid #ced4da; /* Subtle border */
+  color: #6c757d; /* Muted text color */
 }
+
 .df-devis-step.step-current {
-    background-color: #cfe2ff;
-    border: 2px solid #084298;
-    color: #084298;
+  background-color: #007bff; /* Primary blue for current */
+  border: 1px solid #007bff;
+  color: #ffffff; /* White text for current */
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2); /* Blue shadow for current */
+}
+
+.df-devis-step.step-current:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
 }
 
 /**
  * Avec un devis a taille variable, il est preferable de ne pas afficher
  * l'étape suivante, car le nombre d'étapes peut varier.
  */
-
-[data-nb-etape-fixe="false"] .df-devis-step.step-next {
-    display: none;
+[data-nb-etape-dynamique="true"] .df-devis-step.step-next {
+  display: none;
 }
 
-/** 
+/**
  * Avec un devis a taille fixe, il est possible de l'afficher
  * car le nombre d'étapes est constant.
  */
-
-[data-nb-etape-fixe="true"] .df-devis-step.step-next {
-    background-color: #fff3cd;
-    border: 2px solid #664d03;
-    color: #664d03;
+[data-nb-etape-dynamique="false"] .df-devis-step.step-next {
+  background-color: #f8f9fa; /* Very light grey for next */
+  border: 1px dashed #adb5bd; /* Dashed border for next */
+  color: #6c757d; /* Muted text color */
 }
-
-
 
 /* Cache le nom des prochaines étapes */
 .df-devis-step.step-next h2 {
-    display: none;
+  display: none;
 }
 
 /**
@@ -92,227 +97,239 @@
  * en ajoutant l'attribut data-show-step-index="true" avant la div df-devis-steps
  */
 [data-show-step-index="true"] .df-devis-step::after {
-    /* make it really big and to the left */
-    content: attr(data-index);
-    position: absolute;
-    font-size: 50px;
-    bottom: 15px;
-    left: 15px;
-    transform: translateY(-50%);
+  content: attr(data-index);
+  position: absolute;
+  font-size: 40px; /* Slightly smaller index font */
+  font-weight: 700;
+  bottom: 10px; /* Adjust position */
+  left: 15px;
+  color: rgba(0, 0, 0, 0.1); /* Very subtle index color */
+  transform: translateY(-50%);
+  z-index: 0; /* Ensure text is above */
 }
 
 .df-devis-step h2 {
-    justify-content: start;
-    word-break: break-word;
-    font-size: 1rem;
-    padding-bottom: 0;
-    margin-bottom: 15px;
-    padding-left: 50px;
-    max-width: 90px
+  justify-content: start;
+  word-break: break-word;
+  font-size: 0.95rem; /* Slightly smaller font for step titles */
+  padding-bottom: 0;
+  margin-bottom: 15px;
+  padding-left: 50px;
+  max-width: 90px;
+  z-index: 1; /* Ensure text is above index */
 }
 
 /* Options area */
 .df-devis-step-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 800px;
-    overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 800px; /* Keep original height */
 }
 
 .df-devis-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 3rem;
-    padding-top: 1rem;
-    box-sizing: border-box;
-    animation: fadeInUp 0.4s ease-out;
-    position: relative;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem; /* Slightly reduced gap for better density */
+  padding-top: 1rem;
+  box-sizing: border-box;
+  animation: fadeInUp 0.4s ease-out;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .df-devis-options div {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform: scale(1);
-    opacity: 1;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: scale(1);
+  opacity: 1;
 }
 
 .df-devis-options div.disappear {
-    transform: scale(0.8);
-    opacity: 0;
-    pointer-events: none;
+  transform: scale(0.9); /* Slightly less aggressive scale */
+  opacity: 0;
+  pointer-events: none;
 }
 
 .df-devis-loading {
-    width: 100%;
-    height: 100%;
-    background: rgba(200, 200, 200, 0.0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    position: absolute;
-    border-radius: 12px;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7); /* Lighter overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  position: absolute;
+  border-radius: 12px;
 }
 
 .df-balls {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem; /* Slightly larger gap */
 }
 
 .df-ball {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: orange;
+  width: 18px; /* Slightly smaller balls */
+  height: 18px;
+  border-radius: 50%;
+  background-color: #007bff; /* Use primary blue for balls */
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); /* Subtle glow */
 }
 
 .df-ball-1 {
-    animation: rotate1 1s infinite linear
+  animation: rotate1 1s infinite linear;
 }
 
 .df-ball-2 {
-    animation: rotate2 1s infinite linear;
+  animation: rotate2 1s infinite linear;
 }
-
-
-
 
 /* Option box */
 .df-devis-option {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    width: 220px;
-    height: 260px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+  padding: 1.2rem; /* Slightly more padding */
+  text-align: center;
+  cursor: pointer;
+  width: 220px;
+  height: 260px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #eee; /* Light border */
 }
 
 .df-devis-option:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  transform: translateY(-8px); /* Lift more on hover */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
 }
 
 .df-devis-option h3 {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 0.5rem;
+  font-size: 1.15rem; /* Slightly larger font */
+  color: #212529; /* Darker text for better contrast */
+  margin-bottom: 0.75rem; /* More space below title */
+  font-weight: 600;
 }
 
 /* Uniform image sizing */
 .df-devis-option img {
-    flex-grow: 1;
-    object-fit: cover;
-    width: 100%;
-    height: 160px;
-    border-radius: 8px;
+  flex-grow: 1;
+  object-fit: cover;
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  margin-bottom: 0.75rem; /* Space below image */
 }
 
 .df-history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Slightly smaller gap */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
 }
 
 .df-history-item {
-    display: flex;
-    align-items: center;
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  background: #ffffff; /* White background */
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  gap: 1rem;
+  border: 1px solid #e9ecef; /* Light border */
 }
 
 .df-history-thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 6px;
-    object-fit: cover;
-    background: #ddd;
-    flex-shrink: 0;
+  width: 60px; /* Slightly larger thumb */
+  height: 60px;
+  border-radius: 8px; /* More rounded thumb */
+  object-fit: cover;
+  background: #dee2e6; /* Muted background for placeholder */
+  flex-shrink: 0;
 }
 
 .df-history-thumb.placeholder {
-    display: inline-block;
-    background: #ccc;
+  display: inline-block;
+  background: #ced4da; /* Darker placeholder */
 }
 
 .df-history-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem; /* Smaller gap */
 }
 
 .df-history-title {
-    font-weight: 600;
-    font-size: 1rem;
-    margin: 0;
+  font-weight: 600;
+  font-size: 1.05rem; /* Slightly larger font */
+  margin: 0;
+  color: #212529;
 }
 
 .df-history-cost,
 .df-history-description {
-    font-size: 0.9rem;
-    color: #555;
-    margin: 0;
+  font-size: 0.88rem; /* Slightly smaller font */
+  color: #6c757d; /* Muted text color */
+  margin: 0;
 }
 
-.df-title, .df-subtitle {
-    margin: 0.5rem 0;
-    font-size: 1.2rem;
-    font-weight: 600;
+.df-title,
+.df-subtitle {
+  margin: 0.75rem 0; /* More vertical space */
+  font-size: 1.5rem; /* Larger font for titles */
+  font-weight: 700; /* Bolder */
+  color: #212529;
+  text-align: center;
 }
 
 .df-devis-next-button-wrapper {
-    margin-top: 2rem;
-    display: flex;
-    justify-content: center;
+  margin-top: 2.5rem; /* More space above button */
+  display: flex;
+  justify-content: center;
 }
 
 .df-devis-next-button {
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    background-color: #222;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+  padding: 0.85rem 2.5rem; /* Larger padding */
+  font-size: 1.05rem; /* Slightly larger font */
+  background-color: #007bff; /* Primary blue */
+  color: #fff;
+  border: none;
+  border-radius: 8px; /* More rounded */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
 .df-devis-next-button:hover {
-    background-color: #444;
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-1px); /* Slight lift */
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.3);
 }
 
 .formulaire {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 32px; /* Increased gap */
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem; /* More padding */
   box-sizing: border-box;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
-  font-family: 'Segoe UI', sans-serif;
+  background-color: #ffffff;
+  border-radius: 12px; /* More rounded */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+  font-family: "Inter", sans-serif;
 }
 
 .formulaire-left,
@@ -324,17 +341,17 @@
 .formulaire-left {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px; /* Increased gap */
 }
 
 .formulaire-right {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px; /* Increased gap */
   max-height: 550px;
   overflow-y: auto;
-  padding-right: 10px;
-  border-left: 2px solid #eee;
+  padding-right: 15px; /* More padding */
+  border-left: 1px solid #e9ecef; /* Lighter, more subtle border */
 }
 
 .formulaire-field {
@@ -343,25 +360,36 @@
 }
 
 .formulaire-label {
-  margin-bottom: 5px;
+  margin-bottom: 8px; /* More space below label */
   font-weight: 600;
-  font-size: 0.95rem;
-  color: #333;
+  font-size: 0.98rem; /* Slightly larger font */
+  color: #343a40; /* Darker text */
 }
 
 .formulaire-input,
 .formulaire-textarea,
 .formulaire-select,
 .formulaire-file {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  padding: 12px; /* More padding */
+  border-radius: 8px; /* More rounded */
+  border: 1px solid #ced4da; /* Subtle border */
   font-size: 0.95rem;
+  color: #495057;
+  background-color: #fdfdfd; /* Slightly off-white background */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.formulaire-input:focus,
+.formulaire-textarea:focus,
+.formulaire-select:focus {
+  border-color: #007bff; /* Blue border on focus */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Blue glow on focus */
+  outline: none;
 }
 
 .formulaire-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px; /* Taller textarea */
 }
 
 .formulaire-checkbox,
@@ -373,107 +401,115 @@
 .formulaire-region-radio {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px; /* Increased gap */
 }
 
 .formulaire-send {
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 2rem; /* More space */
   text-align: center;
 }
 
 .formulaire-send-button {
-  background-color: #0077cc;
+  background-color: #28a745; /* Green for send button */
   color: white;
   font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 6px;
+  padding: 14px 28px; /* Larger padding */
+  border-radius: 8px; /* More rounded */
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.1s ease;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
 }
 
 .formulaire-send-button:hover {
-  background-color: #005fa3;
+  background-color: #218838; /* Darker green on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
 }
 
 .devis-sent-info {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: #28a745;
+  margin-top: 15px; /* More space */
+  font-size: 0.95rem; /* Slightly larger font */
+  color: #28a745; /* Green for success message */
+  font-weight: 500;
 }
-
 
 /* Popup */
 .df-pop-up {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.35); /* dimmed background */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeInUp 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45); /* Slightly darker dimmed background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeInUp 0.3s ease;
 }
 
 .df-pop-up-content {
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-    font-family: 'Segoe UI', sans-serif;
-    animation: fadeInUp 0.3s ease-out;
+  background-color: #fff;
+  border-radius: 16px; /* More rounded */
+  padding: 2.5rem; /* More padding */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); /* Stronger shadow */
+  max-width: 450px; /* Slightly wider */
+  width: 90%;
+  position: relative;
+  font-family: "Inter", sans-serif;
+  animation: fadeInUp 0.3s ease-out;
 }
 
 .df-pop-up-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.2s ease;
+  position: absolute;
+  top: 1rem; /* Adjust position */
+  right: 1rem; /* Adjust position */
+  background: none;
+  border: none;
+  font-size: 1.75rem; /* Larger close icon */
+  line-height: 1;
+  cursor: pointer;
+  color: #6c757d; /* Muted color */
+  transition: color 0.2s ease;
 }
 
 .df-pop-up-close:hover {
-    color: #000;
+  color: #212529; /* Darker on hover */
 }
 
 .df-pop-up-title {
-    margin: 0 0 1rem;
-    font-size: 1.25rem;
-    color: #222;
-    font-weight: 600;
-    text-align: center;
+  margin: 0 0 1.2rem; /* More space below title */
+  font-size: 1.4rem; /* Larger title */
+  color: #212529;
+  font-weight: 700;
+  text-align: center;
 }
 
 .df-pop-up-body {
-    text-align: center;
+  text-align: center;
+  font-size: 1rem;
+  color: #495057;
 }
 
 .df-pop-up-options {
-    background-color: #f0f0f0;
-    padding: 1rem;
-    border-radius: 8px;
-    color: #333;
-    font-size: 1rem;
-    font-weight: 500;
+  background-color: #e9ecef; /* Light grey background */
+  padding: 1.2rem; /* More padding */
+  border-radius: 10px; /* More rounded */
+  color: #343a40;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-top: 1.5rem; /* Space above options */
 }
-
 
 /* Responsive for mobile */
 @media (max-width: 768px) {
   .formulaire {
     flex-direction: column;
+    padding: 1.5rem; /* Less padding on mobile */
+    gap: 24px;
   }
 
   .formulaire-left,
@@ -482,111 +518,131 @@
     border-left: none;
     padding-right: 0;
   }
+
+  .formulaire-right {
+    border-top: 1px solid #e9ecef; /* Add top border instead of left */
+    padding-top: 24px;
+  }
+
+  .df-devis-steps {
+    gap: 0.75rem; /* Smaller gap for steps on mobile */
+  }
+
+  .df-devis-step {
+    width: 120px; /* Smaller step width */
+    height: 70px; /* Smaller step height */
+  }
+
+  .df-devis-step h2 {
+    font-size: 0.85rem;
+    padding-left: 40px;
+    margin-bottom: 10px;
+  }
+
+  [data-show-step-index="true"] .df-devis-step::after {
+    font-size: 35px;
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .df-devis-option {
+    width: 180px; /* Smaller option width */
+    height: 220px; /* Smaller option height */
+    padding: 1rem;
+  }
+
+  .df-devis-option img {
+    height: 120px;
+  }
+
+  .df-devis-option h3 {
+    font-size: 1rem;
+  }
+
+  .df-devis-options {
+    gap: 1.5rem; /* Smaller gap for options */
+  }
 }
-
-.redirection-step {
-    animation: fadeInUp 0.5s ease-out;
-    justify-content: center;
-    height: calc(100vh - 4rem); /* Adaptation écran complet avec padding */
-}
-
-
-
 
 /* Simple fade-in animation */
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+/* Loading ball animations - adjusted colors */
 @keyframes rotate1 {
-    0%   
-    { 
-        transform: translateX(0) scale(1); 
-        background-color: rgb(255, 165, 0);
-    }
-    10%  
-    { 
-        transform: translateX(1px) scale(0.94); 
-        background-color: rgb(255, 165, 0);
-    }
-    25%  
-    { 
-        transform: translateX(4px) scale(0.88); 
-        background-color: rgb(227, 147, 0);
-    }
-    40%  
-    { 
-        transform: translateX(9px) scale(0.84); 
-        background-color: rgb(202, 132, 0);
-    }
-    60%  
-    { 
-        transform: translateX(19px) scale(0.84);
-        background-color: rgb(202, 132, 0); 
-    }
-    75%  
-    { 
-        transform: translateX(24px) scale(0.88); 
-        background-color: rgb(227, 147, 0); 
-    }
-    90%  
-    { 
-        transform: translateX(27px) scale(0.94); 
-        background-color: rgb(255, 165, 0);
-    }
-    100% 
-    { 
-        transform: translateX(28px) scale(1); 
-        background-color: rgb(255, 165, 0);
-    }
+  0% {
+    transform: translateX(0) scale(1);
+    background-color: #007bff;
+  }
+  10% {
+    transform: translateX(1px) scale(0.94);
+    background-color: #007bff;
+  }
+  25% {
+    transform: translateX(4px) scale(0.88);
+    background-color: #0069d9;
+  }
+  40% {
+    transform: translateX(9px) scale(0.84);
+    background-color: #005cbf;
+  }
+  60% {
+    transform: translateX(19px) scale(0.84);
+    background-color: #005cbf;
+  }
+  75% {
+    transform: translateX(24px) scale(0.88);
+    background-color: #0069d9;
+  }
+  90% {
+    transform: translateX(27px) scale(0.94);
+    background-color: #007bff;
+  }
+  100% {
+    transform: translateX(28px) scale(1);
+    background-color: #007bff;
+  }
 }
 
 @keyframes rotate2 {
-    0%   
-    { 
-        transform: translateX(0) scale(1); 
-        background-color: rgb(255, 165, 0);
-    }
-    10%  
-    { 
-        transform: translateX(-1px) scale(1.06); 
-        background-color: rgb(255, 165, 0);
-    }
-    25%  
-    { 
-        transform: translateX(-4px) scale(1.12); 
-        background-color: rgb(255, 172, 18);
-    }
-    40%  
-    { 
-        transform: translateX(-9px) scale(1.16); 
-        background-color: rgb(253, 178, 37);
-    }
-    60%  
-    { 
-        transform: translateX(-19px) scale(1.16); 
-        background-color: rgb(253, 178, 37);
-    }
-    75%  
-    { 
-        transform: translateX(-24px) scale(1.12); 
-        background-color: rgb(255, 172, 18);
-    }
-    90%  
-    { 
-        transform: translateX(-27px) scale(1.06); 
-        background-color: rgb(255, 165, 0);
-    }
-    100% 
-    { 
-        transform: translateX(-28px) scale(1); 
-        background-color: rgb(255, 165, 0);
-    }
+  0% {
+    transform: translateX(0) scale(1);
+    background-color: #007bff;
+  }
+  10% {
+    transform: translateX(-1px) scale(1.06);
+    background-color: #007bff;
+  }
+  25% {
+    transform: translateX(-4px) scale(1.12);
+    background-color: #007bff;
+  }
+  40% {
+    transform: translateX(-9px) scale(1.16);
+    background-color: #007bff;
+  }
+  60% {
+    transform: translateX(-19px) scale(1.16);
+    background-color: #007bff;
+  }
+  75% {
+    transform: translateX(-24px) scale(1.12);
+    background-color: #007bff;
+  }
+  90% {
+    transform: translateX(-27px) scale(1.06);
+    background-color: #007bff;
+  }
+  100% {
+    transform: translateX(-28px) scale(1);
+    background-color: #007bff;
+  }
 }

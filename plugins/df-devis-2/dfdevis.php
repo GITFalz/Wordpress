@@ -85,6 +85,7 @@ if ( ! class_exists( 'DFDevis' ) )
 				// Paramètres d'affichage
 				'nom_étape_historique' => 'Infos produit',
 				'nom_étape_formulaire' => 'Mon estimation',
+				'nom_étape_redirection' => 'Redirection',
 				'afficher_index_étape' => true,
 				'nombre_etapes_fixes' => false, // Si true, le nombre d'étapes est fixe et l'étape suivante est affichée
 

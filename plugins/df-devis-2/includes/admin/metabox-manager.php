@@ -614,6 +614,61 @@ function dv_render_devis_settings_meta_box($post) {
         ]
     );	
 
+    $settings = dfdv()->settings;
+
+    $display_step_index = get_post_meta($post->ID, '_devis_display_step_index', true);
+    if (empty($display_step_index)) {
+        $display_step_index = 'true';
+        update_post_meta($post->ID, '_devis_display_step_index', $display_step_index);
+    }
+
+    // This is when there is a non fixed number of steps, you want the steps to appear dynamically
+    $display_dynamic_step_count = get_post_meta($post->ID, '_devis_display_dynamic_step_count', true);
+    if (empty($display_dynamic_step_count)) {
+        $display_dynamic_step_count = 'true';
+        update_post_meta($post->ID, '_devis_display_dynamic_step_count', $display_dynamic_step_count);
+    }
+
+    $redirection_type = get_post_meta($post->ID, '_devis_redirection_type', true);
+    if (empty($redirection_type)) {
+        $redirection_type = 'new step';
+        update_post_meta($post->ID, '_devis_redirection_type', $redirection_type);
+    }
+
+    $history_step_name = get_post_meta($post->ID, '_devis_history_step_name', true);
+    if (empty($history_step_name)) {
+        $history_step_name = isset($settings['nom_étape_historique']) ? $settings['nom_étape_historique'] : 'Historique des devis';
+        update_post_meta($post->ID, '_devis_history_step_name', $history_step_name);
+    }
+
+    $form_step_name = get_post_meta($post->ID, '_devis_form_step_name', true);
+    if (empty($form_step_name)) {
+        $form_step_name = isset($settings['nom_étape_formulaire']) ? $settings['nom_étape_formulaire'] : 'Mon estimation';
+        update_post_meta($post->ID, '_devis_form_step_name', $form_step_name);
+    }
+
+    $redirection_step_name = get_post_meta($post->ID, '_devis_redirection_step_name', true);
+    if (empty($redirection_step_name)) {
+        $redirection_step_name = isset($settings['nom_étape_redirection']) ? $settings['nom_étape_redirection'] : 'Redirection';
+        update_post_meta($post->ID, '_devis_redirection_step_name', $redirection_step_name);
+    }
+
+    $redirection_url = get_post_meta($post->ID, '_devis_redirection_url', true);
+    if (empty($redirection_url)) {
+        $redirection_url = home_url();
+        update_post_meta($post->ID, '_devis_redirection_url', $redirection_url);
+    }
+
+    $redirectionUrls = [];
+    $pages = get_pages();
+    foreach ($pages as $page) {
+        $redirectionUrls[] = [
+            'id' => $page->ID,
+            'title' => $page->post_title,
+            'url' => get_permalink($page->ID),
+        ];
+    }
+
     ?>
     <link href="<?=DF_DEVIS_URL."assets/css/default/post-settings.css"?>" rel="stylesheet" />
     <div class="info-perso-container">
@@ -631,16 +686,63 @@ function dv_render_devis_settings_meta_box($post) {
                 value="<?= esc_attr(get_post_meta($post->ID, '_devis_owner_email', true)) ?>" />
         </div>
 
-        <div class="devis-generate-history">
-            <input type="checkbox" class="devis_generate_history" 
+        <div class="devis-settings-checkbox">
+            <input data-name="_devis_display_step_index" type="checkbox" class="devis_display_step_index settings-checkbox" 
+                <?= checked(get_post_meta($post->ID, '_devis_display_step_index', true), 'true', false) ?> />
+            <p>Afficher l'index de l'étape dans le frontend</p>
+        </div>
+
+        <div class="devis-settings-checkbox">
+            <input data-name="_devis_display_dynamic_step_count" type="checkbox" class="devis_display_dynamic_step_count settings-checkbox" 
+                <?= checked(get_post_meta($post->ID, '_devis_display_dynamic_step_count', true), 'true', false) ?> />
+            <p>Afficher les étapes au fur et à mesure</p>
+        </div>
+
+        <div class="devis-generate-history devis-settings-checkbox">
+            <input data-name="_devis_generate_history" type="checkbox" class="devis_generate_history settings-checkbox" 
                 <?= checked(get_post_meta($post->ID, '_devis_generate_history', true), 'true', false) ?> />
             <p>Afficher un historique avant le formulaire de devis</p>
         </div>
 
-        <div class="devis-add-redirection-page">
-            <input type="checkbox" class="devis_add_redirection_page" 
-                <?= checked(get_post_meta($post->ID, '_devis_add_redirection_page', true), 'true', false) ?> />
-            <p>Ajouter une page de redirection après le formulaire de devis</p>
+        <div class="devis-settings-text">
+            <input data-name="_devis_history_step_name" type="text" class="devis_generate_history settings-text" 
+                value="<?= esc_attr($history_step_name) ?>" />
+            <p>Nom de l'étape historique</p>
+        </div>
+
+        <div class="devis-settings-text">
+            <input data-name="_devis_form_step_name" type="text" class="settings-text" 
+                value="<?= esc_attr($form_step_name) ?>" />
+            <p>Nom de l'étape de formulaire</p>
+        </div>
+
+        <div class="devis-settings-text">
+            <input data-name="_devis_redirection_step_name" type="text" class="settings-text" 
+                value="<?= esc_attr($redirection_step_name) ?>" />
+            <p>Nom de l'étape de redirection</p>
+        </div>
+
+        <div class="devis-radio-group">
+            <div class="devis-settings-radio">
+                <input data-name="_devis_redirection_type" type="radio" name="devis_option" value="new step" class="devis_option_radio settings-radio" <?= checked($redirection_type, 'new step', false) ?> />
+                <p class="devis-radio-label">Afficher une page de redirection après le formulaire de devis</p>
+            </div>
+            <div class="devis-settings-radio">
+                <input data-name="_devis_redirection_type" type="radio" name="devis_option" value="previous" class="devis_option_radio settings-radio" <?= checked($redirection_type, 'previous', false) ?> />
+                <p class="devis-radio-label">Rediriger vers la page précédente après l'envoi du mail</p>
+            </div>
+        </div>
+
+        <div class="devis-settings-select">
+            <select data-name="_devis_redirection_url" class="devis_redirection_url settings-select">
+                <option value="">Sélectionner une page</option>
+                <?php foreach ($redirectionUrls as $url): ?>
+                    <option value="<?= esc_attr($url['url']) ?>" <?= selected($redirection_url, $url['url'], false) ?>>
+                        <?= esc_html($url['title']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <p>Page de redirection</p>
         </div>
     </div>
     <?php

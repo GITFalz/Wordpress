@@ -10,15 +10,25 @@ let info_perso_debounce_map = new Map();
         }
     });
     info_perso_container.addEventListener('input', function(e) {
-        if (e.target.classList.contains('devis_generate_history')) {
+        if (e.target.classList.contains('settings-checkbox')) {
             let checked = e.target.checked;	
             settings_loading();
-            settings_change_post_data_value('_devis_generate_history', checked, "history");
+            settings_change_post_data_value(e.target.dataset.name, checked, "history");
         }
-        if (e.target.classList.contains('devis_add_redirection_page')) {
-            let checked = e.target.checked;
+        if (e.target.classList.contains('settings-radio')) {
+            let value = e.target.value;	
             settings_loading();
-            settings_change_post_data_value('_devis_add_redirection_page', checked, "redirection");
+            settings_change_post_data_value(e.target.dataset.name, value, "redirection");
+        }
+        if (e.target.classList.contains('settings-text')) {
+            let value = e.target.value;	
+            settings_loading();
+            settings_change_post_data_value(e.target.dataset.name, value, "text");
+        }
+        if (e.target.classList.contains('settings-select')) {
+            let value = e.target.value;	
+            settings_loading();
+            settings_change_post_data_value(e.target.dataset.name, value, "select");
         }
     });
 }());
