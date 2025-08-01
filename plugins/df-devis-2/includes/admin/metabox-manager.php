@@ -490,7 +490,7 @@ function dv_render_email_customization_meta_box($post) {
                         <div class="custom-email-field-header">
                             <label for="custom_email_title">Titre du devis</label>                        
                         </div>
-                        <input class="custom-email-input" data-name="_custom_email_title" type="text" id="custom_email_title" value="To be added" />
+                        <input class="custom-email-input" data-name="_custom_email_title" type="text" id="custom_email_title" value="<?= $custom_email_title ?>" />
                         <div class="custom-email-save-info">
                             <div class="custom-email-spinner hidden"></div>
                             <div class="custom-email-save hidden">&#10003;</div>
