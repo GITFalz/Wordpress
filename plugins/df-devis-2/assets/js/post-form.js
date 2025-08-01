@@ -222,7 +222,7 @@ function get_custom_field_element(name, type, current_time, fields_element) {
         </div>
     </div>
     ${type === 'region_checkbox' || type === 'region_select' || type === 'region_radio' ? 
-            `<textarea class="formulaire-creation-custom-field-input" name="custom_input_${current_time}" oninput="update_region(this)"></textarea>` : ''}`;
+            `<p>Chaque ligne correspond à une option</p> <textarea class="formulaire-creation-custom-field-input" name="custom_input_${current_time}" oninput="update_region(this)"></textarea>` : ''}`;
     
     return div;
 }
