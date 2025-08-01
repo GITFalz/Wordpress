@@ -231,17 +231,6 @@ function formulaire_send_email(element) {
 			}
 		}
 
-		else if (type === 'default_file') {
-			const fileInput = field.querySelector('.formulaire-file');
-			if (fileInput && fileInput.files.length > 0) {
-				const fileNames = Array.from(fileInput.files).map(file => file.name).join(', ');
-				data.push({
-					label: label,
-					value: fileNames
-				});
-			}
-		}
-
 		else if (type === 'region_checkbox') {
 			const checkboxes = field.querySelectorAll('.formulaire-checkbox');
 			const selectedValues = Array.from(checkboxes)
