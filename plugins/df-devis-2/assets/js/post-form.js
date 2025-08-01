@@ -211,10 +211,9 @@ function get_custom_field_element(name, type, current_time, fields_element) {
             
         </div>
         <div class="formulaire-creation-custom-field-status">
-            <p>Statut de sauvegarde</p>
             <div class="formulaire-creation-save-info">
                 <div class="formulaire-creation-spinner formulaire-creation-custom-field-${current_time}-spinner hidden"></div>
-                <div class="formulaire-creation-save formulaire-creation-custom-field-${current_time}-save hidden">&#10003;</div>
+                <div class="formulaire-creation-save formulaire-creation-custom-field-${current_time}-save hidden">Enregistrée</div>
                 <div class="formulaire-creation-fail formulaire-creation-custom-field-${current_time}-fail hidden">&#10005;</div>
             </div>
         </div>
