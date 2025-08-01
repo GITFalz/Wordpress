@@ -83,7 +83,7 @@ function dv_get_customizable_option_html($option) {
             </div>
             <div class="option-number">
                 <input class="option-additional-cost" type="number" value="<?= esc_attr($additionalCost) ?>"/>
-                <p>Coût additionnel</p>
+                <p>Impact sur le prix</p>
             </div>
         </div>
         <div class="option-actions">

@@ -203,7 +203,7 @@ function get_devis_form_html($step_id, $post_id) {
 function get_devis_redirection_html($post_id) {
     $redirect_url = get_post_meta($post_id, '_devis_redirection_url', true);
     if (empty($redirect_url)) {
-        //return '';
+        $redirect_url = home_url(); // Default to home URL if not set
     }
     ob_start(); ?>
     <div class="df-devis-container redirection-step">
@@ -214,7 +214,7 @@ function get_devis_redirection_html($post_id) {
                 <p style="font-size: 0.95rem; color: #666;">Nous vous répondrons dans les plus brefs délais.</p>
             </div>
             <div class="df-devis-next-button-wrapper" style="margin-top: 2rem;">
-                <button class="df-devis-next-button" onclick="window.location.href='/'">Continuer la navigation</button>
+                <button class="df-devis-next-button" onclick="window.location.href='<?= esc_url($redirect_url) ?>'">Continuer la navigation</button>
             </div>
         </div>
     </div>
