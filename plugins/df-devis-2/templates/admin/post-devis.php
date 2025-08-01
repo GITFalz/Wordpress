@@ -3,7 +3,6 @@ function get_devis_page_html($stepData, $firstOptions, $post_id = null) {
     $settings = dfdv()->settings;
     ob_start();
     ?>
-    <link rel="stylesheet" href="<?php echo esc_url(DF_DEVIS_URL . 'assets/css/custom/devis.css'); ?>">
     <div class="df-devis-container" data-show-step-index="<?php echo esc_attr(get_post_meta($post_id, '_devis_display_step_index', true)); ?>" data-nb-etape-dynamique="<?php echo esc_attr(get_post_meta($post_id, '_devis_display_dynamic_step_count', true)); ?>">
         <div class="df-devis-steps">
             <?php foreach ($stepData as $step): ?>

@@ -42,6 +42,8 @@ function dv_render_devis_page() {
         'messageEmailEnvoye' => $settings['message_email_envoye'] ?? null,
     ]);
 
+    wp_enqueue_style('my-plugin-style', DF_DEVIS_URL . 'assets/css/custom/devis.css', [], '1.0');
+
     // make basic HTML structure
     ?>
     <div class="df-devis-main-container wrap">
@@ -112,6 +114,7 @@ function dv_get_devis_page($post_id) {
         ];
     }
 
+   
     return get_devis_page_html($stepData, $firstOptions, $post_id);
 }
 
@@ -186,6 +189,8 @@ function dv_render_devis_page_shortcode($atts) {
         'generateHistory' => $generate_history,
         'redirectionType' => $redirectionType,
     ]);
+
+    wp_enqueue_style('my-plugin-style', DF_DEVIS_URL . 'assets/css/custom/devis.css', [], '1.0');
 
     if ($post_id <= 0) {
         return '<p>' . esc_html__('Invalid post ID.', 'df-devis') . '</p>';
