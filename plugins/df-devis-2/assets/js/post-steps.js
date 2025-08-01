@@ -44,6 +44,9 @@ let fileFrame;
                 if (stepName) {
                     await dv_set_step_index_name(stepIndex, stepName);
                 }
+                else {
+                    dv_set_step_status(stepIndex, 'nothing');
+                }
                 debounceMap.delete(specialKey);
             }, 500));
         }
@@ -64,6 +67,9 @@ let fileFrame;
                 if (optionName) {
                     await dv_set_option_name(optionDiv, optionId, optionName);
                 }
+                else {
+                    dv_set_option_status(optionDiv, 'nothing');
+                }                
                 debounceMap.delete(specialKey);
             }, 500));
         }
@@ -655,6 +661,11 @@ function dv_set_step_status(stepIndex, status) {
         clearTimeout(debounceMap.get(specialKey));
         debounceMap.delete(specialKey);
     }
+
+    if (status === 'nothing') {
+        stepSaveInfo.classList.add('hidden');
+        return;
+    }
     
     stepSaveInfo.classList.remove('hidden');    
     if (status === 'loading') {
@@ -717,6 +728,11 @@ function dv_set_option_status(optionDiv, status) {
     if (debounceMap.has(specialKey)) {
         clearTimeout(debounceMap.get(specialKey));
         debounceMap.delete(specialKey);
+    }
+
+    if (status === 'nothing') {
+        optionSaveInfo.classList.add('hidden');
+        return;
     }
 
     optionSaveInfo.classList.remove('hidden');    
