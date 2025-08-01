@@ -317,12 +317,12 @@ function formulaire_send_email(element) {
 
         console.log("Email sent successfully:", data);
         console.log(dfDevisData.addRedirectionPage);
-
+        console.log(dfDevisData.redirectionType);
 
         let redirection = dfDevisData.redirectionType;
         if (redirection === 'new step') {
             page_redirection();
-        } else if (redirection === 'previous') {
+        } else {
             window.history.back();
         }
 	})
