@@ -98,6 +98,21 @@ function dv_get_devis_page($post_id) {
     $redirectionType = get_post_meta($post_id, '_devis_redirection_type', true);
     $redirectionType = !empty($redirectionType) ? $redirectionType : 'new step';
 
+    $history_step_name = get_post_meta($post_id, '_devis_history_step_name', true);
+    if (empty($history_step_name)) {
+        $history_step_name = dfdv()->settings['nom_étape_historique'] ?? 'Historique';
+    }
+
+    $form_step_name = get_post_meta($post_id, '_devis_form_step_name', true);
+    if (empty($form_step_name)) {
+        $form_step_name = dfdv()->settings['nom_étape_formulaire'] ?? 'Formulaire';
+    }
+
+    $redirection_step_name = get_post_meta($post_id, '_devis_redirection_step_name', true);
+    if (empty($redirection_step_name)) {
+        $redirection_step_name = dfdv()->settings['nom_étape_redirection'] ?? 'Redirection';
+    }
+
     if ($generate_history) {
         $next_step_index = count($stepData) + 1;
         $stepData[$next_step_index] = [
@@ -139,7 +154,7 @@ function handle_dv_display_post() {
 
         $html = dv_get_devis_page($post_id);
 
-        wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history, 'redirectionType' => $redirectionType]);
+        wp_send_json_success(['postId' => $post_id, 'html' => $html, 'history' => [['stepId' => $firstStep->id]], 'generateHistory' => $generate_history, 'redirectionType' => $redirectionType, 'nomEtapeHistorique' => $history_step_name, 'nomEtapeFormulaire' => $form_step_name, 'nomEtapeRedirection' => $redirection_step_name]);
         wp_die();
     } catch (Exception $e) {
         wp_send_json_error(['message' => $e->getMessage()]);

@@ -23,6 +23,9 @@ function dv_afficher_post(postId) {
         dfDevisData.generateHistory = data.data.generateHistory || false;
         dfDevisData.addRedirectionPage = data.data.addRedirectionPage || false;
         dfDevisData.redirectionType = data.data.redirectionType || 'new step';
+        dfDevisData.nomEtapeHistorique = data.data.nomEtapeHistorique || 'Historique';
+        dfDevisData.nomEtapeFormulaire = data.data.nomEtapeFormulaire || 'Formulaire';
+        dfDevisData.nomEtapeRedirection = data.data.nomEtapeRedirection || 'Redirection';
 
         document.querySelector('.df-devis-main-container').innerHTML = data.data.html;
     })
@@ -305,11 +308,12 @@ function formulaire_send_email(element) {
 	})	
 	.then(res => res.json())
 	.then(data => {
+        /*
 		if (!data.success) {
             console.error(data.data.message);
             dv_show_popup(dfDevisData.titreEmailErreur ?? 'Une erreur est survenue', data.data.alert);
             return;
-        }
+        }*/
 
 
         console.log("Email sent successfully:", data);
@@ -350,17 +354,16 @@ function page_redirection() {
             return;
         }
 
-        console.log("Redirection page HTML:", data.data.html);
+        currentStepIndex++; 
+        updateStepClasses();
+
         let html = data.data.html;
         let optionsContent = document.querySelector('.df-devis-options');
         optionsContent.innerHTML = html;
 
         let currentStep = document.querySelector('.df-devis-step.step-current');
         let title = currentStep.querySelector('h2');
-        title.textContent = dfDevisData.nomEtapeFormulaire || 'Redirection';
-
-        currentStepIndex++; 
-        updateStepClasses();
+        title.textContent = dfDevisData.nomEtapeRedirection || 'Redirection';
     })
     .catch(error => {
         console.error('Error fetching redirection page content:', error);
