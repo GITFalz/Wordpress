@@ -1,0 +1,10 @@
+---
+// dashboard.astro
+import AuthLayout from '../layouts/AuthLayout.astro';
+import DashboardComponent from '../components/Dashboard.jsx';
+import '../styles/tailwind.css';
+---
+
+<AuthLayout>
+  <DashboardComponent client:only="react" />
+</AuthLayout>

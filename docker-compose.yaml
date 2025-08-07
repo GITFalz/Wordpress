@@ -17,6 +17,8 @@ services:
       - db
 
   db:
+    ports:
+      - "3306:3306"
     image: mysql:5.7
     environment:
       MYSQL_DATABASE: wordpress

@@ -1,0 +1,21 @@
+---
+import NavBar from '../components/NavBar.jsx';
+import { useState } from 'react';
+import '../styles/tailwind.css'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>App</title>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    <header>
+      <NavBar client:load />
+    </header>
+    <main class="flex justify-center items-center flex-grow">
+      <slot />
+    </main>
+  </body>
+</html>
