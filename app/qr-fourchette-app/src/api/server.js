@@ -1,22 +1,46 @@
 import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
 import registerRoutes from './routes/register.js';
 import loginRoutes from './routes/login.js';
+import refreshTokenRoutes from './routes/refresh-token.js';
 
-const prisma = new PrismaClient();
 const app = express();
 dotenv.config();
 
-app.use(cors());
+// Clean CORS configuration now that the port is public
+app.use(cors({
+  origin: 'https://shiny-pancake-jjj9j5754vwvhqp66-4321.app.github.dev',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization',
+    'hx-request',
+    'hx-trigger',
+    'hx-target',
+    'hx-trigger-name',
+    'hx-current-url'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
+
+// Body parser middleware
+app.use(express.urlencoded({ extended: true })); // <-- ADD THIS
 app.use(express.json());
 
-app.use('/api/register', registerRoutes);
+// Test route to verify CORS
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'CORS is working!', timestamp: new Date().toISOString() });
+});
+
+// Routes
+app.use('/api/register', registerRoutes); 
 app.use('/api/login', loginRoutes);
+app.use('/api/refresh-token', refreshTokenRoutes);
 
 const PORT = 4000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });

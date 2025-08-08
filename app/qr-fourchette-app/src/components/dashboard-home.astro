@@ -1,0 +1,93 @@
+---
+const { user } = Astro.props as { user: { id: string; username: string; email: string } };
+---
+<section class="min-h-screen bg-gray-50 flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg p-6 flex flex-col space-y-4">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Bonjour, {user.username} 👋</h2>
+        
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="edit-carte"
+            hx-get="/partials/edit/edit-carte"
+            hx-push-url="#/edit-carte"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            ÉDITER MA CARTE
+        </button>
+
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="voir-carte"
+            hx-get="/partials/edit/voir-carte"
+            hx-push-url="#/voir-carte"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            VOIR MA CARTE
+        </button>
+
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="qr-code"
+            hx-get="/partials/edit/qr-code"
+            hx-push-url="#/qr-code"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            MON QR CODE
+        </button>
+
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="mes-infos"
+            hx-get="/partials/edit/mes-infos"
+            hx-push-url="#/mes-infos"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            MES INFOS
+        </button>
+
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="mon-abonnement"
+            hx-get="/partials/edit/mon-abonnement"
+            hx-push-url="#/mon-abonnement"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            MON ABONNEMENT
+        </button>
+
+        <button
+            class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
+            id="mes-factures"
+            hx-get="/partials/edit/mes-factures"
+            hx-push-url="#/mes-factures"
+            hx-target="#dashboard-content"
+            hx-swap="innerHTML"
+            >
+            MES FACTURES
+        </button>
+
+        <hr class="my-4" />
+
+        <button
+            type="button"
+            class="mt-auto bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            data-action="logout"
+            >
+            Déconnexion
+        </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-8">
+        <div id="dashboard-content" class="bg-white rounded shadow p-6 min-h-[400px]">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">Bienvenue sur votre tableau de bord</h1>
+            <p class="text-gray-600">Choisissez une option dans le menu pour commencer.</p>
+        </div>
+    </main>
+</section>

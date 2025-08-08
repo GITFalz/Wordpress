@@ -32,9 +32,14 @@ router.post('/', async (req, res) => {
 
         const token = jwt.sign({ userId: user.id.toString(), username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+        const expirationTime = 3600;
+        const expirationDate = new Date(Date.now() + expirationTime * 1000).toISOString();
+
         res.json({
             message: 'Login successful',
             token,
+            exp: expirationTime,
+            expirationDate,
             user: {
                 id: user.id.toString(),
                 username: user.username,

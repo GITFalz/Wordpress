@@ -1,0 +1,28 @@
+---
+import { verifyJWT } from '../../utils/auth';
+import DashboardHome from '../../components/dashboard-home.astro';
+
+const authHeader = Astro.request.headers.get('authorization') ?? '';
+const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+let user = null;
+if (token) {
+    try {
+        const payload = await verifyJWT(token);
+        user = {
+        id: payload.sub ?? payload.userId,
+        username: payload.username,
+        email: payload.email,
+        };
+    } catch (e) {
+        console.error('JWT verification failed:', e);
+        Astro.response.status = 401; // Unauthorized
+    }
+}
+
+if (!user) {
+    Astro.response.status = 401;
+}
+---
+
+{user ? <DashboardHome user={user} /> : <div class="p-4 bg-white rounded shadow">Not authorized.</div>}
