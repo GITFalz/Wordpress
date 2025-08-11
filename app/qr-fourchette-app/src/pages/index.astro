@@ -2,50 +2,52 @@
 import '../styles/tailwind.css';
 ---
 
+
 <!doctype html>
 <html lang="en" hx-ext="preload">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>App</title>
-    <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
-    <script src="../scripts/init.js"></script>
-  </head>
-  <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow">
-      <div class="w-full px-4 py-4 flex justify-between items-center">
-        <a href="#/" id="logo" class="text-2xl font-bold text-blue-600">MyApp</a>
-        <nav class="flex space-x-4" aria-label="Primary">
-          <a
-            id="nav-auth"
-            href="#/auth/login"
-            hx-get="/partials/auth/login"
-            hx-push-url="#/auth/login"
-            hx-target="#view"
-            hx-swap="innerHTML"
-            class="text-blue-500 hover:underline"
-            >
-            Login
-            </a>
-          <a
-            id="nav-register"
-            href="#/auth/register"
-            hx-get="/partials/auth/register"
-            hx-push-url="#/auth/register"
-            hx-target="#view"
-            hx-swap="innerHTML"
-            class="text-blue-500 hover:underline"
-          >Register</a>
-        </nav>
-      </div>
-    </header>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>App</title>
+        <link rel="stylesheet" href="/styles.css">
+        <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
+        <script src="../scripts/init.js"></script>
+    </head>
+    <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="w-full px-4 py-4 flex justify-between items-center">
+            <a href="#/" id="logo" class="text-2xl font-bold text-blue-600">MyApp</a>
+            <nav class="flex space-x-4" aria-label="Primary">
+                <a
+                id="nav-auth"
+                href="#/auth/login"
+                hx-get="/partials/auth/login"
+                hx-push-url="#/auth/login"
+                hx-target="#view"
+                hx-swap="innerHTML"
+                class="text-blue-500 hover:underline"
+                >
+                Login
+                </a>
+                <a
+                id="nav-register"
+                href="#/auth/register"
+                hx-get="/partials/auth/register"
+                hx-push-url="#/auth/register"
+                hx-target="#view"
+                hx-swap="innerHTML"
+                class="text-blue-500 hover:underline"
+                >Register</a>
+            </nav>
+            </div>
+        </header>
 
-    <!-- Dynamic View Container -->
-    <main id="view" class="flex-grow w-full px-4 py-8">
-      <!-- HTMX content will load here -->
-    </main>
+        <!-- Dynamic View Container -->
+        <main id="view" class="flex-grow w-full px-4 py-8">
+            <!-- HTMX content will load here -->
+        </main>
 
-    <script src="../scripts/main.js"></script>
-  </body>
+        <script src="../scripts/main.js"></script>
+    </body>
 </html>

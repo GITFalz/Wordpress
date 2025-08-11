@@ -1,4 +1,6 @@
-
+---
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
+---
 
 <section class="w-full min-h-screen flex items-start justify-center bg-orange-50 py-12 px-4">
   <div class="w-full max-w-5xl space-y-10">
@@ -10,7 +12,7 @@
       </p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="grid grid-rows-1 md:grid-cols-2 gap-8">
       <div class="bg-white rounded-xl shadow-sm border border-orange-100 relative">
         <div class="absolute left-0 top-0 h-full w-1 bg-orange-400 rounded-l-xl"></div>
         <div class="p-6">
@@ -21,9 +23,9 @@
           <div class="grid grid-cols-1 gap-3">
             <button
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
-              hx-get="/partials/edit/menus"
+              hx-get='/partials/edit/menu/menus'
               hx-push-url="#/edit-carte/menus"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Menus à la carte</span>
@@ -32,9 +34,9 @@
 
             <button
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
-              hx-get="/partials/edit/produits"
+              hx-get="/partials/edit/categories/produits"
               hx-push-url="#/edit-carte/produits"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Vos produits</span>
@@ -45,7 +47,7 @@
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
               hx-get="/partials/edit/infos"
               hx-push-url="#/edit-carte/infos"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Infos complémentaires</span>
@@ -66,7 +68,7 @@
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
               hx-get="/partials/edit/logo"
               hx-push-url="#/edit-carte/logo"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Choix du logo</span>
@@ -77,7 +79,7 @@
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
               hx-get="/partials/edit/styles"
               hx-push-url="#/edit-carte/styles"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Typographies et couleurs</span>
@@ -88,7 +90,7 @@
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 active:bg-orange-200 transition"
               hx-get="/partials/edit/langues"
               hx-push-url="#/edit-carte/langues"
-              hx-target="#dashboard-content"
+              hx-target="#edit-carte-content"
               hx-swap="innerHTML"
             >
               <span class="font-medium">Choix des langues</span>
@@ -99,10 +101,10 @@
       </div>
     </div>
 
-    <div id="dashboard-content" class="bg-white rounded-xl shadow-sm p-8 min-h-[300px] border border-orange-200">
-      <p class="text-gray-500 italic">
-        Veuillez sélectionner une section ci-dessus pour commencer.
-      </p>
+    <div id="edit-carte-content" class="bg-white rounded-xl shadow-sm p-8 min-h-[300px] border border-orange-200">
+      <!-- vertical list of categories from a partial page -->
+      
+      
     </div>
   </div>
 </section>

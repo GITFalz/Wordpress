@@ -1,0 +1,22 @@
+---
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+const menus = await prisma.qrf_categories.findMany();
+---
+
+<h3 class="text-xl font-semibold text-orange-700 mb-4">Vos Produits</h3>
+<ul class="space-y-4">
+    {menus.map((categorie, index) =>  (
+        <div class="flex items-center justify-between px-4 py-3 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 hover:shadow cursor-pointer transition">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-300 text-white font-semibold select-none" aria-label="Item number">
+                    {index+1}
+                </div>
+                <span class="font-medium select-text">{categorie.name}</span>
+            </div>
+            <button class="text-orange-600 font-semibold hover:text-orange-700 transition focus:outline-none focus:ring-2 focus:ring-orange-400 rounded px-2 py-1" type="button">
+                +
+            </button>
+        </div>
+    ))}
+</ul>

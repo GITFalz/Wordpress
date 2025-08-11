@@ -1,0 +1,53 @@
+---
+import { PrismaClient } from '@prisma/client';
+import MenuItem from '../../../../components/MenuItem.astro';
+const prisma = new PrismaClient();
+const menus = await prisma.qrf_menus.findMany({
+    orderBy: {
+        number: 'asc',
+    },
+});
+const nextIndex = menus.length;
+---
+
+<h3 class="text-xl font-semibold text-black mb-4">Menus</h3>
+<ul id="menu-list" class="space-y-4">
+    {menus.map((menu) => (
+        <MenuItem menu={menu} />
+    ))}
+
+    <!-- Add Menu button styled like your menu items -->
+    <button
+        id="add-menu-button"
+        type="button"
+        hx-get={`/partials/edit/menu/add-menu-item`}
+        hx-target="#add-menu-button"
+        hx-swap="beforebegin"
+        class="mt-6 w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border bg-gray-100 text-black font-semibold  focus:outline-none  transition relative"
+    >
+        <!-- Circular dark gray plus icon -->
+        <span
+        class="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center flex-shrink-0"
+        aria-hidden="true"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                class="bi bi-plus"
+                viewBox="0 0 16 16"
+            >
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+            </svg>
+        </span>
+
+        <span class="relative z-10">Ajouter un menu</span>
+
+        <!-- Horizontal line behind the text -->
+        <span
+        class="absolute left-0 right-0 top-1/2 border-t border-orange-300 -z-10"
+        ></span>
+    </button>
+</ul>
+<script type="module" src="/src/scripts/menu.js"></script>
