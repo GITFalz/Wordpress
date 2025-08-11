@@ -58,20 +58,12 @@ menuList.addEventListener('dragstart', (e) => {
 });
 
 menuList.addEventListener('dragover', (e) => {
-    let placeholder = document.createElement('div');
-    placeholder.classList.add('placeholder');
-    placeholder.style.height = `${draggedItem.offsetHeight}px`;
-
     e.preventDefault(); // Necessary to allow drop
     const target = e.target;
     if (target && target !== draggedItem && target.classList.contains('menu-item')) {
         const rect = target.getBoundingClientRect();
         const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-        if (next) {
-            target.parentNode.insertBefore(placeholder, target.nextSibling);
-        } else {
-            target.parentNode.insertBefore(placeholder, target);
-        }
+        menuList.insertBefore(draggedItem, next ? target.nextSibling : target);
     }
 });
 
