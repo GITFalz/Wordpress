@@ -3,11 +3,13 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\" \"npm run watch:tailwind\"",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "dev:server": "nodemon src/api/server.js"
+    "dev:client": "astro dev",
+    "dev:server": "nodemon ./src/api/server.js",
+    "watch:tailwind": "npx tailwindcss -i ./src/styles/tailwind.css -o ./public/styles.css --watch"
   },
   "dependencies": {
     "@astrojs/node": "^9.3.3",
@@ -34,6 +36,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.2.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
     "nodemon": "^3.1.10",
     "postcss": "^8.5.6",
     "prisma": "^6.13.0",

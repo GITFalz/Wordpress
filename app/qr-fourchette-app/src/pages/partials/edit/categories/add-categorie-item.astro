@@ -1,0 +1,6 @@
+---
+import CategorieItem from '../../../../components/CategorieItem.astro';
+const id = Astro.url.searchParams.get('id') || '';
+const index = Astro.url.searchParams.get('index') || '';
+---
+<CategorieItem index={index} name="Nouvelle categorie" description="Description de la nouvelle categorie" id={id} />

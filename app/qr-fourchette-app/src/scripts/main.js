@@ -3,13 +3,15 @@ const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 const EXP_KEY = 'auth_token_exp'; // ISO string for absolute expiration
 
+const view = document.getElementById('view');
+
 function setToken(token) {
-  if (!token) return;
-  localStorage.setItem(TOKEN_KEY, token);
+    if (!token) return;
+    localStorage.setItem(TOKEN_KEY, token);
 }
 
-function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+export function getToken() {
+    return localStorage.getItem(TOKEN_KEY);
 }
 
 function clearToken() {

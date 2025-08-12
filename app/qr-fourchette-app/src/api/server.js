@@ -7,6 +7,7 @@ import loginRoutes from './routes/login.js';
 import refreshTokenRoutes from './routes/refresh-token.js';
 import carteRoutes from './routes/edit-carte.js';
 import menuRoutes from './routes/menu.js';
+import categorieRoutes from './routes/categories.js';
 
 const app = express();
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/api/login', loginRoutes);
 app.use('/api/refresh-token', refreshTokenRoutes);
 app.use('/api/edit-carte', carteRoutes);
 app.use('/api/menu', menuRoutes);
+app.use('/api/categorie', categorieRoutes);
 
 const PORT = 4000;
 app.listen(PORT, '0.0.0.0', () => {

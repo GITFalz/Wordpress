@@ -1,9 +1,9 @@
 ---
-const { id, index, name, description, entrees, plats, desserts } = Astro.props;
+const { id, index, name, icon, description } = Astro.props;
 const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 
-<div data-id={id??Date.now()} data-index={index} data-type="menu" class="flex items-start px-4 py-3 cursor-pointer drag-item menu-item">
+<div data-id={id??Date.now()} data-index={index} data-type="category" class="flex items-start px-4 py-3 cursor-pointer drag-item">
     <!-- Left side: index circle with plus button below -->
     <div class="flex flex-col items-center mr-4 select-none rounded-xl">
         <div class="cursor-move w-11 h-11 rounded-full bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center transition drag-handle">
@@ -16,7 +16,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
         <button
             type="button"
             aria-label="Add"
-            class="expand-menu-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
+            class="expand-categorie-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
         >
             <div class="flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
@@ -27,7 +27,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
         <button
             type="button"
             aria-label="Add"
-            class="hidden collapse-menu-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
+            class="hidden collapse-categorie-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
         >
             <div class="flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-up" viewBox="0 0 16 16">

@@ -30,32 +30,53 @@ model qrf_users {
   email          String           @unique(map: "email") @db.VarChar(100)
   password_hash  String           @db.Text
   created_at     DateTime?        @default(now()) @db.DateTime(0)
+  prenom         String?          @db.VarChar(255)
+  nom            String?          @db.VarChar(255)
+  nom_affiche    String?          @db.VarChar(255)
+  qrf_categories qrf_categories[]
+  qrf_menus      qrf_menus[]
   qrf_user_roles qrf_user_roles[]
 }
 
 model qrf_menus {
-  id          BigInt @id @default(autoincrement())
-  name        String @db.VarChar(255)
-  description String @db.Text
-  entrees     String @db.Text
-  plats       String @db.Text
-  desserts    String @db.Text
+  id          BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  description String    @db.Text
+  entrees     String    @db.Text
+  plats       String    @db.Text
+  desserts    String    @db.Text
   number      Int
+  user_id     BigInt
+  qrf_users   qrf_users @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qrf_user_menus_ibfk_1")
+
+  @@index([user_id], map: "qrf_user_menus_ibfk_1")
 }
 
 model qrf_categories {
-  id          BigInt @id @default(autoincrement())
-  name        String @db.VarChar(255)
-  description String @db.Text
+  id          BigInt      @id @default(autoincrement())
+  name        String      @db.VarChar(255)
+  description String      @db.Text
+  user_id     BigInt
+  number      Int
+  icon        String?     @db.VarChar(255)
+  traduisible Boolean     @default(false)
+  qrf_users   qrf_users   @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qrf_user_categories_ibfk_1")
+  qrf_plats   qrf_plats[]
+
+  @@index([user_id], map: "qrf_user_categories_ibfk_1")
 }
 
 model qrf_plats {
-  id          BigInt  @id @default(autoincrement())
-  name        String  @db.VarChar(255)
-  description String  @db.Text
-  prix        Decimal @db.Decimal(10, 2)
-  traduisible Boolean @default(false)
-  image       String  @db.VarChar(255)
+  id             BigInt         @id @default(autoincrement())
+  name           String         @db.VarChar(255)
+  description    String         @db.Text
+  prix           Decimal        @db.Decimal(10, 2)
+  traduisible    Boolean        @default(false)
+  image          String         @db.VarChar(255)
+  categorie_id   BigInt
+  qrf_categories qrf_categories @relation(fields: [categorie_id], references: [id], onDelete: Cascade, map: "qrf_categories_plats_ibfk_1")
+
+  @@index([categorie_id], map: "qrf_categories_plats_ibfk_1")
 }
 
 model qrf_labels {

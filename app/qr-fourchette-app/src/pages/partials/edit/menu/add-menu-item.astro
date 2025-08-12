@@ -1,35 +1,6 @@
 ---
-import { PrismaClient } from '@prisma/client';
 import MenuItem from '../../../../components/MenuItem.astro';
-
-const prisma = new PrismaClient();
-const after = Astro.url.searchParams.get('after');
-let newIndex = 0;
-if (after) {
-    const menuItem = await prisma.qrf_menus.findUnique({ where: { id: Number(after) } });
-    if (menuItem) {
-        newIndex = menuItem.number + 1;
-    }
-} else {
-    const menuCount = await prisma.qrf_menus.count();
-    newIndex = menuCount + 1;
-}
-
-const menu = await prisma.qrf_menus.create({
-    data: {
-        name: 'Nouveau menu',
-        description: 'Description du nouveau menu',
-        entrees: 'Entrees du nouveau menu',
-        plats: 'Plats du nouveau menu',
-        desserts: 'Desserts du nouveau menu',
-        number: newIndex,
-    },
-});
-
-await prisma.qrf_menus.updateMany({
-    where: { number: { gte: newIndex }, id: { not: menu.id } },
-    data: { number: { increment: 1 } },
-});
+const id = Astro.url.searchParams.get('id') || '';
+const index = Astro.url.searchParams.get('index') || '';
 ---
-
-<MenuItem menu={menu}/>
+<MenuItem index={index} name="Nouveau menu" description="Description du nouveau menu" entrees="Entrees du nouveau menu" plats="Plats du nouveau menu" desserts="Desserts du nouveau menu" id={id} />

@@ -1,107 +1,82 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.put('/name/:id', async (req, res) => {
-    const { id } = req.params;
-    const { name } = req.body;
+router.put('/:userid', async (req, res) => {
+    const { userid } = req.params;
+    const menuItems = req.body;
 
-    try {
-        await prisma.qrf_menus.update({
-            where: { id: Number(id) },
-            data: { name: name },
-        });
-        res.send('');
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update menu name' });
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Authorization error' });
     }
-});
-
-router.put('/description/:id', async (req, res) => {
-    const { id } = req.params;
-    const { description } = req.body;
-
     try {
-        await prisma.qrf_menus.update({
-            where: { id: Number(id) },
-            data: { description: description },
-        });
-        res.send('');
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update menu description' });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.userId !== userid) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+    } catch {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
-});
-
-router.put('/entrees/:id', async (req, res) => {
-    const { id } = req.params;
-    const { entrees } = req.body;
 
     try {
-        await prisma.qrf_menus.update({
-            where: { id: Number(id) },
-            data: { entrees: entrees },
-        });
-        res.send('');
+        for (const item of menuItems.updated) {
+            try {
+                await prisma.qrf_menus.update({
+                    where: { 
+                        id: Number(item.id),
+                        user_id: Number(userid)
+                    },
+                    data: {
+                        name: item.name,
+                        description: item.description,
+                        entrees: item.entrees,
+                        plats: item.plats,
+                        desserts: item.desserts,
+                        number: Number(item.number),
+                    },
+                });
+            } catch (error) {
+                throw new Error(`Failed to update menu item (${item.id}, ${item.name}, ${item.number}): ${error.message}`);
+            }
+        }
+        let addedMenuItems = [];
+        for (const item of menuItems.added) {
+            try {
+                let menu = await prisma.qrf_menus.create({
+                    data: {
+                        user_id: Number(userid),
+                        name: item.name,
+                        description: item.description,
+                        entrees: item.entrees,
+                        plats: item.plats,
+                        desserts: item.desserts,
+                        number: Number(item.number),
+                    },
+                });
+                addedMenuItems.push({ oldId: item.id, newId: Number(menu.id) });
+            } catch (error) {
+                throw new Error(`Failed to create menu item (${item.name}): ${error.message}`);
+            }
+        }
+        for (const item of menuItems.deleted) {
+            try {
+                await prisma.qrf_menus.delete({
+                    where: {
+                        id: Number(item.id),
+                        user_id: Number(userid)
+                    },
+                });
+            } catch (error) {
+                throw new Error(`Failed to delete menu item (${item.id}): ${error.message}`);
+            }
+        }
+        res.status(200).json({ message: 'Menus updated successfully', added: addedMenuItems });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to update menu entrees' });
-    }
-});
-
-router.put('/plats/:id', async (req, res) => {
-    const { id } = req.params;
-    const { plats } = req.body;
-
-    try {
-        await prisma.qrf_menus.update({
-            where: { id: Number(id) },
-            data: { plats: plats },
-        });
-        res.send('');
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update menu plats' });
-    }
-});
-
-router.put('/desserts/:id', async (req, res) => {
-    const { id } = req.params;
-    const { desserts } = req.body;
-
-    try {
-        await prisma.qrf_menus.update({
-            where: { id: Number(id) },
-            data: { desserts: desserts },
-        });
-        res.send('');
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update menu desserts' });
-    }
-});
-
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        // get the menu item before it is deleted
-        const menu = await prisma.qrf_menus.findUnique({
-            where: { id: Number(id) },
-        });
-        const number = menu.number;
-        
-        // update all the menu items that follow to have the correct index
-        await prisma.qrf_menus.updateMany({
-            where: { number: { gte: number }, id: { not: menu.id } },
-            data: { number: { decrement: 1 } },
-        });
-
-        // delete the menu
-        await prisma.qrf_menus.delete({
-            where: { id: Number(id) },
-        });
-        res.send('');
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to delete menu' });
+        res.status(500).json({ error: error.message });
     }
 });
 

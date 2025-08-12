@@ -1,6 +1,5 @@
 ---
 const { user } = Astro.props as { user: { id: string; username: string; email: string } };
-const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
 ---
 <section class="min-h-screen bg-gray-50 flex">
     <!-- Sidebar -->
@@ -10,7 +9,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
         <button
             class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
             id="edit-carte"
-            hx-get={`/partials/edit/edit-carte`}
+            hx-get="/partials/edit/edit-carte"
             hx-push-url="#/edit-carte"
             hx-target="#dashboard-content"
             hx-swap="innerHTML"
@@ -86,10 +85,58 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
 
     <!-- Main Content Area -->
     <main class="flex-1 p-8">
-        <div id="dashboard-content" class="bg-white rounded shadow p-6 min-h-[400px]">
+        <div id="dashboard-content" data-userid={`${user.id}`} class="bg-white rounded shadow p-6 min-h-[400px]">
             <h1 class="text-2xl font-bold text-gray-900 mb-4">Bienvenue sur votre tableau de bord</h1>
             <p class="text-gray-600">Choisissez une option dans le menu pour commencer.</p>
         </div>
     </main>
 </section>
-<script src="../scripts/history.js"></script>
+<!-- Save button -->
+<div id="save-button" class="hidden fixed bottom-4 right-4 button-save text-white bg-green-600 rounded-lg flex-row justify-center items-center px-5 py-3 text-2xl hover:scale-110 ease-in-out duration-300 transition cursor-pointer">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-floppy-fill" viewBox="0 0 16 16">
+        <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5z"/>
+        <path d="M3 16h10v-5.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5zm9-16H4v5.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5zM9 1h2v4H9z"/>
+    </svg>
+    <p class="ml-3 text-center">
+        Enregistrer
+    </p>
+</div>
+
+<script src="/src/scripts/edit.js"></script>
+<script type="module">
+    (function(){
+        const dashboardContent = document.querySelector('#dashboard-content');
+        dashboardContent.addEventListener('htmx:afterSwap', (event) => {
+            if (event.target.id === 'dashboard-content') {
+                const hash = location.hash || '';
+                const parts = hash.replace(/^#\/?/, '').split('/');
+                if (parts[0] === 'edit-carte') {
+                    if (parts[1] === 'menus')
+                    {
+                        htmx.ajax('GET', `/partials/edit/menu/menus`, {
+                            target: '#edit-carte-content',
+                            swap: 'innerHTML',
+                        });
+                    }
+                    if (parts[1] === 'produits')
+                    {
+                        htmx.ajax('GET', `/partials/edit/categories/produits`, {
+                            target: '#edit-carte-content',
+                            swap: 'innerHTML',
+                        });
+                    }
+                }
+            }
+        });
+
+        // Trigger initial load
+        const hash = location.hash || '';
+        const parts = hash.replace(/^#\/?/, '').split('/');
+        if (parts[0] === 'edit-carte') {
+            htmx.ajax('GET', `/partials/edit/edit-carte`, {
+                target: '#dashboard-content',
+                swap: 'innerHTML',
+            });
+        }
+    })();
+</script>
