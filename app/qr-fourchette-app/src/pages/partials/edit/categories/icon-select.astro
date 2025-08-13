@@ -1,0 +1,18 @@
+---
+import IconSelectList from '../../../../components/IconSelectList.astro';
+
+// Parse POST body
+let icons = [];
+if (Astro.request.method === 'POST') {
+    const bodyText = await Astro.request.text();
+    const params = new URLSearchParams(bodyText);
+    const rawIcons = params.get('icons');
+    if (rawIcons) {
+        try {
+            icons = JSON.parse(rawIcons);
+        } catch {}
+    }
+}
+---
+
+<IconSelectList icons={icons} />

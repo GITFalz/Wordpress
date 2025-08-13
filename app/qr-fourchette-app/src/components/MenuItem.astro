@@ -46,7 +46,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
                 type="text"
                 name="name"
                 placeholder="Menu name"
-                class="menu-name rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full"
+                class="menu-name rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full saveable-input"
                 value={name}
             />
             <div class="hidden expandable menu-large w-full space-y-2">
@@ -54,7 +54,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
                 <textarea
                     name="description"
                     placeholder="Menu description"
-                    class="menu-description rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full"
+                    class="menu-description rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
                 >{description}</textarea>
 
                 <div class="flex flex-row space-x-2">
@@ -63,7 +63,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
                         <textarea
                             name="entrees"
                             placeholder="Menu entrees"
-                            class="menu-entrees rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full"
+                            class="menu-entrees rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
                         >{entrees}</textarea>
                     </div>
                     
@@ -72,7 +72,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
                         <textarea
                             name="plats"
                             placeholder="Menu plats"
-                            class="menu-plats rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full"
+                            class="menu-plats rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
                         >{plats}</textarea>
                     </div>
                     <div class="w-full space-y-2 flex flex-col">
@@ -80,7 +80,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE_URL;
                         <textarea
                             name="desserts"
                             placeholder="Menu desserts"
-                            class="menu-desserts rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full"
+                            class="menu-desserts rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
                         >{desserts}</textarea>
                     </div>
                 </div>

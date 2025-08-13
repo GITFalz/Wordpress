@@ -1,20 +1,29 @@
 import { getToken } from "./main";
 
-const menuList = document.getElementById('menu-list');
 const saveButton = document.getElementById('save-button');
 
 let addedMenuItems = [];
 let deletedMenuItems = [];
 
+function unloadMenu() {
+    addedMenuItems = [];
+    deletedMenuItems = [];
+}
+window.unloadMenu = unloadMenu;
+
 function updateMenuIndices() {
+    if (!isMenuLoaded()) return;
     window.updateIndices('menu');
 }
 
-menuList.addEventListener('htmx:afterSwap', (e) => {
-    updateMenuIndices();
-});
+function isMenuLoaded() {
+    const menuInfo = document.querySelector(".menu-info");
+    return menuInfo !== null && !menuInfo.classList.contains('hidden');
+}
 
-menuList.addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
+    if (!isMenuLoaded()) return;
+
     let target = e.target;
     let expandButton = target.closest('.expand-menu-item');
     let collapseButton = target.closest('.collapse-menu-item');
@@ -38,19 +47,22 @@ menuList.addEventListener('click', (e) => {
     }
 });
 
-export function addMenuItemAfter(button) {
+function addMenuItemAfter(button) {
+    if (!isMenuLoaded()) return;
     let menuItem = button.closest('.menu-item');
     if (!menuItem) return;
     addMenuItem(menuItem, 'afterend');
 }
 window.addMenuItemAfter = addMenuItemAfter;
 
-export function addMenuItemBefore(button) {
+function addMenuItemBefore(button) {
+    if (!isMenuLoaded()) return;
     addMenuItem(button, 'beforebegin');
 }
 window.addMenuItemBefore = addMenuItemBefore;
 
 function addMenuItem(button, swap) {
+    if (!isMenuLoaded()) return;
     let id = Date.now().toString(36)+'t';
     if (!addedMenuItems.includes(id)) {
         addedMenuItems.push(id);
@@ -64,7 +76,8 @@ function addMenuItem(button, swap) {
     });
 }
 
-export function deleteMenuItem(button) {
+function deleteMenuItem(button) {
+    if (!isMenuLoaded()) return;
     let menuItem = button.closest('.menu-item');
     if (!menuItem) return;
     let id = menuItem.dataset.id;
@@ -83,9 +96,11 @@ window.deleteMenuItem = deleteMenuItem;
 // === DRAGGING ===
 const view = document.getElementById('view');
 view.addEventListener('itemDropped', (e) => {
+    if (!isMenuLoaded()) return;
     const { item } = e.detail;
     let placeholder = document.querySelector('.placeholder');
-    if (placeholder) {
+    const menuList = document.getElementById('menu-list');
+    if (placeholder && menuList) {
         menuList.insertBefore(item, placeholder);
         placeholder.remove();
     }
@@ -94,11 +109,10 @@ view.addEventListener('itemDropped', (e) => {
 
 
 // === SAVE ===
-saveButton.removeEventListener('click', saveMenus);
-saveButton.addEventListener('click', saveMenus);
-
-
-async function saveMenus() {
+document.addEventListener('saveChanges', async (e) => {
+    const menuList = document.getElementById('menu-list');
+    if (!menuList) return;
+    
     updateMenuIndices();
     const saveData = {
         updated: [],
@@ -148,7 +162,10 @@ async function saveMenus() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+            // print full response
+            const errorData = await response.json();
+            console.error('Error saving menu changes:', errorData);
+            return;
         }
 
         const data = await response.json();
@@ -165,4 +182,4 @@ async function saveMenus() {
     } catch (error) {
         console.error('Error:', error);
     }
-}
+});

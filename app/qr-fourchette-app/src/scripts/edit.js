@@ -1,9 +1,11 @@
 const view = document.getElementById('view');
 const saveButton = document.getElementById('save-button');
+const dashboardContent = document.getElementById("dashboard-content");
 
 // === UTILITY ===
-function updateIndices(type) {
-    let dragItems = view.querySelectorAll(`.drag-item[data-type="${type}"]`);
+function updateIndices(type, parent = null) {
+    let parentElement = parent ?? view;
+    let dragItems = parentElement.querySelectorAll(`.drag-item[data-type="${type}"]`);
     dragItems.forEach((item, index) => {
         let circle = item.querySelector('.cursor-move p');
         if (circle) {
@@ -14,6 +16,77 @@ function updateIndices(type) {
     window.showSave();
 }
 window.updateIndices = updateIndices;
+
+// === LOADING ===
+function getUserId() {
+    return dashboardContent.dataset.userid || '';
+}
+
+document.addEventListener('click', (e) => {
+    let target = e.target;
+    let button = target.closest("button");
+    if (button) {
+        if (button.classList.contains("button-menus")) {
+            loadMenus();
+        }
+        if (button.classList.contains("button-categories")) {
+            loadCategories();
+        }
+        if (button.classList.contains("button-infos")) {
+            loadInfos();
+        }
+    }
+});
+
+function loadMenus() {
+    const editCarte = document.getElementById("edit-carte-content");
+    const menuInfo = document.querySelector(".menu-info");
+    const lists = editCarte.querySelectorAll(".edit-info");
+    lists.forEach(item => item.classList.add("hidden"));
+    if (menuInfo) {
+        menuInfo.classList.remove("hidden");
+    } else {
+        loadEditContent('/partials/edit/menu/menus?userId=' + getUserId());
+    }
+    pushUrl('/#/edit-carte/menus');
+}
+
+function loadCategories() {
+    const editCarte = document.getElementById("edit-carte-content");
+    const categorieInfo = document.querySelector(".categorie-info");
+    const lists = editCarte.querySelectorAll(".edit-info");
+    lists.forEach(item => item.classList.add("hidden"));
+    if (categorieInfo) { 
+        categorieInfo.classList.remove("hidden");
+    } else {
+        loadEditContent('/partials/edit/categories/produits?userId=' + getUserId());
+    }
+    pushUrl('/#/edit-carte/produits');
+}
+
+function loadInfos() {
+    const editCarte = document.getElementById("edit-carte-content");
+    const info = document.querySelector(".info-info");
+    const lists = editCarte.querySelectorAll(".edit-info");
+    lists.forEach(item => item.classList.add("hidden"));
+    if (info) {
+        info.classList.remove("hidden");
+    } else {
+        loadEditContent('/partials/edit/infos/infos?userId=' + getUserId());
+    }
+    pushUrl('/#/edit-carte/infos');
+}
+
+function loadEditContent(url) {
+    htmx.ajax('GET', url, {
+        target: '#edit-carte-content',
+        swap: 'beforeend'
+    })
+}
+
+function pushUrl(url) {
+    history.pushState(null, '', url);
+}
 
 // === DRAGGING ===
 let draggedItem = null;
@@ -95,6 +168,19 @@ view.addEventListener('mouseup', (e) => {
 
 
 // === SAVING ===
+document.addEventListener('input', (e) => {
+    let target = e.target;
+    if (target.classList.contains('saveable-input')) {
+        showSave();
+    }
+});
+
+function saveChanges() {
+    document.dispatchEvent(new CustomEvent('saveChanges', { bubbles: true }));
+    window.hideSave();
+}
+saveButton.addEventListener('click', saveChanges);
+
 function showSave() {
     saveButton.classList.remove('hidden');
     saveButton.classList.add('flex');

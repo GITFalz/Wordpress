@@ -1,0 +1,6 @@
+---
+import PlatItem from '../../../../components/PlatItem.astro';
+const id = Astro.url.searchParams.get('id') || '';
+const index = Astro.url.searchParams.get('index') || '';
+---
+<PlatItem index={index} name="Nouveau plat" description="Description du nouveau plat" prix="0" id={id} />

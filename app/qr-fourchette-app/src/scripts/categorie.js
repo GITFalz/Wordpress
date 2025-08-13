@@ -1,20 +1,44 @@
 import { getToken } from "./main";
 
-const categorieList = document.getElementById('categorie-list');
 const saveButton = document.getElementById('save-button');
 
 let addedCategorieItems = [];
 let deletedCategorieItems = [];
 
+let addedPlatItems = [];
+let deletedPlatItems = [];
+
+function unloadCategories() {
+    addedCategorieItems = [];
+    deletedCategorieItems = [];
+    addedPlatItems = [];
+    deletedPlatItems = [];
+}
+window.unloadCategories = unloadCategories;
+
 function updateCategorieIndices() {
+    if (!isCategorieLoaded()) return;
     window.updateIndices('category');
 }
 
-categorieList.addEventListener('htmx:afterSwap', (e) => {
+function updatePlatIndices(parent) {
+    if (!isCategorieLoaded()) return;
+    window.updateIndices('plat', parent);
+}
+
+function isCategorieLoaded() {
+    const categorieInfo = document.querySelector(".categorie-info");
+    return categorieInfo !== null && !categorieInfo.classList.contains('hidden');
+}
+
+document.addEventListener('htmx:afterSwap', (e) => {
+    if (!isCategorieLoaded()) return;
     updateCategorieIndices();
 });
 
-categorieList.addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
+    if (!isCategorieLoaded()) return;
+    
     let target = e.target;
     let expandButton = target.closest('.expand-categorie-item');
     let collapseButton = target.closest('.collapse-categorie-item');
@@ -38,19 +62,22 @@ categorieList.addEventListener('click', (e) => {
     }
 });
 
-export function addCategorieItemAfter(button) {
+function addCategorieItemAfter(button) {
+    if (!isCategorieLoaded()) return;
     let categorieItem = button.closest('.drag-item');
     if (!categorieItem) return;
     addCategorieItem(categorieItem, 'afterend');
 }
 window.addCategorieItemAfter = addCategorieItemAfter;
 
-export function addCategorieItemBefore(button) {
+function addCategorieItemBefore(button) {
+    if (!isCategorieLoaded()) return;
     addCategorieItem(button, 'beforebegin');
 }
 window.addCategorieItemBefore = addCategorieItemBefore;
 
 function addCategorieItem(button, swap) {
+    if (!isCategorieLoaded()) return;
     let id = Date.now().toString(36)+'t';
     if (!addedCategorieItems.includes(id)) {
         addedCategorieItems.push(id);
@@ -65,6 +92,7 @@ function addCategorieItem(button, swap) {
 }
 
 export function deleteCategorieItem(button) {
+    if (!isCategorieLoaded()) return;
     let categorieItem = button.closest('.drag-item');
     if (!categorieItem) return;
     let id = categorieItem.dataset.id;
@@ -80,25 +108,157 @@ export function deleteCategorieItem(button) {
 window.deleteCategorieItem = deleteCategorieItem;
 
 
+function addPlatItemBefore(button) {
+    if (!isCategorieLoaded()) return;
+    addPlatItem(button, 'beforebegin');
+}
+window.addPlatItemBefore = addPlatItemBefore;
+
+function addPlatItem(button, swap) {
+    if (!isCategorieLoaded()) return;
+    let id = Date.now().toString(36)+'t';
+    if (!addedPlatItems.includes(id)) {
+        addedPlatItems.push(id);
+    }
+    if (deletedPlatItems.includes(id)) {
+        deletedPlatItems = deletedPlatItems.filter(item => item !== id);
+    }
+    const platList = button.closest('.plat-list');
+    htmx.ajax('GET', `/partials/edit/categories/add-plat-item?id=${id}&index=${platList.children.length}`, {
+        target: button,
+        swap: swap,
+    });
+}
+
+
+// === ICON ===
+let iconDebounce;
+
+async function searchIcons(query) {
+    const url = `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=20`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.icons || [];
+}
+
+function displayIconSelect(icons, id) { 
+    if (!isCategorieLoaded()) return;
+    htmx.ajax('POST', '/partials/edit/categories/icon-select', {
+        target: `.drag-item[data-id="${id}"] .icon-select`,
+        swap: 'outerHTML',
+        values: { icons: JSON.stringify(icons)}
+    });
+}
+
+
+async function searchAndDisplayIcons(input) {
+    if (!isCategorieLoaded()) return;
+    let value = input.value;
+    if (value.length < 1) {
+        closeIconSelect(input);
+        return;
+    }
+
+    clearTimeout(iconDebounce);
+    iconDebounce = setTimeout(async () => {
+        let categorieItem = input.closest('.drag-item');
+        if (categorieItem) {    
+            const icons = await searchIcons(value);
+            if (icons.length > 0) {
+                displayIconSelect(icons, categorieItem.dataset.id);
+            } else {
+                closeIconSelect(input);
+            }
+        }
+    }, 300);
+}
+window.searchAndDisplayIcons = searchAndDisplayIcons;
+
+function closeIconSelect(element) {
+    if (!isCategorieLoaded()) return;
+    let categorieItem = element.closest('.drag-item');
+    if (categorieItem) {
+        let iconSelect = categorieItem.querySelector('.icon-select');
+        if (iconSelect) {
+            iconSelect.innerHTML = '';
+            iconSelect.classList.add('hidden');
+        }
+    }
+}
+window.closeIconSelect = closeIconSelect;
+
+function getIconUrl(icon) {
+    return `https://api.iconify.design/${icon}.svg`;
+}
+
+function setCategorieIcon(element) {
+    if (!isCategorieLoaded()) return;
+    let icon = element.dataset.icon;
+    let categorieItem = element.closest('.drag-item');
+    if (icon && categorieItem) {
+        let iconInput = categorieItem.querySelector('.categorie-icon');
+        let iconImg = categorieItem.querySelector('.categorie-icon-img');
+        if (iconImg) {
+            iconImg.src = getIconUrl(icon);
+        }
+        if (iconInput) {
+            iconInput.value = icon;
+        }
+        closeIconSelect(element);
+        window.showSave();
+    }
+}
+window.setCategorieIcon = setCategorieIcon;
+
+function deleteCategorieIcon(element) {
+    if (!isCategorieLoaded()) return;
+    let categorieItem = element.closest('.drag-item');
+    if (categorieItem) {
+        let iconInput = categorieItem.querySelector('.categorie-icon');
+        let iconImg = categorieItem.querySelector('.categorie-icon-img');
+        if (iconInput) {
+            iconInput.value = '';
+        }
+        if (iconImg) {
+            iconImg.src = '';
+        }
+        closeIconSelect(element);
+        window.showSave();
+    }
+}
+window.deleteCategorieIcon = deleteCategorieIcon;
+
 // === DRAGGING ===
 const view = document.getElementById('view');
 view.addEventListener('itemDropped', (e) => {
+    if (!isCategorieLoaded()) return;
     const { item } = e.detail;
-    let placeholder = document.querySelector('.placeholder');
-    if (placeholder) {
-        categorieList.insertBefore(item, placeholder);
-        placeholder.remove();
+    if (item.dataset.type === "category") {
+        let placeholder = document.querySelector('.placeholder');
+        const categorieList = document.getElementById('categorie-list');
+        if (placeholder && categorieList) {
+            categorieList.insertBefore(item, placeholder);
+            placeholder.remove();
+        }
+        updateCategorieIndices();
     }
-    updateCategorieIndices();
+    if (item.dataset.type === "plat") {
+        let placeholder = document.querySelector('.placeholder');
+        const platList = item.closest('.plat-list');
+        if (placeholder && platList) {
+            platList.insertBefore(item, placeholder);
+            placeholder.remove();
+        }
+        updatePlatIndices(platList);
+    }
 });
 
 
 // === SAVE ===
-saveButton.removeEventListener('click', saveCategories);
-saveButton.addEventListener('click', saveCategories);
+document.addEventListener('saveChanges', async (e) => {
+    const categorieList = document.getElementById('categorie-list');
+    if (!categorieList) return;
 
-
-async function saveCategories() {
     updateCategorieIndices();
     const saveData = {
         updated: [],
@@ -109,7 +269,9 @@ async function saveCategories() {
     const extractFields = (item) => {
         return {
             name: item.querySelector('.categorie-name')?.value || '',
-            description: item.querySelector('.categorie-description')?.value || ''
+            description: item.querySelector('.categorie-description')?.value || '',
+            icon: item.querySelector('.categorie-icon')?.value || '',
+            traduisible: item.querySelector('.categorie-traduisible-oui')?.checked || false
         };
     };
 
@@ -145,7 +307,9 @@ async function saveCategories() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+            // get full response error message
+            const errorData = await response.json();
+            throw new Error(`Server error: ${errorData.message || response.statusText}`);
         }
 
         const data = await response.json();
@@ -162,4 +326,4 @@ async function saveCategories() {
     } catch (error) {
         console.error('Error:', error);
     }
-}
+});

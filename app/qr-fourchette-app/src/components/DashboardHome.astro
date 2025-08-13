@@ -9,7 +9,7 @@ const { user } = Astro.props as { user: { id: string; username: string; email: s
         <button
             class="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium"
             id="edit-carte"
-            hx-get="/partials/edit/edit-carte"
+            hx-get={`/partials/edit/edit-carte?userId=${user.id}`}
             hx-push-url="#/edit-carte"
             hx-target="#dashboard-content"
             hx-swap="innerHTML"
@@ -103,6 +103,10 @@ const { user } = Astro.props as { user: { id: string; username: string; email: s
 </div>
 
 <script src="/src/scripts/edit.js"></script>
+<script src="/src/scripts/categorie.js" defer type="module"></script>
+<script src="/src/scripts/menu.js" defer type="module"></script>
+<script src="/src/scripts/info.js" defer type="module"></script>
+
 <script type="module">
     (function(){
         const dashboardContent = document.querySelector('#dashboard-content');
@@ -113,14 +117,21 @@ const { user } = Astro.props as { user: { id: string; username: string; email: s
                 if (parts[0] === 'edit-carte') {
                     if (parts[1] === 'menus')
                     {
-                        htmx.ajax('GET', `/partials/edit/menu/menus`, {
+                        htmx.ajax('GET', `/partials/edit/menu/menus?userId=${dashboardContent.dataset.userid}`, {
                             target: '#edit-carte-content',
                             swap: 'innerHTML',
                         });
                     }
                     if (parts[1] === 'produits')
                     {
-                        htmx.ajax('GET', `/partials/edit/categories/produits`, {
+                        htmx.ajax('GET', `/partials/edit/categories/produits?userId=${dashboardContent.dataset.userid}`, {
+                            target: '#edit-carte-content',
+                            swap: 'innerHTML',
+                        });
+                    }
+                    if (parts[1] === 'infos')
+                    {
+                        htmx.ajax('GET', `/partials/edit/infos/infos?userId=${dashboardContent.dataset.userid}`, {
                             target: '#edit-carte-content',
                             swap: 'innerHTML',
                         });

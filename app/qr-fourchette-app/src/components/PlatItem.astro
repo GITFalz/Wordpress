@@ -1,17 +1,9 @@
 ---
-import PlatList from "./categories/PlatList.jsx";
-
-const { id, index, name, description, icon, traduisible } = Astro.props;
-let categoryId = id ?? Date.now(); // Use provided id or generate a new one
-let platCount: string[] = [];
-
-function addPlat() {
-    platCount.push('');
-}
-
+const { id, index, name, description, prix, traduisible, image, labels } = Astro.props;
+let platId = id ?? Date.now(); // Use provided id or generate a new one
 ---
 
-<div data-id={categoryId} data-index={index} data-type="category" class="flex items-start px-4 py-3 cursor-pointer drag-item">
+<div data-id={platId} data-index={index} data-type="plat" class="flex items-start px-4 py-3 cursor-pointer drag-item">
     <!-- Left side: index circle with plus button below -->
     <div class="flex flex-col items-center mr-4 select-none rounded-xl">
         <div class="cursor-move w-11 h-11 rounded-full bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center transition drag-handle">
@@ -24,7 +16,7 @@ function addPlat() {
         <button
             type="button"
             aria-label="Add"
-            class="expand-categorie-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
+            class="expand-categorie-item mt-2 w-8 h-8 rounded-full bg-yellow-400 hover:bg-yellow-300 text-white transition focus:outline-none focus:ring-2 focus:ring-yellow-400 toggle-menu-button"
         >
             <div class="flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
@@ -35,7 +27,7 @@ function addPlat() {
         <button
             type="button"
             aria-label="Add"
-            class="hidden collapse-categorie-item mt-2 w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white transition focus:outline-none focus:ring-2 focus:ring-orange-400 toggle-menu-button"
+            class="hidden collapse-categorie-item mt-2 w-8 h-8 rounded-full bg-yellow-400 hover:bg-yellow-300 text-white transition focus:outline-none focus:ring-2 focus:ring-yellow-400 toggle-menu-button"
         >
             <div class="flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-double-up" viewBox="0 0 16 16">
@@ -51,32 +43,29 @@ function addPlat() {
         <div class="flex items-start justify-between flex-col space-y-2">
             <div class="flex flex-row space-x-2 w-full">
                 <div class="w-full space-y-2 flex flex-col">
-                    <p class="hidden expandable">Nom du menu</p>
+                    <p class="hidden expandable">Nom du plat</p>
                     <input
                         type="text"
                         name="name"
                         placeholder="Menu name"
-                        class="categorie-name rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full saveable-input"
+                        class="plat-name rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full saveable-input"
                         value={name}
                     />
                 </div>
                 <div class="w-full space-y-2 flex flex-col hidden expandable">
-                    <p class="">Icône de la catégorie</p>
+                    <p class="">Prix du plat</p>
                     <div class="flex flex-row justify-center items-center gap-5 pl-2 relative text-xs">
                         <div class="delete-icon bg-red-600 rounded-full text-white absolute left-0 top-0" onclick="deleteCategorieIcon(this)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
                                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
                             </svg>
                         </div>
-                        <img src={icon ? `https://api.iconify.design/${icon}.svg` : ''} alt="Aucune icône" class="categorie-icon-img w-8 h-8" />
                         <input
-                            type="text"
-                            name="icon"
-                            placeholder="Menu icon"
-                            oninput="searchAndDisplayIcons(this)"
-                            onclick="closeIconSelect(this)"
-                            class="categorie-icon rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full"
-                            value={icon}
+                            type="number"
+                            name="prix"
+                            placeholder="Plat prix"
+                            class="plat-prix rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full"
+                            value={prix}
                         />
                         <div class="icon-select absolute top-[100%] mt-2 left-0 w-full max-h-60 overflow-y-auto bg-white shadow-lg rounded z-50">
                         </div>
@@ -86,23 +75,23 @@ function addPlat() {
             <div class="w-full hidden expandable">
                 <div class="flex flex-row space-x-2 w-full">
                     <div class="w-full space-y-2 flex flex-col">
-                        <p>Description de la catégorie</p>
+                        <p>Description du plat / ingrédients</p>
                         <textarea
                             name="description"
                             placeholder="Menu description"
-                            class="categorie-description rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
+                            class="plat-description rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-32 w-full saveable-input"
                         >{description}</textarea>
                     </div>
                     <div class="w-full space-y-2 flex flex-col">
-                        <p class="">Cette catégorie est-elle traduisible?</p>
+                        <p class="">Ce plat est-il traduisible?</p>
                         <div class="flex items-center">
                             <div class="flex items-center gap-6">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name={`traduisible${categoryId}`}
+                                        name={`traduisible${platId}`}
                                         value="1"
-                                        class="w-5 h-5 categorie-traduisible-oui categorie-traduisible saveable-input"
+                                        class="w-5 h-5 plat-traduisible-oui categorie-traduisible saveable-input accent-yellow-400"
                                         checked={traduisible === true}
                                     />
                                     Oui
@@ -111,21 +100,15 @@ function addPlat() {
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
-                                        name={`traduisible${categoryId}`}
+                                        name={`traduisible${platId}`}
                                         value="0"
-                                        class="w-5 h-5 categorie-traduisible-non categorie-traduisible saveable-input"
+                                        class="w-5 h-5 plat-traduisible-non categorie-traduisible saveable-input accent-yellow-400"
                                         checked={traduisible !== true}
                                     />
                                     Non
                                 </label>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="flex w-full pt-5">
-                    <div class="w-full edit-info categorie-plats-info">
-                        <h3 class="text-xl font-semibold text-white bg-yellow-400 p-5 rounded-t-xl">LES PLATS DE LA CATÉGORIE</h3>
-                        <PlatList client:load categorieId={categoryId} />
                     </div>
                 </div>
             </div>
@@ -142,7 +125,7 @@ function addPlat() {
                     onclick="addCategorieItemAfter(this)"
                     type="button"
                     aria-label="Add submenu"
-                    class="w-8 h-8 rounded-full bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    class="w-8 h-8 rounded-full bg-yellow-400 hover:bg-yellow-300 text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-yellow-400"
                     >
                     <!-- Plus icon -->
                     <svg
@@ -160,7 +143,7 @@ function addPlat() {
                     onclick="deleteCategorieItem(this)"
                     type="button"
                     aria-label="Delete menu"
-                    class="w-8 h-8 rounded-full bg-gray-900 hover:bg-gray-800 text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-red-400 delete-menu-button"
+                    class="w-8 h-8 rounded-full bg-yellow-400 hover:bg-yellow-300 text-white flex items-center justify-center transition focus:outline-none focus:ring-2 focus:ring-red-400 delete-menu-button"
                     >
                 <!-- Trashcan icon -->
                     <svg
