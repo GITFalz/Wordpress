@@ -75,6 +75,7 @@ model qrf_plats {
   traduisible    Boolean        @default(false)
   image          String         @db.VarChar(255)
   categorie_id   BigInt
+  number         Int
   qrf_categories qrf_categories @relation(fields: [categorie_id], references: [id], onDelete: Cascade, map: "qrf_categories_plats_ibfk_1")
 
   @@index([categorie_id], map: "qrf_categories_plats_ibfk_1")

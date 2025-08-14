@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Dashboard from './content/Dashboard';
 import LoginForm from './content/LoginForm';
 
@@ -8,34 +8,38 @@ const USER_KEY = 'auth_user';
 const EXP_KEY = 'auth_token_exp';
 
 export default function App() {
-    console.log('App rendered');
-    const [token, setToken] = useState(null);
-    useEffect(() => {
-        const saved = localStorage.getItem(TOKEN_KEY);
-        if (saved) setToken(saved);
-    }, []);
-    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem(TOKEN_KEY);
+        }
+        return null;
+    });
+
+    const [user, setUser] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const userData = localStorage.getItem(USER_KEY);
+            return userData ? JSON.parse(userData) : null;
+        }
+        return null;
+    });
+
+    const [loggedIn, setLoggedIn] = useState(false);
 
     useEffect(() => {
-        const raw = sessionStorage.getItem(USER_KEY);
-        if (raw) setUser(JSON.parse(raw));
-    }, []);
-    const [loggedIn, setLoggedIn] = useState(!!token && !!user);
-    
-    // Timer ref
+        setLoggedIn(!!token && !!user);
+    }, [token, user]);
+
     let logoutTimer = null;
 
-    // Function to save token/user/expiration
     const saveAuth = ({ token, user, expirationDate }) => {
-        if (typeof window === "undefined") return; // Exit if SSR
+        if (typeof window === "undefined") return;
 
         if (token) localStorage.setItem(TOKEN_KEY, token);
-        if (user) sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+        if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
         if (expirationDate) localStorage.setItem(EXP_KEY, expirationDate);
 
         setToken(token);
         setUser(user);
-        setLoggedIn(true);
 
         scheduleAutoLogout(expirationDate);
     };
@@ -43,10 +47,9 @@ export default function App() {
     const clearAuth = () => {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(EXP_KEY);
-        sessionStorage.removeItem(USER_KEY);
+        localStorage.removeItem(USER_KEY);
         setToken(null);
         setUser(null);
-        setLoggedIn(false);
 
         if (logoutTimer) clearTimeout(logoutTimer);
     };
@@ -66,7 +69,6 @@ export default function App() {
         }, msLeft);
     };
 
-    // On mount, check if token expired
     useEffect(() => {
         const expIso = localStorage.getItem(EXP_KEY);
         if (!token || !user || (expIso && Date.now() >= new Date(expIso).getTime())) {

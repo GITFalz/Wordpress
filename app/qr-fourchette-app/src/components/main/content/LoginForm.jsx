@@ -6,15 +6,14 @@ export default function LoginForm({ onLogin }) {
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // ✅ Prevent page reload
+        e.preventDefault();
         setError('');
 
-        // get the email and password here
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
-        console.log("email: ", email);
-        console.log("password:", password);
+        const form = e.target;
+        const emailElement = form.querySelector('input[type="email"]');
+        const passwordElement = form.querySelector('input[type="password"]');
+        const email = emailElement.value;
+        const password = passwordElement.value;
 
         try {
             const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/login`, {
@@ -31,7 +30,8 @@ export default function LoginForm({ onLogin }) {
             }
 
             const data = await response.json();
-            //onLogin(data); // Call the parent callback
+            console.log('Login successful:', data);
+            onLogin({ token: data.token, user: data.user, expirationDate: data.expirationDate });
         } catch (err) {
             setError(err.message);
             console.error('Login error:', err);
