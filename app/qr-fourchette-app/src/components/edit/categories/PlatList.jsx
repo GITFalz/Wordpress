@@ -21,7 +21,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
         async function fetchPlats() {
             try {
                 setLoading(true);
-                const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/categorie/plat/${user.id}/${categorieId}`, {
+                const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${categorieId}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
@@ -48,7 +48,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
         if (value === '' && replacement !== null) {
             value = replacement;
         }
-        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/categorie/plat/${user.id}/${platId}/${field}`, {
+        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${platId}/${field}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
             number: i + 1
         }));
 
-        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/categorie/plat/${user.id}/${categorieId}`, {
+        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${categorieId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
             prix: 0
         };
 
-        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/categorie/plat/${user.id}/${categorieId}`, {
+        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${categorieId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
         let plat = platItems.find(item => item.id === id);
         let isPlatAtEnd = plat.number === platItems.length;
 
-        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/categorie/plat/${user.id}/${id}`, {
+        const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem(TOKEN_KEY)}`,

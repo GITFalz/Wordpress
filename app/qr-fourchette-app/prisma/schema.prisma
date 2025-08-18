@@ -95,11 +95,35 @@ model qrf_labels_plats {
 }
 
 model qrf_settings {
-  id        BigInt    @id @default(autoincrement())
   key       String    @db.VarChar(255)
   value     String    @db.Text
   user_id   BigInt
   qrf_users qrf_users @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qrf_user_settings_ibfk_1")
 
+  @@id([key, user_id])
   @@index([user_id], map: "qrf_user_settings_ibfk_1")
+}
+
+model qrf_langues {
+  langue            String              @db.VarChar(255)
+  code              String              @id @db.VarChar(10)
+  qrf_langues_carte qrf_langues_carte[]
+}
+
+model qrf_langues_carte {
+  id          BigInt      @id @default(autoincrement())
+  user_id     BigInt
+  code        String      @db.VarChar(10)
+  number      Int
+  langue      String      @db.VarChar(255)
+  qrf_langues qrf_langues @relation(fields: [code], references: [code], onDelete: Cascade, map: "qrf_code_langues_ibfk_1")
+
+  @@index([code], map: "qrf_code_langues_ibfk_1")
+}
+
+model qrf_fonts {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique(map: "name") @db.VarChar(100)
+  category String? @db.VarChar(50)
+  url      String  @db.Text
 }

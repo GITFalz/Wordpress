@@ -1,8 +1,30 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import EditCarte from '../../edit/EditCarte';
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user, onLogout, onMouseClick }) {
     const [visibleList, setVisibleList] = useState("edit");
+    const clickCallbacks = useRef([]);
+
+    const handleOnClickClose = (element, callback) => {
+        clickCallbacks.current.push({element, callback});
+        return () => {
+            clickCallbacks.current = clickCallbacks.current.filter(cb => cb.element !== element);
+        };
+    };
+
+    useEffect(() => {
+        const handleClick = (e) => {
+            clickCallbacks.current.forEach((cb) => {
+                if (!!cb.element && !cb.element.contains(e.target)) {
+                    cb.callback();
+                }
+            });
+            clickCallbacks.current = [];
+        };
+
+        document.addEventListener('click', handleClick);
+        return () => document.removeEventListener('click', handleClick);
+    }, []);
 
     return (
         <div>
@@ -25,7 +47,7 @@ export default function Dashboard({ user, onLogout }) {
                 <main className="flex-1 p-8">
                     <div id="dashboard-content" data-userid={`${user.id}`} className="bg-white rounded shadow p-6 min-h-[400px]">
                         <div className={visibleList === "edit" ? "block" : "hidden"}>
-                            <EditCarte user={user} />
+                            <EditCarte user={user} onClickClose={handleOnClickClose} />
                         </div>
                     </div>
                 </main>

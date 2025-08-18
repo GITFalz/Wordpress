@@ -5,9 +5,13 @@ import dotenv from 'dotenv';
 import registerRoutes from './routes/register.js';
 import loginRoutes from './routes/login.js';
 import refreshTokenRoutes from './routes/refresh-token.js';
-import carteRoutes from './routes/edit-carte.js';
+import updateRoutes from './routes/update.js';  
+import fontRoutes from './routes/fonts.js';
 import menuRoutes from './routes/menu.js';
 import categorieRoutes from './routes/categories.js';
+import settingsRoutes from './routes/settings.js';
+import languesCarteRoutes from './routes/langues-carte.js';
+import languesRoute from './routes/langues.js';
 
 const app = express();
 dotenv.config();
@@ -42,9 +46,13 @@ app.get('/api/test', (req, res) => {
 app.use('/api/register', registerRoutes); 
 app.use('/api/login', loginRoutes);
 app.use('/api/refresh-token', refreshTokenRoutes);
-app.use('/api/edit-carte', carteRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/categorie', categorieRoutes);
+app.use('/api/update', updateRoutes);
+app.use('/api/fonts', fontRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/langues', languesRoute);
+app.use('/api/carte/menu', menuRoutes);
+app.use('/api/carte/categorie', categorieRoutes);
+app.use('/api/carte/langues', languesCarteRoutes);
 
 const PORT = 4000;
 app.listen(PORT, '0.0.0.0', () => {
