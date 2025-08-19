@@ -15,7 +15,7 @@ export default function Info({
         onMouseLeave={onHoverLeave}
         onClick={onClick}
         >
-            <p className={`text-xs flex gap-2 items-center ${!displayIcon ? "pl-6 pb-2" : ""}`}>
+            <p className={`text-xs flex gap-2 ${!displayIcon ? "pl-6 pb-2" : ""} flex justify-start items-start`}>
                 {displayIcon && (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

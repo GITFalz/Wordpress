@@ -12,6 +12,9 @@ export default defineConfig({
   }),
 
   vite: {
+    optimizeDeps: {
+      include: ['react-router-dom'], // <-- Force Vite to pre-bundle as ESM
+    },
     build: {
       assetsInlineLimit: 0, // Prevent CSS inlining
     }

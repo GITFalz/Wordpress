@@ -36,4 +36,20 @@ router.get('/:userid/:query', async (req, res) => {
     }
 });
 
+router.get('/:userid/font/:fontid', async (req, res) => {
+    const { userid, fontid } = req.params;
+    try {
+        userCheck(req, userid); // check if a user is connected, no outside access
+        const font = await prisma.qrf_fonts.findUnique({
+            where: {
+                id: Number(fontid),
+            },
+        });
+        res.json(font);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 export default router;

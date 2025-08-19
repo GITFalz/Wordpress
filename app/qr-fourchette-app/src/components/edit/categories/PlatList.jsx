@@ -91,7 +91,8 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
             description: '',
             image: '',
             traduisible: false,
-            prix: 0
+            prix: 0,
+            labels: {}
         };
 
         const response = await fetch(`${import.meta.env.PUBLIC_API_BASE_URL}/api/carte/categorie/plat/${user.id}/${categorieId}`, {
@@ -204,7 +205,7 @@ export default function PlatList({ user, categorieId, onMouseDown }) {
     return (
         <ul className="plat-list space-y-4 pb-5">
             {platItems.map((plat) => (
-                <PlatItem key={plat.id} user={user} id={plat.id} index={plat.number} name={plat.name} description={plat.description} image={plat.image} prix={plat.prix} traduisible={plat.traduisible} 
+                <PlatItem key={plat.id} user={user} id={plat.id} index={plat.number} name={plat.name} description={plat.description} image={plat.image} prix={plat.prix} traduisible={plat.traduisible} labels={plat.labels}
                     onChange={handleChange} 
                     onAdd={handleAddPlatItem}
                     onDelete={handleDeletePlatItem}

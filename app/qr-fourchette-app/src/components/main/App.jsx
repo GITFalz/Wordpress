@@ -50,6 +50,7 @@ export default function App() {
         localStorage.removeItem(USER_KEY);
         setToken(null);
         setUser(null);
+        setLoggedIn(false);
 
         if (logoutTimer) clearTimeout(logoutTimer);
     };

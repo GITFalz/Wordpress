@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import EditCarte from '../../edit/EditCarte';
+import VoirCarte from '../../voir/VoirCarte';
 
 export default function Dashboard({ user, onLogout, onMouseClick }) {
     const [visibleList, setVisibleList] = useState("edit");
     const clickCallbacks = useRef([]);
+    
 
     const handleOnClickClose = (element, callback) => {
         clickCallbacks.current.push({element, callback});
@@ -11,6 +13,21 @@ export default function Dashboard({ user, onLogout, onMouseClick }) {
             clickCallbacks.current = clickCallbacks.current.filter(cb => cb.element !== element);
         };
     };
+
+    const handleSetVisibleList = (section) => {
+        setVisibleList(section);
+        window.location.hash = section;
+    }
+
+    const handleHashChange = () => {
+        const hash = window.location.hash.replace('#', '') || 'edit';
+        const firstPart = hash.split('/')[0];
+        setVisibleList(firstPart);
+    };
+
+    useEffect(() => {
+        handleHashChange();
+    }, []);
 
     useEffect(() => {
         const handleClick = (e) => {
@@ -32,12 +49,12 @@ export default function Dashboard({ user, onLogout, onMouseClick }) {
                 <aside className="w-64 bg-white shadow-lg p-6 flex flex-col space-y-4">
                     <h2 className="text-xl font-bold mb-4 text-gray-800">Bonjour, {user.username} 👋</h2>
                     
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="edit-carte" onClick={() => setVisibleList("edit")}>ÉDITER MA CARTE</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="voir-carte" onClick={() => setVisibleList("carte")}>VOIR MA CARTE</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="qr-code" onClick={() => setVisibleList("qr-code")}>MON QR CODE</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mes-infos" onClick={() => setVisibleList("infos")}>MES INFOS</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mon-abonnement" onClick={() => setVisibleList("abonnement")}>MON ABONNEMENT</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mes-factures" onClick={() => setVisibleList("factures")}>MES FACTURES</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="edit-carte" onClick={() => handleSetVisibleList("edit")}>ÉDITER MA CARTE</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="voir-carte" onClick={() => handleSetVisibleList("carte")}>VOIR MA CARTE</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="qr-code" onClick={() => handleSetVisibleList("qr-code")}>MON QR CODE</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mes-infos" onClick={() => handleSetVisibleList("infos")}>MES INFOS</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mon-abonnement" onClick={() => handleSetVisibleList("abonnement")}>MON ABONNEMENT</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mes-factures" onClick={() => handleSetVisibleList("factures")}>MES FACTURES</button>
 
                     <hr className="my-4" />
 
@@ -48,6 +65,9 @@ export default function Dashboard({ user, onLogout, onMouseClick }) {
                     <div id="dashboard-content" data-userid={`${user.id}`} className="bg-white rounded shadow p-6 min-h-[400px]">
                         <div className={visibleList === "edit" ? "block" : "hidden"}>
                             <EditCarte user={user} onClickClose={handleOnClickClose} />
+                        </div>
+                        <div className={visibleList === "carte" ? "block" : "hidden"}>
+                            <VoirCarte user={user} />
                         </div>
                     </div>
                 </main>

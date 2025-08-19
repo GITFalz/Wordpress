@@ -68,39 +68,29 @@ model qrf_categories {
 }
 
 model qrf_plats {
-  id             BigInt         @id @default(autoincrement())
-  name           String         @db.VarChar(255)
-  description    String         @db.Text
-  prix           Decimal        @db.Decimal(10, 2)
-  traduisible    Boolean        @default(false)
-  image          String         @db.VarChar(255)
-  categorie_id   BigInt
-  number         Int
-  qrf_categories qrf_categories @relation(fields: [categorie_id], references: [id], onDelete: Cascade, map: "qrf_categories_plats_ibfk_1")
+  id              BigInt            @id @default(autoincrement())
+  name            String            @db.VarChar(255)
+  description     String            @db.Text
+  prix            Decimal           @db.Decimal(10, 2)
+  traduisible     Boolean           @default(false)
+  image           String            @db.VarChar(255)
+  categorie_id    BigInt
+  number          Int
+  labels          Json
+  qrf_plat_labels qrf_plat_labels[]
+  qrf_categories  qrf_categories    @relation(fields: [categorie_id], references: [id], onDelete: Cascade, map: "qrf_categories_plats_ibfk_1")
 
   @@index([categorie_id], map: "qrf_categories_plats_ibfk_1")
 }
 
-model qrf_labels {
-  id    BigInt @id @default(autoincrement())
-  name  String @db.VarChar(255)
-  image String @db.VarChar(255)
-}
-
-model qrf_labels_plats {
-  label_id BigInt
-  plat_id  BigInt
-
-  @@id([label_id, plat_id])
-}
-
 model qrf_settings {
-  key       String    @db.VarChar(255)
-  value     String    @db.Text
-  user_id   BigInt
-  qrf_users qrf_users @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qrf_user_settings_ibfk_1")
+  value        String    @db.Text
+  id           BigInt    @id @default(autoincrement())
+  settings_key String    @db.VarChar(255)
+  user_id      BigInt
+  category     String    @db.VarChar(255)
+  qrf_users    qrf_users @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "qrf_user_settings_ibfk_1")
 
-  @@id([key, user_id])
   @@index([user_id], map: "qrf_user_settings_ibfk_1")
 }
 
@@ -126,4 +116,21 @@ model qrf_fonts {
   name     String  @unique(map: "name") @db.VarChar(100)
   category String? @db.VarChar(50)
   url      String  @db.Text
+}
+
+model qrf_labels {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  image           String            @db.VarChar(255)
+  qrf_plat_labels qrf_plat_labels[]
+}
+
+model qrf_plat_labels {
+  plat_id    BigInt
+  label_id   Int
+  qrf_plats  qrf_plats  @relation(fields: [plat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qrf_plat_labels_ibfk_1")
+  qrf_labels qrf_labels @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qrf_plat_labels_ibfk_2")
+
+  @@id([plat_id, label_id])
+  @@index([label_id], map: "label_id")
 }

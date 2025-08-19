@@ -53,6 +53,33 @@ router.get('/plat/:userid/:categoryId', async (req, res) => {
     }
 });
 
+router.get('/plat/labels/:userid/:platid', async (req, res) => {
+    const { userid, platid } = req.params;
+    try {
+        userCheck(req, userid);
+
+        const labels = await prisma.qrf_plat_labels.findMany({
+            where: { plat_id: Number(platid) },
+            include: { qrf_labels: true },
+        });
+
+        const serializedLabels = labels.map(label => ({
+            ...label,
+            id: Number(label.id),
+            plat_id: Number(label.plat_id),
+            qrf_labels: {
+                ...label.qrf_labels,
+                id: Number(label.qrf_labels.id)
+            }
+        }));
+
+        res.status(200).json({ message: "success!", labels: serializedLabels });
+    } catch (error) {
+        const statusCode = error.message === 'Authorization error' || error.message === 'Unauthorized' ? 401 : error.message === 'Forbidden' ? 403 : 500;
+        res.status(statusCode).json({ error: error.message });
+    }
+});
+
 // === POST CATEGORIES ===
 router.post('/:userid', async (req, res) => {
     const { userid } = req.params;
@@ -102,6 +129,26 @@ router.post('/plat/:userid/:categoryId', async (req, res) => {
         };
 
         res.status(201).json({ message: 'Plat created successfully', plat: serializedPlat });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/plat/label/:userid/:platid', async (req, res) => {
+    const { userid, platid } = req.params;
+    const { labelId } = req.body;
+
+    try {
+        userCheck(req, userid);
+
+        await prisma.qrf_plat_labels.create({
+            data: {
+                plat_id: Number(platid),
+                label_id: Number(labelId)
+            }
+        });
+
+        res.status(201).json({ message: 'Label added to plat successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -176,6 +223,28 @@ router.put('/:userid', async (req, res) => {
         res.status(200).json({ message: 'Categories updated successfully' });
     } catch (error) {
         console.error('Error updating categories:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/plat/label/:userid/:platid/:labelid', async (req, res) => {
+    const { userid, platid, labelid } = req.params;
+
+    try {
+        userCheck(req, userid);
+
+        await prisma.qrf_plat_labels.delete({
+            where: {
+                plat_id_label_id: {
+                    plat_id: Number(platid),
+                    label_id: Number(labelid)
+                }
+            }
+        });
+
+        res.status(200).json({ message: 'Label removed from plat successfully' });
+    } catch (error) {
+        throw new Error(error);
         res.status(500).json({ error: error.message });
     }
 });

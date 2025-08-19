@@ -5,6 +5,72 @@ import { userCheck } from '../../middlewares/userCheck.js';
 const router = express.Router();
 const prisma = new PrismaClient();
 
+async function newSettings(key, categorie, value, userId) {
+    return await prisma.qrf_settings.create({
+        data: {
+            settings_key: key,
+            category: categorie,
+            value: value,
+            user_id: userId
+        }
+    });
+}
+
+async function getFromKey(key, categorie, userId) {
+    return await prisma.qrf_settings.findUnique({
+        where: {
+            user_id: userId,
+            category: categorie,
+            settings_key: key
+        }
+    });
+}
+
+async function getOrCreate(key, categorie, userId, value = '') {
+    const settings = await getFromKey(key, categorie, userId);
+    if (!settings) {
+        return await newSettings(key, categorie, value, userId);
+    }
+    return settings;
+}
+
+async function getFromCategorie(categorie, userId) {
+       return await prisma.qrf_settings.findMany({
+        where: {
+            user_id: userId,
+            category: categorie
+        }
+    });
+}
+
+async function updateSettings(settingsId, value) {
+    return await prisma.qrf_settings.update({
+        where: {
+            id: settingsId
+        },
+        data: {
+            value: value
+        }
+    });
+}
+
+async function deleteSettings(settingsId) {
+    return await prisma.qrf_settings.delete({
+        where: {
+            id: settingsId
+        }
+    });
+}
+
+function serializeSettings(settings) {
+    return settings.map(setting => ({
+        id: Number(setting.id),
+        key: setting.settings_key,
+        category: setting.category,
+        value: setting.value
+    }));
+}
+
 // 🔹 Middleware to check user once
 router.use('/:userid', (req, res, next) => {
     try {
@@ -16,99 +82,70 @@ router.use('/:userid', (req, res, next) => {
     }
 });
 
-// GET one setting
-router.get('/:userid/:key', async (req, res) => {
-    const { userid, key } = req.params;
+router.get('/:userid/:categorie', async (req, res) => {
+    const { userid, categorie } = req.params;
     try {
-        const setting = await prisma.qrf_settings.findUnique({
-            where: { key_user_id: { user_id: Number(userid), key } }, // composite unique
-        });
-
-        if (!setting) {
-            return res.status(404).json({ error: 'Setting not found' });
-        }
-
-        res.json({ [setting.key]: setting.value });
+        const settings = await getFromCategorie(categorie, Number(userid));
+        return res.json(serializeSettings(settings));
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
-router.post('/:userid', async (req, res) => {
-    const { userid } = req.params;
-    const { key, value, keys } = req.body;
-
+router.get('/:userid/:categorie/:key', async (req, res) => {
+    const { userid, categorie, key } = req.params;
     try {
-        if (key && value !== undefined) {
-            // Single setting
-            await prisma.qrf_settings.upsert({
-                where: { key_user_id: { user_id: Number(userid), key } },
-                update: { value },
-                create: { user_id: Number(userid), key, value },
-            });
-            return res.status(201).json({ message: 'Setting created/updated successfully' });
-        } else if (Array.isArray(keys)) {
-            // Multiple settings
-            const settings = await Promise.all(
-                keys.map(async (k) => {
-                    let setting = await prisma.qrf_settings.findUnique({
-                        where: { key_user_id: { user_id: Number(userid), key: k } },
-                    });
-                    if (!setting) {
-                        setting = await prisma.qrf_settings.create({
-                            data: { user_id: Number(userid), key: k, value: '' },
-                        });
-                    }
-                    return setting;
-                })
-            );
-
-            const serialized = settings.reduce((acc, s) => {
-                acc[s.key] = s.value;
-                return acc;
-            }, {});
-
-            return res.json({ message: 'success', settings: serialized });
-        } else {
-            return res.status(400).json({ error: 'Invalid request body' });
-        }
+        const settings = await getFromKey(key, categorie, Number(userid));
+        return res.json(serializeSettings([settings]));
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
-// PUT update or create one setting
-router.put('/:userid/:key/:value', async (req, res) => {
-    const { userid, key, value } = req.params;
+router.post('/:userid/:categorie', async (req, res) => {
+    const { userid, categorie } = req.params;
+    const { keys } = req.body;
 
     try {
-        await prisma.qrf_settings.upsert({
-            where: { key_user_id: { user_id: Number(userid), key } },
-            update: { value },
-            create: { user_id: Number(userid), key, value },
-        });
+        const settingsArray = await Promise.all(
+            keys.map(async key => {
+                if (typeof key === 'object' && key !== null && 'key' in key && 'value' in key) {
+                    return await getOrCreate(key.key, categorie, Number(userid), key.value);
+                } else {
+                    return await getOrCreate(key, categorie, Number(userid));
+                }
+            })
+        );
 
-        res.json({ message: 'Setting updated successfully' });
+        const settings = settingsArray.reduce((acc, s) => {
+            acc[s.settings_key] = { id: Number(s.id), value: s.value };
+            return acc;
+        }, {});
+
+        return res.json(settings);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 });
 
-// DELETE one setting
-router.delete('/:userid/:key', async (req, res) => {
-    const { userid, key } = req.params;
-
+router.put('/:userid/:id', async (req, res) => {
+    const { userid, id } = req.params;
+    const { value } = req.body;
     try {
-        await prisma.qrf_settings.delete({
-            where: { key_user_id: { user_id: Number(userid), key } },
-        });
-
-        res.json({ message: 'Setting deleted successfully' });
+        const settings = await updateSettings(Number(id), value);
+        return res.json(serializeSettings([settings]));
     } catch (error) {
-        if (error.code === 'P2025') {
-            return res.status(404).json({ error: 'Setting not found' });
-        }
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
+    }
+});
+
+router.delete('/:userid/:id', async (req, res) => {
+    const { userid, id } = req.params;
+    try {
+        const settings = await deleteSettings(Number(id));
+        return res.json(serializeSettings([settings]));
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
 });
 

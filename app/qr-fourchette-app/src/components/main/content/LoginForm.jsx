@@ -30,7 +30,6 @@ export default function LoginForm({ onLogin }) {
             }
 
             const data = await response.json();
-            console.log('Login successful:', data);
             onLogin({ token: data.token, user: data.user, expirationDate: data.expirationDate });
         } catch (err) {
             setError(err.message);

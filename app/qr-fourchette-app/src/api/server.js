@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import registerRoutes from './routes/register.js';
+import uploadsRoutes from './routes/uploads.js';
 import loginRoutes from './routes/login.js';
 import refreshTokenRoutes from './routes/refresh-token.js';
 import updateRoutes from './routes/update.js';  
@@ -43,7 +44,8 @@ app.get('/api/test', (req, res) => {
 });
 
 // Routes
-app.use('/api/register', registerRoutes); 
+app.use('/api/register', registerRoutes);
+app.use('/api/uploads', uploadsRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/refresh-token', refreshTokenRoutes);
 app.use('/api/update', updateRoutes);
