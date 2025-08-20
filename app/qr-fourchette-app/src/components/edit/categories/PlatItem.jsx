@@ -159,7 +159,7 @@ export default function PlatItem({ user, name, description, image, prix, traduis
                                     <input type="file" accept="image/*" className="plat-image rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 saveable-input w-full" onChange={(e) => { handleUploadImage(e.target.files[0]) }}/>
                                 </div>
                                 <div className={`relative ${(image && image !== '') ? '' : 'hidden'}`}>
-                                    <img src={image} alt="Aucune image sélectionnée" className="w-full h-auto rounded-xl mt-2" />
+                                    <img src={image === '' ? '/' : image} alt="Aucune image sélectionnée" className="w-full h-auto rounded-xl mt-2" />
                                     <div className="absolute top-0 right-0 p-1">
                                         <button className="bg-red-500 text-white rounded-full p-1" onClick={handleRemoveImage}>
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

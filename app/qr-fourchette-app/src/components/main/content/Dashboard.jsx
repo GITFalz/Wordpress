@@ -50,7 +50,7 @@ export default function Dashboard({ user, onLogout, onMouseClick }) {
                     <h2 className="text-xl font-bold mb-4 text-gray-800">Bonjour, {user.username} 👋</h2>
                     
                     <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="edit-carte" onClick={() => handleSetVisibleList("edit")}>ÉDITER MA CARTE</button>
-                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="voir-carte" onClick={() => handleSetVisibleList("carte")}>VOIR MA CARTE</button>
+                    <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="voir-carte" onClick={() => window.open(`/new-page/?userId=${user.id}`, "_blank")}>VOIR MA CARTE</button>
                     <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="qr-code" onClick={() => handleSetVisibleList("qr-code")}>MON QR CODE</button>
                     <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mes-infos" onClick={() => handleSetVisibleList("infos")}>MES INFOS</button>
                     <button className="text-left px-4 py-2 rounded hover:bg-gray-100 transition text-gray-700 font-medium" id="mon-abonnement" onClick={() => handleSetVisibleList("abonnement")}>MON ABONNEMENT</button>

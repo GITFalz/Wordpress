@@ -76,7 +76,6 @@ model qrf_plats {
   image           String            @db.VarChar(255)
   categorie_id    BigInt
   number          Int
-  labels          Json
   qrf_plat_labels qrf_plat_labels[]
   qrf_categories  qrf_categories    @relation(fields: [categorie_id], references: [id], onDelete: Cascade, map: "qrf_categories_plats_ibfk_1")
 
@@ -128,9 +127,9 @@ model qrf_labels {
 model qrf_plat_labels {
   plat_id    BigInt
   label_id   Int
-  qrf_plats  qrf_plats  @relation(fields: [plat_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qrf_plat_labels_ibfk_1")
-  qrf_labels qrf_labels @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "qrf_plat_labels_ibfk_2")
+  qrf_plats  qrf_plats  @relation(fields: [plat_id], references: [id], onDelete: Cascade, map: "qrf_plat_labels_ibfk_1")
+  qrf_labels qrf_labels @relation(fields: [label_id], references: [id], onDelete: Cascade, map: "qrf_plat_labels_ibfk_2")
 
   @@id([plat_id, label_id])
-  @@index([label_id], map: "label_id")
+  @@index([label_id], map: "qrf_plat_labels_ibfk_2")
 }

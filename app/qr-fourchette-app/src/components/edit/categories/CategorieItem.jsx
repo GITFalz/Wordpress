@@ -111,7 +111,7 @@ export default function CategorieItem({ user, name, description, icon, traduisib
                                 </div>
                                 <img src={iconName ? `https://api.iconify.design/${iconImage}.svg` : ''} alt="Aucune icône" className="categorie-icon-img w-8 h-8" />
                                 <input type="text" name="icon" placeholder="Menu icon" className="categorie-icon rounded-xl p-2 focus:outline-none focus:ring-2 bg-gray-200 h-11 w-full" value={iconName} onChange={(e) => searchAndDisplayIcons(e.target)}/>
-                                {iconSelect ? <IconSelectList icons={icons} setCategorieIcon={setCategorieIcon}/> : ''}
+                                {iconSelect ? <IconSelectList setCategorieIcon={setCategorieIcon} parent={itemRef.current} /> : ''}
                             </div>
                         </div>
                     </div>
