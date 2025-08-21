@@ -1,8 +1,9 @@
-export default function QRCode({ user }) {
+import { QRCodeCanvas } from "qrcode.react";
+
+export default function QRCode({ user, link }) {
     return (
         <div>
-            <h2 className="text-xl font-bold mb-4">Mon QR Code</h2>
-            {/* Contenu du QR Code de l'utilisateur */}
+             <QRCodeCanvas value={link} size={200} />;
         </div>
     );
 }
