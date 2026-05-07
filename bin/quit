@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Export database
-./export
-
-# Stop services
-docker-compose down
